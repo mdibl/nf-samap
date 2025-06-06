@@ -62,7 +62,7 @@ def main() -> None:
     )
     
     sm.run()
-    save_samap(sm, 'example_data/samap_output')
+    save_samap(sm, 'example_data/samap_obj')
 
 
 # --------------------------------------------------
