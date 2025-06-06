@@ -45,6 +45,12 @@ def get_args() -> Args:
 
 
 # --------------------------------------------------
+def load_json(args: Args) -> dict[str: Path]:
+    with open(args.json_path, "r") as f:
+        return json.load(f)
+
+
+# --------------------------------------------------
 def main() -> None:
     """ Run SAMap with command-line input """
     args = get_args()    
@@ -58,20 +64,6 @@ def main() -> None:
     sm.run()
     save_samap(sm, 'example_data/samap_output')
 
-
-# --------------------------------------------------
-# def build_h5ad_dict(args: Args) -> dict:
-#     """ Build a dictionary of h5ad files for SAMAP """
-#     return {
-#         args.species1: str(args.h5ad1),
-#         args.species2: str(args.h5ad2),
-#     }
-
-
-# --------------------------------------------------
-def load_json(args: Args) -> dict[str: Path]:
-    with open(args.json_path, "r") as f:
-        return json.load(f)
 
 # --------------------------------------------------
 if __name__ == '__main__':
