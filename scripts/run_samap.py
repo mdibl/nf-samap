@@ -9,7 +9,7 @@ import argparse
 from pathlib import Path
 from samap.mapping import SAMAP
 from samap.utils import save_samap
-from typing import NamedTuple, TextIO
+from typing import NamedTuple
 
 
 class Args(NamedTuple):
@@ -76,7 +76,6 @@ def main() -> None:
 
     args = get_args()
     
-    
     species1 = args.species1
     h5ad1 = str(args.h5ad1)
     map1to2 = str(args.map1to2)
@@ -87,23 +86,18 @@ def main() -> None:
     
 
     print(f'Running SAMAP for {species1} vs {species2}')
-    print(f'Input files: {h5ad1},              {h5ad2}')
-    print(f'Mapping files: {map1to2},                {map2to1}')
+    print(f'Input files: {h5ad1}, {h5ad2}')
+    print(f'Mapping files: {map1to2}, {map2to1}')
     
     
-    
-    fn1 = h5ad1
-    fn2 = h5ad2
-    fn3 = 'example_data/hydra.h5ad'
-    
-    filenames = {'pl':fn1,'sc':fn2,'hy':fn3}
+    filenames = {'hy':h5ad1,'pl':h5ad2}
     sm = SAMAP(
         filenames,
         f_maps = 'example_data/maps/',
         save_processed=True #if False, do not save the processed results to `*_pr.h5ad`
     )
     
-    sm.run(pairwise=True)
+    sm.run()
     
     
     # keys = {'pl':'cluster','hy':'Cluster','sc':'tissue'}
@@ -113,36 +107,36 @@ def main() -> None:
     
     
     
-# --------------------------------------------------
-def run_samap(species1: str, h5ad1: TextIO, map1to2: TextIO,
-            species2: str, h5ad2: TextIO, map2to1: TextIO) -> None:
-    """ Run SAMAP with the provided arguments """
+# # --------------------------------------------------
+# def run_samap(species1: str, h5ad1: TextIO, map1to2: TextIO,
+#             species2: str, h5ad2: TextIO, map2to1: TextIO) -> None:
+#     """ Run SAMAP with the provided arguments """
     
-    # Pack the input parameters into a dictionary
-    filenames = build_input_dict(species1, h5ad1, species2, h5ad2)
+#     # Pack the input parameters into a dictionary
+#     filenames = build_input_dict(species1, h5ad1, species2, h5ad2)
     
-    # Create the SAMAP object
-    sm = SAMAP(
-        filenames,
-        f_maps='/home/ryan/git/github/ryansonder/my-samap/example_data/maps/hypl'
-    )
+#     # Create the SAMAP object
+#     sm = SAMAP(
+#         filenames,
+#         f_maps='/home/ryan/git/github/ryansonder/my-samap/example_data/maps/hypl'
+#     )
     
-    sm.run(pairwise=True)
-    samap = sm.samap
-    
-    
-    # Run the SAMAP mapping
+#     sm.run(pairwise=True)
+#     samap = sm.samap
     
     
-# --------------------------------------------------
+#     # Run the SAMAP mapping
     
-def build_input_dict(species1: str, h5ad1: TextIO,
-               species2: str, h5ad2: TextIO) -> dict:
-    """ Build a dictionary of input parameters for SAMAP """
-    return {
-        species1: h5ad1,
-        species2: h5ad2,
-    }
+    
+# # --------------------------------------------------
+    
+# def build_input_dict(species1: str, h5ad1: TextIO,
+#                species2: str, h5ad2: TextIO) -> dict:
+#     """ Build a dictionary of input parameters for SAMAP """
+#     return {
+#         species1: h5ad1,
+#         species2: h5ad2,
+#     }
 
 
 # --------------------------------------------------
