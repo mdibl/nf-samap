@@ -7,6 +7,7 @@ Purpose: Run SAMAP with command-line input
 
 import argparse
 import json
+from typing import Dict
 from pathlib import Path
 from samap.mapping import SAMAP
 from samap.utils import save_samap
@@ -45,7 +46,7 @@ def get_args() -> Args:
 
 
 # --------------------------------------------------
-def load_json(args: Args) -> dict[str: Path]:
+def load_json(args: Args) -> Dict[str, Path]:
     with open(args.json_path, "r") as f:
         return json.load(f)
 
