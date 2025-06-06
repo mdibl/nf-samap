@@ -1,6 +1,5 @@
 {
-    "species": {
-        "hydra": "example_data/hydra_pr.h5ad",
-        "planaria": "example_data/planaria_pr.h5ad"
-    }
+    "hy": "example_data/hydra.h5ad",
+    "pl": "example_data/planarian.h5ad",
+    "sc": "example_data/schistosome.h5ad"
 }
