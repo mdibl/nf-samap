@@ -1,0 +1,6 @@
+{
+    "species": {
+        "hydra": "example_data/hydra_pr.h5ad",
+        "planaria": "example_data/planaria_pr.h5ad"
+    }
+}
