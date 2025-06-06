@@ -18,6 +18,8 @@ class Args(NamedTuple):
     h5ad1: Path
     species2: str
     h5ad2: Path
+    map_path: str
+    
 
 
 # --------------------------------------------------
@@ -47,13 +49,21 @@ def get_args() -> Args:
                         metavar='h5ad2',
                         type=Path,
                         help='Second species h5ad file')
+    
+    parser.add_argument('--map-path',
+                        metavar='PATH',
+                        type=str,
+                        default='example_data/maps/',
+                        help='Path to orthology map directory')
+    
 
     args = parser.parse_args()
 
     return Args(args.species1,
                 args.h5ad1,
                 args.species2,
-                args.h5ad2,)
+                args.h5ad2,
+                args.map_path)
 
 
 # --------------------------------------------------
@@ -61,6 +71,8 @@ def main() -> None:
     """ Run SAMap with command-line input """
 
     args = get_args()
+    
+    map_path = args.map_path
 
     # Species 1 
     species1 = args.species1
@@ -77,7 +89,7 @@ def main() -> None:
     
     sm = SAMAP(
         filenames,
-        f_maps = 'example_data/maps/',
+        f_maps = map_path,
         save_processed=True #if False, do not save the processed results to `*_pr.h5ad`
     )
     
