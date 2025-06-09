@@ -1,5 +1,5 @@
 docker:
-	docker build -t ryansonder:latest .
+	docker build -t ryansonder/samap:latest .
 
 clean:
 	rm -rf results/
