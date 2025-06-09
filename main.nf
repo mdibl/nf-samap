@@ -9,9 +9,14 @@ include { visualize_results } from './modules/visualize_results.nf'
 // Define the main workflow
 workflow {
 
+    Channel
+        .fromPath('data')
+        .set { data_dir }
+
+
     RUN_SAMAP(
         file('samap_input.json'),
-        file('./scripts/run_samap.py')
+        data_dir
     )
 
 }
