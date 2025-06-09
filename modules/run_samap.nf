@@ -3,18 +3,16 @@
 process RUN_SAMAP {
     tag "SAMap run"
 
-    container 'avianalter/samap:latest'
+    container 'ryansonder/samap:latest'
 
     input:
-        path json_path
-        path data_dir
+        path config
 
     output:
         path "samap_obj.pkl"
 
-
     script:
     """
-    run_samap.py --json-path ${json_path}
+    run_samap.py --config ${config}
     """
 }
