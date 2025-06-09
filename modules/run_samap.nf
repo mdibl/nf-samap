@@ -1,17 +1,20 @@
-#!/usr/env/bin nextflow
 
-process run_samap {
-    tag "$sample_id"
+
+process RUN_SAMAP {
+    tag "SAMap run"
+
+    container 'avianalter/samap:latest'
 
     input:
-    tuple val(sample_id), path(fasta_file), path(blast_results)
+        path json_path
+        path data_dir
 
     output:
-    path "samap_results/${sample_id}.txt"
+        path "samap_obj.pkl"
+
 
     script:
     """
-    mkdir -p samap_results
-    samap -i ${fasta_file} -b ${blast_results} -o samap_results/${sample_id}.txt
+    run_samap.py --json-path ${json_path}
     """
 }
