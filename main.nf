@@ -2,6 +2,7 @@
 
 // Import the required modules 
 include { RUN_SAMAP } from './modules/run_samap.nf'
+include { VISUALIZE_SAMAP } from './modules/visualize_samap.nf'
 
 // Define the main workflow
 workflow {
@@ -9,9 +10,13 @@ workflow {
     // Stage the data files and config JSON
     data_dir = Channel.fromPath('data')
     config_file = Channel.fromPath('config.json')
-    
+
     RUN_SAMAP(
         config_file,
         data_dir
+    )
+
+    VISUALIZE_SAMAP(
+        // RUN_SAMAP.out
     )
 }
