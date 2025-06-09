@@ -1,3 +1,6 @@
+docker:
+	docker build -t ryansonder:latest .
+
 clean:
 	rm -rf results/
 	rm -rf .vscode/nextflow.config
