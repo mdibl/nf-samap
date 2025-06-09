@@ -1,5 +1,5 @@
 {
-    "hy": "example_data/hydra.h5ad",
-    "pl": "example_data/planarian.h5ad",
-    "sc": "example_data/schistosome.h5ad"
+    "hy": "data/hydra.h5ad",
+    "pl": "data/planarian.h5ad",
+    "sc": "data/schistosome.h5ad"
 }
