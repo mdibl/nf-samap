@@ -6,8 +6,12 @@ include { RUN_SAMAP } from './modules/run_samap.nf'
 // Define the main workflow
 workflow {
 
+    // Stage the data files and config JSON
+    data_dir = Channel.fromPath('data')
+    config_file = Channel.fromPath('config.json')
+    
     RUN_SAMAP(
-        file('config.json')
+        config_file,
+        data_dir
     )
-
 }

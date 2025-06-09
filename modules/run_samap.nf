@@ -1,5 +1,3 @@
-
-
 process RUN_SAMAP {
     tag "SAMap run"
 
@@ -7,6 +5,7 @@ process RUN_SAMAP {
 
     input:
         path config
+        path data_dir
 
     output:
         path "samap_obj.pkl"
