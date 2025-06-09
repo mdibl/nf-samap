@@ -7,7 +7,6 @@ Purpose: Run SAMAP with command-line input
 
 import argparse
 import json
-from typing import Dict
 from pathlib import Path
 from samap.mapping import SAMAP
 from samap.utils import save_samap
@@ -16,8 +15,7 @@ from typing import NamedTuple
 
 class Args(NamedTuple):
     """ Command-line arguments """
-    input: Path
-    data: Path
+    config: Path  # Renamed from 'input' to 'config'
 
 
 # --------------------------------------------------
@@ -28,41 +26,14 @@ def get_args() -> Args:
         description='Run SAMAP with command-line input',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('--input',
+    parser.add_argument('--config',
                         type=Path,
-                        default=Path('inputs.json'),
+                        default=Path('config.json'),
                         help='Path to JSON with species names and h5ad paths')
-
-    parser.add_argument('--data',
-                        type=Path,
-                        default=Path('data/'),
-                        help='Path to data directory containing maps and JSON file')
 
     args = parser.parse_args()
 
-    return Args(args.input,
-                args.data)
-
-
-# --------------------------------------------------
-def load_json(args: Args) -> Dict[str, Path]:
-    """ Verify and load the JSON file with species names and h5ad paths """
-    print(f"Loading JSON file: {args.input}")
-    if not args.input.exists():
-        raise ValueError(f"JSON file '{args.input}' does not exist.")
-    with open(args.input, "r") as f:
-        return json.load(f)
-
-
-# --------------------------------------------------
-def verify_dir(args: Args) -> None:
-    """ Verify that the data directory and maps directory exist """    
-    print(f"Validating data directory: {args.data}")
-    if not args.data.exists():
-        raise ValueError(f"Data directory '{args.data}' does not exist.")
-    print(f"Validating maps directory: {args.data / 'maps'}")
-    if not (args.data / "maps").exists():
-        raise ValueError(f"Maps directory '{args.data / 'maps'}' does not exist.")
+    return Args(args.config)
 
 
 # --------------------------------------------------
@@ -70,18 +41,20 @@ def main() -> None:
     """ Run SAMap with command-line input """
     args = get_args()    
     
-    verify_dir(args) # Ensure the data directory and maps directory exist
-    data_dict = load_json(args) # Load the JSON file with species names and h5ad paths
-    
-    exit(0)  # Exit early if verification fails
+    with open(args.config, "r") as f:
+        config = json.load(f)
+
+    maps_dir = config.get("maps", "data/maps/")
+    data_dict = config.get("species", {})
+
     sm = SAMAP(
-        load_json(args),
-        f_maps = args.map_path,
+        sams=data_dict, 
+        f_maps=maps_dir, 
         save_processed=True #if False, do not save the processed results to `*_pr.h5ad`
     )
     
     sm.run()
-    save_samap(sm, 'example_data/samap_obj')
+    save_samap(sm, 'data/samap_obj')
 
 
 # --------------------------------------------------
