@@ -15,8 +15,7 @@ from typing import NamedTuple
 
 class Args(NamedTuple):
     """ Command-line arguments """
-    config: Path  # Renamed from 'input' to 'config'
-
+    config: Path
 
 # --------------------------------------------------
 def get_args() -> Args:
@@ -50,11 +49,11 @@ def main() -> None:
     sm = SAMAP(
         sams=data_dict, 
         f_maps=maps_dir, 
-        save_processed=True #if False, do not save the processed results to `*_pr.h5ad`
+        save_processed=True # If False, do not save the processed results to `*_pr.h5ad`
     )
     
     sm.run()
-    save_samap(sm, 'data/samap_obj')
+    save_samap(sm, 'samap_obj')
 
 
 # --------------------------------------------------
