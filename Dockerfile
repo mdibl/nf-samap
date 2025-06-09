@@ -1,8 +1,10 @@
 FROM docker.io/avianalter/samap:latest
 
-# Copy your script into the container's bin directory
+# Copy scripts into the container's bin directory
 COPY scripts/run_samap.py /usr/local/bin/run_samap.py
-# Make sure it’s executable (optional)
+COPY scripts/visualize_samap.py /usr/local/bin/visualize_samap.py
+# Make sure it’s executable
 RUN chmod +x /usr/local/bin/run_samap.py
+RUN chmod +x /usr/local/bin/visualize_samap.py
 
 WORKDIR /workspace
