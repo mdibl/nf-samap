@@ -1,4 +1,4 @@
-FROM avianalter/samap:latest
+FROM docker.io/avianalter/samap:latest
 
 # Copy your script into the container's bin directory
 COPY scripts/run_samap.py /usr/local/bin/run_samap.py
