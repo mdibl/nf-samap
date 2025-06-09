@@ -51,7 +51,7 @@ def main() -> None:
         f_maps=maps_dir, 
         save_processed=True # If False, do not save the processed results to `*_pr.h5ad`
     )
-    
+
     sm.run()
     save_samap(sm, 'samap_obj')
 
