@@ -13,3 +13,22 @@ Here is a rough overview:
 
 Assuming success on what was written above, we will likely want to follow up by making SAMap run on the data that Talia is working on, comparative retina samples from zebrafish, mouse, and chicken.
 
+
+TODO
+redesign the python inputs to work with a data/ path assuming the following example tree structure:
+data/
+├── hydra.h5ad
+├── maps
+│   ├── hypl
+│   │   ├── hy_to_pl.txt
+│   │   └── pl_to_hy.txt
+│   ├── hysc
+│   │   ├── hy_to_sc.txt
+│   │   └── sc_to_hy.txt
+│   └── plsc
+│       ├── pl_to_sc.txt
+│       └── sc_to_pl.txt
+├── planarian.h5ad
+└── samap_output.pkl
+
+Samap will run on this data directory and output samap_output.pkl, which is a pickled samap object.
