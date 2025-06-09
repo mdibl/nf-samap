@@ -3,13 +3,13 @@ process VISUALIZE_SAMAP {
 
     container 'ryansonder/samap:latest'
 
-    // input:
-    //     path samap_obj
+    input:
+        path samap_obj
 
     // output:
 
     script:
     """
-    visualize_samap.py
+    visualize_samap.py --help
     """
 }

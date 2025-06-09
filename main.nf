@@ -11,12 +11,12 @@ workflow {
     data_dir = Channel.fromPath('data')
     config_file = Channel.fromPath('config.json')
 
-    RUN_SAMAP(
+    samap_obj = RUN_SAMAP(
         config_file,
         data_dir
     )
 
     VISUALIZE_SAMAP(
-        // RUN_SAMAP.out
+        samap_obj
     )
 }
