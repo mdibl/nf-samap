@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/root/miniconda/bin/python
 """
 Author : Ryan Sonderman
 Date   : 2025-06-06
