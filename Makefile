@@ -1,11 +1,12 @@
 visualize:
-	# make docker
-	# docker run --rm ryansonder/samap:latest visualize_samap.py -i data/samap_obj.pkl
-	python scripts/visualize_samap.py -i data/samap_obj.pkl
+	docker run --rm -it \
+		-v $(PWD):/workspace \
+		-w /workspace \
+		ryansonder/samap:latest \
+		python scripts/visualize_samap.py -i data/samap_obj.pkl
 
 run:
 	make docker
-	make clean
 	nextflow run main.nf --with-docker
 
 docker:
