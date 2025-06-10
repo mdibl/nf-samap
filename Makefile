@@ -1,3 +1,8 @@
+run:
+	make docker
+	make clean
+	nextflow run main.nf --with-docker
+
 docker:
 	docker build -t ryansonder/samap:latest .
 
