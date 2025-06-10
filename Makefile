@@ -1,3 +1,8 @@
+visualize:
+	# make docker
+	# docker run --rm ryansonder/samap:latest visualize_samap.py -i data/samap_obj.pkl
+	python scripts/visualize_samap.py -i data/samap_obj.pkl
+
 run:
 	make docker
 	make clean
