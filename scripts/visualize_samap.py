@@ -45,6 +45,47 @@ def get_args() -> Args:
 
     return Args(args.input, args.output_dir)
 
+# --------------------------------------------------
+def create_output_dir(output_dir: str) -> None:
+    """ Create output directory if it does not exist """
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"Output directory created: {output_dir}")
+    else:
+        print(f"Output directory already exists: {output_dir}")
+
+
+# --------------------------------------------------
+def load_samap_pickle(pickle_file: str) -> SAMAP:
+    """ Load SAMAP object from a pickle file """
+    with open(pickle_file, 'rb') as f:
+        samap_obj = pickle.load(f)
+    print(f"Loaded SAMAP object of type: {type(samap_obj)}")
+    return samap_obj
+
+
+# --------------------------------------------------
+def save_mapping_scores(samap: SAMAP, keys: dict, output_dir: str) -> None:
+    """ Save mapping scores to CSV files """
+    highest_mapping_scores, pairwise_mapping_scores = get_mapping_scores(samap, keys, n_top=0)
+
+    # Save mapping dataframes to CSV
+    hms_outfile = os.path.join(output_dir, "highest_mapping_scores.csv")
+    highest_mapping_scores.to_csv(hms_outfile)
+    print(f"Saved highest mapping scores to: {hms_outfile}")
+    
+    pms_outfile = os.path.join(output_dir, "pairwise_mapping_scores.csv")
+    pairwise_mapping_scores.to_csv(pms_outfile)
+    print(f"Saved pairwise mapping scores to: {pms_outfile}")
+
+
+def save_scatter_plot(samap: SAMAP, output_dir: str) -> None:
+    """ Save scatter plot of SAMAP results """
+    samap.scatter()
+    sc_outfile = os.path.join(output_dir, "samap_scatter.png")
+    plt.savefig(sc_outfile, dpi=300)
+    print(f"Saved scatter plot to {sc_outfile}")
+    plt.close()
 
 # --------------------------------------------------
 def main() -> None:
@@ -52,33 +93,18 @@ def main() -> None:
 
     args = get_args()
 
-    # Ensure output directory exists
-    if args.output_dir:
-        os.makedirs(args.output_dir, exist_ok=True)
-        print(f"Output directory ensured: {args.output_dir}")
+    # Create output directory if it does not exist
+    create_output_dir(args.output_dir)
+    # Load SAMAP object from pickle
+    sm = load_samap_pickle(args.input)
 
-    # Load the pickle file
-    with open(args.input, 'rb') as f:
-        samap_obj = pickle.load(f)
-    print(f"Loaded SAMAP object of type: {type(samap_obj)}")
-
+    # save mapping scores (currently hardcoded keys)
     keys = {'pl':'cluster','hy':'Cluster','sc':'tissue'}
-    highest_mapping_scores, pairwise_mapping_scores = get_mapping_scores(samap_obj, keys, n_top=0)
+    save_mapping_scores(sm, keys, args.output_dir)
 
-    # Save mapping dataframes to CSV
-    hms_outfile = os.path.join(args.output_dir, "highest_mapping_scores.csv")
-    highest_mapping_scores.to_csv(hms_outfile)
-    print(f"Saved highest mapping scores to: {hms_outfile}")
-    pms_outfile = os.path.join(args.output_dir, "pairwise_mapping_scores.csv")
-    pairwise_mapping_scores.to_csv(pms_outfile)
-    print(f"Saved pairwise mapping scores to: {pms_outfile}")
-    
-    # Scatter plot
-    samap_obj.scatter()
-    sc_outfile = os.path.join(args.output_dir, "samap_scatter.png")
-    plt.savefig(sc_outfile, dpi=300)
-    print(f"Saved scatter plot to {sc_outfile}")
-    plt.close()
+    # Save scatter plot
+    save_scatter_plot(sm, args.output_dir)
+
 
 # --------------------------------------------------
 if __name__ == '__main__':
