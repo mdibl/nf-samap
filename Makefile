@@ -1,16 +1,11 @@
-visualize:
-	docker run --rm -it \
-		-v $(PWD):/workspace \
-		-w /workspace \
-		ryansonder/samap:latest \
-		python scripts/visualize_samap.py -i data/samap_obj.pkl
-
 run:
 	make docker
 	nextflow run main.nf --with-docker
 
+
 docker:
 	docker build -t ryansonder/samap:latest .
+
 
 docker-shell:
 	docker run --rm -it \
