@@ -1,23 +1,25 @@
-# my-samap
+# Ryan Sonderman's SAMap Pipeline
 
-## Instructions from Joel:
+## Source
 
-Here is a rough overview:
+This pipeline is based on SAMap, which can be found at https://github.com/atarashansky/SAMap.
 
-    1. Acquire SAMap software.  Run the test examples to make sure we get the expected, check for computational requirements, etc
-    2. Ideally (but probably optional), wrap the workflow that was presented as a jupyter notebook in the github repo into a nextflow workflow instead.  (Riley and Ryan both have experience with this, and are your best resources for how to proceed)
-    3. Run the axolotl mutliome data through the multiome pipeline on 10X resources.  [alternative, or potential additional task: run the same data through the mutliome option of the nf-core/scrnaseq pipeline]
-    4. Run the mouse multiome data through the same pipeline
-    5. Extract only the expression data from the multiome sets and convert them into the hd5 format expected by SAMAP
-    6. Run the SAMap pipeline on the combined mouse and axolotl data- and interpret and visualize the output 
+## Citation
 
-Assuming success on what was written above, we will likely want to follow up by making SAMap run on the data that Talia is working on, comparative retina samples from zebrafish, mouse, and chicken.
+Tarashansky, Alexander J., et al. "Mapping single-cell atlases throughout Metazoa unravels cell type evolution." Elife 10 (2021): e66747.
 
+## About
 
-TODO
-redesign the python inputs to work with a data/ path assuming the following example tree structure:
+This project uses a Nextflow pipeline to run SAMap, using a modified docker image from `docker.io/avianalter/samap`. 
+
+Currently, the pipeline is designed to take a JSON config describing the locations of your input files and orthology maps. The expected directory structure is:
+
+```
 data/
-├── hydra.h5ad
+├── sample1.h5ad
+├── sample2.h5ad
+├── sample3.h5ad
+├── planarian.h5ad
 ├── maps
 │   ├── hypl
 │   │   ├── hy_to_pl.txt
@@ -28,7 +30,67 @@ data/
 │   └── plsc
 │       ├── pl_to_sc.txt
 │       └── sc_to_pl.txt
-├── planarian.h5ad
-└── samap_output.pkl
+```
 
-Samap will run on this data directory and output samap_output.pkl, which is a pickled samap object.
+## Usage
+
+### 1. Build the Docker Image
+
+```bash
+make docker
+```
+
+### 2. Prepare Your Config
+
+Create a `config.json` file describing your species and map locations. Example:
+
+```json
+{
+  "maps": "data/maps/",
+  "species": {
+    "pl": "data/planarian.h5ad",
+    "hy": "data/hydra.h5ad",
+    "sc": "data/schistosome.h5ad"
+  }
+}
+```
+
+### 3. Run the Pipeline
+
+```bash
+make run
+```
+
+This will build the Docker image (if needed) and run the Nextflow pipeline using Docker.
+
+## Development
+
+- To open a shell inside the Docker container with your workspace mounted:
+
+  ```bash
+  make docker-shell
+  ```
+
+- To run the SAMap script directly:
+
+  ```bash
+  make run-samap
+  ```
+
+## Output
+
+The pipeline will generate:
+
+- `samap_obj.pkl`: The main SAMap results object (pickle)
+
+## Notes
+
+- All output files are written with the correct user permissions when using the provided Makefile or Nextflow pipeline.
+- If you modify the scripts, rebuild the Docker image with `make docker`.
+- For custom species or obs keys, provide a JSON mapping as described in the documentation.
+
+## License
+
+See [LICENSE](LICENSE) for details.
+
+---
