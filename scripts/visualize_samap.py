@@ -16,7 +16,7 @@ from samap.analysis import (get_mapping_scores, GenePairFinder,
                             convert_eggnog_to_homologs, GeneTriangles)
 from samalg import SAM
 import pandas as pd
-from holoviews_samap import plot_sankey, plot_chord, plot_cell_type_triangles
+import matplotlib.pyplot as plt
 
 class Args(NamedTuple):
     input: str
@@ -72,7 +72,13 @@ def main() -> None:
     pms_outfile = os.path.join(args.output_dir, "pairwise_mapping_scores.csv")
     pairwise_mapping_scores.to_csv(pms_outfile)
     print(f"Saved pairwise mapping scores to: {pms_outfile}")
-
+    
+    # Scatter plot
+    samap_obj.scatter()
+    sc_outfile = os.path.join(args.output_dir, "samap_scatter.png")
+    plt.savefig(sc_outfile, dpi=300)
+    print(f"Saved scatter plot to {sc_outfile}")
+    plt.close()
 
 # --------------------------------------------------
 if __name__ == '__main__':

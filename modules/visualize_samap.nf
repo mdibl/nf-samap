@@ -10,6 +10,6 @@ process VISUALIZE_SAMAP {
 
     script:
     """
-    visualize_samap.py --help
+    visualize_samap.py --input ${samap_obj}
     """
 }
