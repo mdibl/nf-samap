@@ -11,6 +11,14 @@ run:
 docker:
 	docker build -t ryansonder/samap:latest .
 
+docker-shell:
+	docker run --rm -it \
+		-v $(PWD):/workspace \
+		-w /workspace \
+		--entrypoint /bin/bash \
+		ryansonder/samap:latest
+
+
 clean:
 	rm -rf results/
 	rm -rf .vscode/nextflow.config
