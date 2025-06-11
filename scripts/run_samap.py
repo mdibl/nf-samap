@@ -78,7 +78,7 @@ def main() -> None:
 def save_results(samap: SAMAP, output_dir: Path) -> None:
     """Save SAMAP results to the specified directory"""
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Create a unique filename with timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = output_dir / f"samap_results_{timestamp}.pkl"

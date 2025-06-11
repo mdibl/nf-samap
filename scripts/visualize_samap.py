@@ -45,7 +45,7 @@ def get_args() -> Args:
         default=".",
         help="Optional output directory for visualizations",
     )
-    
+
     parser.add_argument(
         "-k",
         "--keys",
@@ -110,7 +110,9 @@ def save_mapping_scores(samap: SAMAP, keys: dict, output_dir: str, timestamp: st
     print(f"Saved pairwise mapping scores to: {pms_outfile}")
 
     # Save Sankey plot using the new function
-    sankey_html_outfile = save_sankey_plot(pairwise_mapping_scores, output_dir, timestamp)
+    sankey_html_outfile = save_sankey_plot(
+        pairwise_mapping_scores, output_dir, timestamp
+    )
 
     return hms_outfile, pms_outfile, sankey_html_outfile
 
@@ -128,13 +130,15 @@ def save_scatter_plot(samap: SAMAP, output_dir: str, timestamp: str):
 
 
 # --------------------------------------------------
-def save_log(input_file: str, outputs: dict, log_file: str, timestamp: str, keys_json: dict) -> None:
+def save_log(
+    input_file: str, outputs: dict, log_file: str, timestamp: str, keys_json: dict
+) -> None:
     """Save a JSON log with input, keys, outputs, and timestamp in nf module format"""
     log = {
         "input": input_file,
         "keys": keys_json,
         "outputs": outputs,
-        "timestamp": timestamp
+        "timestamp": timestamp,
     }
     with open(log_file, "w") as f:
         json.dump(log, f, indent=2)
@@ -156,11 +160,13 @@ def main() -> None:
 
     # Create a global timestamp for all outputs
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    
+
     outputs = {}
 
     # Save mapping scores and Sankey
-    hms_file, pms_file, sankey_file = save_mapping_scores(sm, keys, args.output_dir, timestamp)
+    hms_file, pms_file, sankey_file = save_mapping_scores(
+        sm, keys, args.output_dir, timestamp
+    )
     outputs["highest_mapping_scores"] = hms_file
     outputs["pairwise_mapping_scores"] = pms_file
     outputs["sankey_html"] = sankey_file
