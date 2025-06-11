@@ -21,10 +21,12 @@ docker-shell:
 
 clean-nextflow:
 	rm -rf work/*
-	rm -f .nextflow*
+	rm -rf .nextflow*
 
 clean-results:
 	rm -rf results/*
 
 clean-docker:
 	docker rmi ryansonder/samap:latest || true
+
+clean-all: clean-nextflow clean-results clean-docker
