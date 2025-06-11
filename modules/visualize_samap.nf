@@ -3,6 +3,7 @@ process VISUALIZE_SAMAP {
     publishDir('results/plots', mode: 'copy', pattern: '*.html')
     publishDir('results/plots', mode: 'copy', pattern: '*.png')
     publishDir('results/csv', mode: 'copy', pattern: '*.csv')
+    publishDir('results/logs', mode: 'copy', pattern: '*.log')
 
     container 'ryansonder/samap:latest'
 
@@ -14,6 +15,7 @@ process VISUALIZE_SAMAP {
         path 'scatter_*.png'
         path 'hms_*.csv'
         path 'pms_*.csv'
+        path 'visualization_*.log'
 
     script:
     """
