@@ -16,20 +16,19 @@ Currently, the pipeline is designed to take a JSON config describing the locatio
 
 ```
 data/
-├── sample1.h5ad
-├── sample2.h5ad
-├── sample3.h5ad
+├── hydro.h5ad
 ├── planarian.h5ad
-├── maps
-│   ├── hypl
-│   │   ├── hy_to_pl.txt
-│   │   └── pl_to_hy.txt
-│   ├── hysc
-│   │   ├── hy_to_sc.txt
-│   │   └── sc_to_hy.txt
-│   └── plsc
-│       ├── pl_to_sc.txt
-│       └── sc_to_pl.txt
+├── schistosome.h5ad
+└── maps
+    ├── hypl
+    │   ├── hy_to_pl.txt
+    │   └── pl_to_hy.txt
+    ├── hysc
+    │   ├── hy_to_sc.txt
+    │   └── sc_to_hy.txt
+    └── plsc
+        ├── pl_to_sc.txt
+        └── sc_to_pl.txt
 ```
 
 ## Usage
@@ -40,9 +39,11 @@ data/
 make docker
 ```
 
+This will update the docker image with any changes to scripts, patches, etc.
+
 ### 2. Prepare Your Config
 
-Create a `config.json` file describing your species and map locations. Example:
+Create a `config.json` file describing your species and map locations. Example that follows the previously mentioned tree:
 
 ```json
 {
@@ -61,7 +62,7 @@ Create a `config.json` file describing your species and map locations. Example:
 make run
 ```
 
-This will build the Docker image (if needed) and run the Nextflow pipeline using Docker.
+This will run the Nextflow pipeline using Docker.
 
 ## Development
 
@@ -71,17 +72,12 @@ This will build the Docker image (if needed) and run the Nextflow pipeline using
   make docker-shell
   ```
 
-- To run the SAMap script directly:
-
-  ```bash
-  make run-samap
-  ```
-
 ## Output
 
 The pipeline will generate:
 
 - `samap_obj.pkl`: The main SAMap results object (pickle)
+- more visualization stuff (to be implemented)
 
 ## Notes
 
