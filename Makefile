@@ -6,6 +6,11 @@ docker:
 	docker build -t ryansonder/samap:latest .
 
 
+rebuild:
+	docker rmi ryansonder/samap:latest || true
+	docker build -t ryansonder/samap:latest .
+
+
 docker-shell:
 	docker run --rm -it \
 		-v $(PWD):/workspace \
@@ -14,11 +19,12 @@ docker-shell:
 		ryansonder/samap:latest
 
 
-clean:
-	rm -f .nextflow.log*
-	rm -f nextflow.log
-	rm -f nextflow.trace
-	rm -rf .vscode/nextflow.config
-	rm -rf .vscode/
-	rm -rf .nextflow/
-	rm -rf work/
+clean-nextflow:
+	rm -rf work/*
+	rm -f .nextflow*
+
+clean-results:
+	rm -rf results/*
+
+clean-docker:
+	docker rmi ryansonder/samap:latest || true
