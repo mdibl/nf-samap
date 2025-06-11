@@ -10,6 +10,7 @@ workflow {
     // Stage the data files and config JSON
     data_dir = Channel.fromPath('data')
     config_file = Channel.fromPath('config.json')
+    keys_json = Channel.fromPath('keys.json')
 
     samap_obj = RUN_SAMAP(
         config_file,
@@ -17,6 +18,7 @@ workflow {
     )
 
     VISUALIZE_SAMAP(
-        samap_obj
+        samap_obj,
+        keys_json
     )
 }

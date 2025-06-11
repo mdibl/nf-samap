@@ -22,6 +22,7 @@ hv.extension("bokeh")
 class Args(NamedTuple):
     input: str
     output_dir: Optional[str]
+    keys: str
 
 
 # --------------------------------------------------
@@ -44,10 +45,18 @@ def get_args() -> Args:
         default=".",
         help="Optional output directory for visualizations",
     )
+    
+    parser.add_argument(
+        "-k",
+        "--keys",
+        metavar="JSON",
+        required=True,
+        help="JSON file with keys for mapping scores (e.g., {'pl': 'cluster', 'hy': 'Cluster', 'sc': 'tissue'})",
+    )
 
     args = parser.parse_args()
 
-    return Args(args.input, args.output_dir)
+    return Args(args.input, args.output_dir, args.keys)
 
 
 # --------------------------------------------------
@@ -119,10 +128,11 @@ def save_scatter_plot(samap: SAMAP, output_dir: str, timestamp: str):
 
 
 # --------------------------------------------------
-def save_log(input_file: str, outputs: dict, log_file: str, timestamp: str) -> None:
-    """Save a JSON log with input, outputs, and timestamp in nf module format"""
+def save_log(input_file: str, outputs: dict, log_file: str, timestamp: str, keys_json: dict) -> None:
+    """Save a JSON log with input, keys, outputs, and timestamp in nf module format"""
     log = {
         "input": input_file,
+        "keys": keys_json,
         "outputs": outputs,
         "timestamp": timestamp
     }
@@ -141,12 +151,11 @@ def main() -> None:
     create_output_dir(args.output_dir)
     # Load SAMAP object from pickle
     sm = load_samap_pickle(args.input)
+    with open(args.keys, "r") as f:
+        keys = json.load(f)
 
     # Create a global timestamp for all outputs
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    # save mapping scores (currently hardcoded keys)
-    keys = {"pl": "cluster", "hy": "Cluster", "sc": "tissue"}
     
     outputs = {}
 
@@ -160,9 +169,9 @@ def main() -> None:
     scatter_file = save_scatter_plot(sm, args.output_dir, timestamp)
     outputs["scatter_plot"] = scatter_file
 
-    # Save log 
+    # Save log, now including keys json
     log_file = os.path.join(args.output_dir, f"visualization_{timestamp}.log")
-    save_log(args.input, outputs, log_file, timestamp)
+    save_log(args.input, outputs, log_file, timestamp, keys)
 
 
 # --------------------------------------------------

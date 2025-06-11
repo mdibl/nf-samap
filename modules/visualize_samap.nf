@@ -9,6 +9,7 @@ process VISUALIZE_SAMAP {
 
     input:
         path samap_obj
+        path keys_json
 
     output:
         path 'sankey_*.html'
@@ -19,6 +20,6 @@ process VISUALIZE_SAMAP {
 
     script:
     """
-    visualize_samap.py --input ${samap_obj}
+    visualize_samap.py --input ${samap_obj} --keys ${keys_json}
     """
 }
