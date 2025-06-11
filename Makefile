@@ -12,12 +12,19 @@ rebuild:
 	docker build -t ryansonder/samap:latest .
 
 
-docker-shell:
+docker-shell-samap:
 	docker run --rm -it \
 		-v $(PWD):/workspace \
 		-w /workspace \
 		--entrypoint /bin/bash \
 		ryansonder/samap:latest
+
+docker-shell-blast:
+	docker run --rm -it \
+		-v $(PWD):/workspace \
+		-w /workspace \
+		--entrypoint /bin/bash \
+		ryansonder/samap-blast:latest
 
 
 clean-nextflow:
