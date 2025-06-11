@@ -7,6 +7,7 @@ Purpose: Run SAMAP with command-line input
 
 import argparse
 import json
+import datetime
 from pathlib import Path
 from samap.mapping import SAMAP
 from samap.utils import save_samap
@@ -17,6 +18,7 @@ class Args(NamedTuple):
     """Command-line arguments"""
 
     config: Path
+    output_dir: Path
 
 
 # --------------------------------------------------
@@ -29,15 +31,25 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
+        "-c",
         "--config",
         type=Path,
         default=Path("config.json"),
         help="Path to JSON with species names and h5ad paths",
     )
 
+    parser.add_argument(
+        "-o",
+        "--output",
+        dest="output_dir",
+        type=Path,
+        default=Path("results/samap_objects"),
+        help="Directory to save the SAMAP pickle output",
+    )
+
     args = parser.parse_args()
 
-    return Args(args.config)
+    return Args(args.config, args.output_dir)
 
 
 # --------------------------------------------------
@@ -54,11 +66,24 @@ def main() -> None:
     sm = SAMAP(
         sams=data_dict,
         f_maps=maps_dir,
-        save_processed=True,  # If False, do not save the processed results to `*_pr.h5ad`
+        save_processed=False,  # If False, do not save the processed results to `*_pr.h5ad`
     )
 
     sm.run()
-    save_samap(sm, "samap_obj")
+
+    save_results(sm, args.output_dir)
+
+
+# --------------------------------------------------
+def save_results(samap: SAMAP, output_dir: Path) -> None:
+    """Save SAMAP results to the specified directory"""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Create a unique filename with timestamp
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_file = output_dir / f"samap_results_{timestamp}.pkl"
+    save_samap(samap, str(output_file))
+    print(f"SAMAP results saved to {output_file}")
 
 
 # --------------------------------------------------

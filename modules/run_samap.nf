@@ -1,5 +1,6 @@
 process RUN_SAMAP {
     tag "SAMap run"
+    publishDir "results/samap_objects", mode: 'copy'
 
     container 'ryansonder/samap:latest'
 
@@ -8,7 +9,7 @@ process RUN_SAMAP {
         path data_dir
 
     output:
-        path "samap_obj.pkl"
+        path "results/samap_objects/*.pkl"
 
     script:
     """
