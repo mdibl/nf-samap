@@ -8,6 +8,7 @@ Purpose: Visualize SAMAP results from pickle
 import argparse
 import os
 import pickle
+import datetime
 from typing import NamedTuple, Optional
 from samap.mapping import SAMAP
 from samap.analysis import get_mapping_scores, sankey_plot
@@ -39,7 +40,7 @@ def get_args() -> Args:
         "-o",
         "--output-dir",
         metavar="DIR",
-        default="output/",
+        default=".",
         help="Optional output directory for visualizations",
     )
 
@@ -74,12 +75,15 @@ def save_mapping_scores(samap: SAMAP, keys: dict, output_dir: str) -> None:
         samap, keys, n_top=0
     )
 
+    # Create a timestamp for unique filenames
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
     # Save mapping dataframes to CSV
-    hms_outfile = os.path.join(output_dir, "highest_mapping_scores.csv")
+    hms_outfile = os.path.join(output_dir, f"hms_{timestamp}.csv")
     highest_mapping_scores.to_csv(hms_outfile)
     print(f"Saved highest mapping scores to: {hms_outfile}")
 
-    pms_outfile = os.path.join(output_dir, "pairwise_mapping_scores.csv")
+    pms_outfile = os.path.join(output_dir, f"pms_{timestamp}.csv")
     pairwise_mapping_scores.to_csv(pms_outfile)
     print(f"Saved pairwise mapping scores to: {pms_outfile}")
 
@@ -87,7 +91,7 @@ def save_mapping_scores(samap: SAMAP, keys: dict, output_dir: str) -> None:
     sankey_obj = sankey_plot(
         pairwise_mapping_scores, align_thr=0.05, species_order=["pl", "hy", "sc"]
     )
-    sankey_html_outfile = os.path.join(output_dir, "sankey.html")
+    sankey_html_outfile = os.path.join(output_dir, f"sankey_{timestamp}.html")
     try:
         hv.save(sankey_obj, sankey_html_outfile, backend="bokeh")
         print(f"Saved Sankey plot as interactive HTML to: {sankey_html_outfile}")
@@ -98,8 +102,9 @@ def save_mapping_scores(samap: SAMAP, keys: dict, output_dir: str) -> None:
 # --------------------------------------------------
 def save_scatter_plot(samap: SAMAP, output_dir: str) -> None:
     """Save scatter plot of SAMAP results"""
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     samap.scatter()
-    sc_outfile = os.path.join(output_dir, "samap_scatter.png")
+    sc_outfile = os.path.join(output_dir, f"scatter_{timestamp}.png")
     plt.savefig(sc_outfile, dpi=300)
     print(f"Saved scatter plot to {sc_outfile}")
     plt.close()
