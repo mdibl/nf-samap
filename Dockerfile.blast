@@ -1,4 +1,4 @@
-FROM docker.io/staphp/blast:latest
+FROM docker.io/staphb/blast:latest
 
 # Copy scripts into the container's bin directory
 COPY scripts/update_sample_sheet.sh /usr/local/bin/update_sample_sheet.sh
