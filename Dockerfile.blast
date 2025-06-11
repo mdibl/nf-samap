@@ -1,0 +1,8 @@
+FROM docker.io/staphp/blast:latest
+
+# Copy scripts into the container's bin directory
+COPY scripts/update_sample_sheet.sh /usr/local/bin/update_sample_sheet.sh
+# Make sure it’s executable
+RUN chmod +x /usr/local/bin/update_sample_sheet.sh
+
+WORKDIR /workspace
