@@ -9,7 +9,7 @@ process RUN_SAMAP {
         path data_dir
 
     output:
-        path "results/samap_objects/*.pkl"
+        path "*.pkl"
 
     script:
     """

@@ -43,7 +43,7 @@ def get_args() -> Args:
         "--output",
         dest="output_dir",
         type=Path,
-        default=Path("results/samap_objects"),
+        default=Path("."),
         help="Directory to save the SAMAP pickle output",
     )
 
