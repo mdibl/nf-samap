@@ -3,7 +3,8 @@ run:
 
 
 docker:
-	docker build -t ryansonder/samap:latest .
+	docker build -f Dockerfile.samap -t ryansonder/samap:latest .
+	docker build -f Dockerfile.blast -t ryansonder/samap-blast:latest .
 
 
 rebuild:
