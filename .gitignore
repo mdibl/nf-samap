@@ -1,5 +1,5 @@
 .nextflow*
 work/
 data/
-output/
+results/
 *.pkl
