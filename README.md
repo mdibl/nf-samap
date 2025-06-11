@@ -90,3 +90,19 @@ The pipeline will generate:
 See [LICENSE](LICENSE) for details.
 
 ---
+
+
+## TODO
+
+- [ ] **Helper Scripts**
+    - Bash script to build the keys JSON for the Python visualization script
+    - Add support for SAM format I/O (SAM → JSON → SAMap)
+
+- [ ] **Visualization Improvements**
+    - Sort the Sankey diagram for better interpretability
+    - Add a legend for input organisms in the Sankey and scatter plots
+    - Improve coloring in scatter plots for distinct organism/group visualization
+
+- [ ] **Reproducibility & Reporting**
+    - Add version reporting for SAMap in logs and outputs
+    - Ensure Docker image versioning is clear and consistent (`ryansonder/samap:v1.0.0`)
