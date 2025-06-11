@@ -1,5 +1,4 @@
 run:
-	make docker
 	nextflow run main.nf --with-docker
 
 
