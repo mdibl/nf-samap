@@ -12,9 +12,12 @@ workflow {
     data_dir = Channel.fromPath('data')
     config_file = Channel.fromPath('config.json')
     keys_json = Channel.fromPath('keys.json')
+    sample_sheet = Channel.fromPath('sample_sheet.csv')
 
     // Blast the data files
-    RUN_BLAST()
+    RUN_BLAST(
+        sample_sheet
+    )
 
     // Testing Exit
     exit 0

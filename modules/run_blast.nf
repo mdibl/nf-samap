@@ -4,6 +4,9 @@ process RUN_BLAST {
 
     container 'staphb/blast:latest'
 
+    input:
+        path sample_sheet
+
     script:
     """
     @echo "Running BLAST with the provided input files..."
