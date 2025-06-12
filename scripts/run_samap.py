@@ -8,6 +8,7 @@ Purpose: Run SAMAP with command-line input
 import argparse
 import json
 import datetime
+import csv
 from pathlib import Path
 from samap.mapping import SAMAP
 from samap.utils import save_samap
@@ -17,7 +18,8 @@ from typing import NamedTuple
 class Args(NamedTuple):
     """Command-line arguments"""
 
-    config: Path
+    sample_sheet: Path
+    maps: Path
     output_dir: Path
 
 
@@ -31,11 +33,20 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
-        "-c",
-        "--config",
+        "-s",
+        "--sample-sheet",
+        dest="sample_sheet",
         type=Path,
-        default=Path("config.json"),
-        help="Path to JSON with species names and h5ad paths",
+        required=True,
+        help="Path to the sample sheet CSV file",
+    )
+
+    parser.add_argument(
+        "-m",
+        "--maps",
+        type=Path,
+        default=Path("data/maps/"),
+        help="Path to the maps directory",
     )
 
     parser.add_argument(
@@ -49,7 +60,19 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
-    return Args(args.config, args.output_dir)
+    return Args(args.sample_sheet, args.maps, args.output_dir)
+
+
+# --------------------------------------------------
+def load_species_dict(sample_sheet_path: Path) -> dict:
+    """Load species dictionary from sample sheet CSV, sorted by key"""
+    species = {}
+    with open(sample_sheet_path, newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            species[row["id2"]] = row["h5ad"]
+    # Sort the dictionary by key (id2)
+    return dict(sorted(species.items()))
 
 
 # --------------------------------------------------
@@ -57,16 +80,14 @@ def main() -> None:
     """Run SAMap with command-line input"""
     args = get_args()
 
-    with open(args.config, "r") as f:
-        config = json.load(f)
-
-    maps_dir = config.get("maps", "data/maps/")
-    data_dict = config.get("species", {})
+    species_dict = load_species_dict(args.sample_sheet)
+    print(species_dict)
+    print(args.maps)
 
     sm = SAMAP(
-        sams=data_dict,
-        f_maps=maps_dir,
-        save_processed=False,  # If False, do not save the processed results to `*_pr.h5ad`
+        sams=species_dict,
+        f_maps=str(args.maps),
+        save_processed=False,
     )
 
     sm.run()

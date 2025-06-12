@@ -5,14 +5,15 @@ process RUN_SAMAP {
     container 'ryansonder/samap:latest'
 
     input:
-        path config
+        path results_dir
         path data_dir
+        path sample_sheet
 
     output:
         path "*.pkl"
 
     script:
     """
-    run_samap.py --config ${config}
+    run_samap.py --sample-sheet ${sample_sheet} --maps ${results_dir}/maps
     """
 }
