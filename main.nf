@@ -12,10 +12,6 @@ workflow {
     // Stage the data files and config JSON
     data_dir    = Channel.fromPath('data')
     results_dir = Channel.fromPath('results')
-    maps_dir    = Channel.fromPath('results/maps')
-    keys_json   = Channel.fromPath('keys.json')
-    config_file = Channel.fromPath('config.json')
-    fasta_files = Channel.fromPath('data/transcriptomes/*.fasta')
 
     /*
     Preprocess the sample sheet by 
