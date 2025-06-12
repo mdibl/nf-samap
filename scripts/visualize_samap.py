@@ -10,7 +10,9 @@ import os
 import pickle
 import datetime
 import json
+import csv
 from typing import NamedTuple, Optional
+from pathlib import Path
 from samap.mapping import SAMAP
 from samap.analysis import get_mapping_scores, sankey_plot
 import matplotlib.pyplot as plt
@@ -22,7 +24,7 @@ hv.extension("bokeh")
 class Args(NamedTuple):
     input: str
     output_dir: Optional[str]
-    keys: str
+    sample_sheet: Path
 
 
 # --------------------------------------------------
@@ -47,16 +49,15 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
-        "-k",
-        "--keys",
-        metavar="JSON",
+        "--sample-sheet",
+        type=Path,
         required=True,
-        help="JSON file with keys for mapping scores (e.g., {'pl': 'cluster', 'hy': 'Cluster', 'sc': 'tissue'})",
+        help="Path to the sample sheet CSV",
     )
 
     args = parser.parse_args()
 
-    return Args(args.input, args.output_dir, args.keys)
+    return Args(args.input, args.output_dir, args.sample_sheet)
 
 
 # --------------------------------------------------
@@ -146,6 +147,17 @@ def save_log(
 
 
 # --------------------------------------------------
+def load_keys_from_sample_sheet(sample_sheet_path: Path) -> dict:
+    """Load keys dictionary from sample sheet CSV: {id2: annotation}"""
+    keys = {}
+    with open(sample_sheet_path, newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            keys[row["id2"]] = row["annotation"]
+    return keys
+
+
+# --------------------------------------------------
 def main() -> None:
     """Visualize SAMAP results from pickle"""
 
@@ -155,8 +167,10 @@ def main() -> None:
     create_output_dir(args.output_dir)
     # Load SAMAP object from pickle
     sm = load_samap_pickle(args.input)
-    with open(args.keys, "r") as f:
-        keys = json.load(f)
+
+    # Load keys from sample sheet
+    keys = load_keys_from_sample_sheet(args.sample_sheet)
+    print(keys)  # or use as needed in your visualization logic
 
     # Create a global timestamp for all outputs
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
