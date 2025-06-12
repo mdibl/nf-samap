@@ -1,14 +1,21 @@
-
 process RUN_BLAST {
     tag "BLAST run"
 
-    container 'staphb/blast:latest'
+    publishDir('results', mode: 'copy', pattern: '*.csv')
+
+    container 'ryansonder/samap-blast:latest'
 
     input:
         path sample_sheet
+        path data_dir
+
+
+    output:       
+        path 'sample_sheet_*.csv'
 
     script:
     """
-    @echo "Running BLAST with the provided input files..."
+    update_sample_sheet.sh ${sample_sheet}
+
     """
 }
