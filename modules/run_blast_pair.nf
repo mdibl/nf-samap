@@ -14,11 +14,6 @@ process RUN_BLAST_PAIR {
 
     script:
     """
-    head -n 10 ${a.fasta} > a_trunc.fasta
-    head -n 10 ${b.fasta} > b_trunc.fasta
-    tr1=a_trunc.fasta
-    tr2=b_trunc.fasta
-
     echo Running BLAST for ${a.id2} vs ${b.id2}
     map_genes.sh \\
         --tr1 \$tr1 --t1 ${a.type} --n1 ${a.id2} \\
