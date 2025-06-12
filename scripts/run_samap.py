@@ -6,7 +6,6 @@ Purpose: Run SAMAP with command-line input
 """
 
 import argparse
-import json
 import datetime
 import csv
 from pathlib import Path
