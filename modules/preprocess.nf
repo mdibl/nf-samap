@@ -7,7 +7,7 @@ process PREPROCESS {
 
     input:
         path sample_sheet
-        path data_dir
+        path data_dir // Necessary for the script to classify the fasta types
 
     output:       
         path 'sample_sheet_*.csv'
