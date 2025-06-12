@@ -16,7 +16,7 @@ process RUN_BLAST_PAIR {
     """
     echo Running BLAST for ${a.id2} vs ${b.id2}
     map_genes.sh \\
-        --tr1 \$tr1 --t1 ${a.type} --n1 ${a.id2} \\
-        --tr2 \$tr2 --t2 ${b.type} --n2 ${b.id2}
+        --tr1 ${a.fasta} --t1 ${a.type} --n1 ${a.id2} \\
+        --tr2 ${b.fasta} --t2 ${b.type} --n2 ${b.id2}
     """
 }
