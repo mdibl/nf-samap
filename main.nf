@@ -4,6 +4,7 @@
 include { PREPROCESS } from './modules/preprocess.nf'
 include { RUN_BLAST_PAIR } from './modules/run_blast_pair.nf'
 include { LOAD_SAMS } from './modules/load_sams.nf'
+include { BUILD_SAMAP } from './modules/build_samap.nf'
 include { RUN_SAMAP } from './modules/run_samap.nf'
 include { VISUALIZE_SAMAP } from './modules/visualize_samap.nf'
 
@@ -13,7 +14,7 @@ workflow {
     // Stage the data files and config JSON
     data_dir    = Channel.fromPath('data')
     results_dir = Channel.fromPath('results')
-    precomputed_dir = Channel.fromPath('precomputed')
+    sams_dir = Channel.fromPath('result/sams')
 
     /*
     Preprocess the sample sheet by 
@@ -55,13 +56,13 @@ workflow {
     where <sample1_id> and <sample2_id> are the unique 2 character IDs of the samples.
     */
     if (params.use_precomputed_blast) {
-        samap_map_parent = precomputed_dir
+        maps_dir = data_dir.map { it -> it.resolve('maps/') }
         } else {
         RUN_BLAST_PAIR(
             pairs_channel,
             data_dir.first()
         )
-        samap_map_parent = results_dir
+        maps_dir = results_dir.map { it -> it.resolve('maps/') }
     }
 
     /*
@@ -74,4 +75,18 @@ workflow {
         data_dir,
         sample_sheet_pr
     )
+
+    /* 
+    Build the SAMap object from the SAM objects and the BLAST mappings.
+
+    Output is a SAMap object stored in the `results/samap` directory.
+    */
+    BUILD_SAMAP(
+        data_dir,
+        sams,
+        maps_dir,
+        results_dir,
+        sample_sheet_pr
+    )
+
 }
