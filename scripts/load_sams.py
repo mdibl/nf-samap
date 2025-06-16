@@ -79,7 +79,7 @@ def pickle_sams(sams: dict, output_dir: Path) -> None:
     """Pickle each SAM object to a file named <id2>.pkl in the output directory."""
     output_dir.mkdir(parents=True, exist_ok=True)
     for id2, sam in sams.items():
-        out_path = output_dir / f"{id2}.pkl"
+        out_path = output_dir / f"{id2}_sam.pkl"
         with open(out_path, "wb") as f:
             pickle.dump(sam, f)
         print(f"Pickled {id2} to {out_path}")
