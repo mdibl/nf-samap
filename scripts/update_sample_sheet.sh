@@ -52,14 +52,16 @@ tail -n +2 "$input_csv" | while IFS=, read -r id h5ad fasta annotation; do
     # Generate a reproducible key by hashing a combination of id and fasta
     hash=$(echo -n "${id}${fasta}" | sha256sum | awk '{print $1}' | tr '[:upper:]' '[:lower:]')
 
-    # Take the first two characters of the hash, ensuring they are valid alphabetic characters
-    key=$(echo "$hash" | cut -c1-"$desired_length")
+    # Take the first two characters of the hash, ensuring they are valid lowercase alphabetic characters
+    key=$(echo "$hash" | tr -cd 'a-z' | cut -c1-"$desired_length")
 
     # Ensure unique key generation with max 100 attempts
     attempt=0
     max_attempts=100
-    while [[ -n "${seen_keys[$key]}" ]]; do
-        key=$(echo "$key" | tr 'a-z' 'b-za')  # Modify the key if it exists (shifting characters)
+    while [[ -n "${seen_keys[$key]}" || ${#key} -lt $desired_length ]]; do
+        # If key is not long enough or already seen, shift and regenerate
+        hash=$(echo "$hash" | tr 'a-z' 'b-za')
+        key=$(echo "$hash" | tr -cd 'a-z' | cut -c1-"$desired_length")
         attempt=$((attempt + 1))
         if [[ $attempt -ge $max_attempts ]]; then
             echo "Exceeded attempts to generate unique id2 for ${id} (${fasta})" >&2
