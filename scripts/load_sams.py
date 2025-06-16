@@ -52,18 +52,25 @@ def main() -> None:
 
     # Get command-line arguments
     args = get_args()
-    print(f'Loaded sample_sheet: "{args.sample_sheet}"')
+    print(f'[INFO] Loaded sample_sheet: "{args.sample_sheet}"')
     
     # Load the h5ad files as a dict from the sample sheet
     h5ad_dict = get_h5ad_dict(args.sample_sheet)
-    print(f'Loaded h5ad dict: {h5ad_dict}')
+    print(f'[INFO] Loaded h5ad dict with {len(h5ad_dict)} entries:')
+    for id2, h5ad in h5ad_dict.items():
+        print(f'  [ID2] {id2}: {h5ad}')
     
     # Load SAM objects from the h5ad dict
+    print('[INFO] Loading SAM objects...')
     sams = load_sams(h5ad_dict)
-    print(f'Loaded {len(sams)} SAM objects')
+    print(f'[INFO] Loaded {len(sams)} SAM objects:')
+    for id2 in sams:
+        print(f'  [SAM] {id2}: {type(sams[id2]).__name__}')
     
     # Pickle SAM objects to files
+    print(f'[INFO] Pickling SAM objects to directory: {Path(".").resolve()}')
     pickle_sams(sams, Path("."))
+    print('[INFO] All SAM objects pickled successfully.')
 
 # --------------------------------------------------
 def load_sams(h5ad_dict: dict) -> dict:
