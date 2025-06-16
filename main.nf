@@ -3,6 +3,7 @@
 // Import the required modules 
 include { PREPROCESS } from './modules/preprocess.nf'
 include { RUN_BLAST_PAIR } from './modules/run_blast_pair.nf'
+include { LOAD_SAMS } from './modules/load_sams.nf'
 include { RUN_SAMAP } from './modules/run_samap.nf'
 include { VISUALIZE_SAMAP } from './modules/visualize_samap.nf'
 
@@ -12,6 +13,7 @@ workflow {
     // Stage the data files and config JSON
     data_dir    = Channel.fromPath('data')
     results_dir = Channel.fromPath('results')
+    precomputed_dir = Channel.fromPath('precomputed')
 
     /*
     Preprocess the sample sheet by 
@@ -43,35 +45,33 @@ workflow {
         .combine(samples_channel)
         .filter { a, b -> a.id2 < b.id2 }
 
+    
     /*
     Use the script provided from SAMap to run BLAST on the pairs of samples.
-
+    
     Output is a blast mapping for each pair of samples.
     Mappings are stored in the `results/maps` directory with the format:
     maps/<sample1_id><sample2_id/<sample2_id>_to_<sample1_id>.txt
     where <sample1_id> and <sample2_id> are the unique 2 character IDs of the samples.
     */
-    RUN_BLAST_PAIR(
-        pairs_channel,
-        data_dir.first()
-    )
+    if (params.use_precomputed_blast) {
+        samap_map_parent = precomputed_dir
+        } else {
+        RUN_BLAST_PAIR(
+            pairs_channel,
+            data_dir.first()
+        )
+        samap_map_parent = results_dir
+    }
 
     /*
-    Run SAMap on the BLAST mappings generated in the previous step.
-    Output is a pickled SAMap object.
+    Load the SAM objects from the h5ad files.
+
+    Output is a channel of SAM objects.
+    Each SAM object is a pickled file stored in the `results/sams` directory.
     */
-    samap = RUN_SAMAP(
-        results_dir,
+    sams = LOAD_SAMS(
         data_dir,
-        sample_sheet_pr
-    )
-
-    /*
-    Visualize the SAMap results by generating some stuff
-    Output is a directory with the visualizations.
-    */
-    VISUALIZE_SAMAP(
-        samap,
         sample_sheet_pr
     )
 }
