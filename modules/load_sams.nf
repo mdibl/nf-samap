@@ -20,7 +20,7 @@ process LOAD_SAMS {
 
     publishDir "results/${run_id}/sams/", mode: 'copy'
 
-    container 'ryansonder/samap:latest'
+    container 'pipeline/samap:latest'
 
     input:
         val run_id

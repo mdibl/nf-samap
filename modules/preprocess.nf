@@ -21,7 +21,7 @@ process PREPROCESS {
 
     publishDir("results/${run_id}/", mode: 'copy', pattern: '*.csv')
 
-    container 'ryansonder/samap-blast:latest'
+    container 'pipeline/samap-blast:latest'
 
     input:
         val run_id

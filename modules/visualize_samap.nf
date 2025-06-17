@@ -27,7 +27,7 @@ process VISUALIZE_SAMAP {
     publishDir("results/${run_id}/csv/", mode: 'copy', pattern: '*.csv')
     publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
 
-    container 'ryansonder/samap:latest'
+    container 'pipeline/samap:latest'
 
     input:
         val run_id

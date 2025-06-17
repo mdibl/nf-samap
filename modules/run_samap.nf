@@ -19,7 +19,7 @@ process RUN_SAMAP {
 
     publishDir "results/${run_id}/samap_objects/", mode: 'copy'
 
-    container 'ryansonder/samap:latest'
+    container 'pipeline/samap:latest'
 
     input:
         val run_id

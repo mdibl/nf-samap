@@ -22,7 +22,7 @@ process RUN_BLAST_PAIR {
 
     publishDir("results/${run_id}/", mode: 'copy')
 
-    container 'ryansonder/samap-blast:latest'
+    container 'pipeline/samap-blast:latest'
 
     input:
         val run_id
