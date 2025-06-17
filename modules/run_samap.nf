@@ -5,15 +5,14 @@ process RUN_SAMAP {
     container 'ryansonder/samap:latest'
 
     input:
-        path results_dir
-        path data_dir
-        path sample_sheet
+        path results_dir // Directory to store the results
+        path samap_object // SAMap object to be used in the run
 
     output:
-        path "*.pkl"
+        path "samap_results.pkl"
 
     script:
     """
-    run_samap.py --sample-sheet ${sample_sheet} --maps ${results_dir}/maps
+    run_samap.py -i ${samap_object}
     """
 }
