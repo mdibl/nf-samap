@@ -9,7 +9,7 @@ Purpose: Run SAMAP post-processing with a pickled SAMAP object
 import argparse
 import pickle
 from pathlib import Path
-from samap.mapping import SAMAP
+from samap.mapping import SAMAP  # noqa: F401
 from samap.utils import save_samap
 
 
