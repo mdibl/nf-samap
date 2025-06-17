@@ -17,7 +17,7 @@ import pickle
 class Args(NamedTuple):
     """Command-line arguments for the script"""
 
-    sample_sheet: Path
+    sample_sheet: Path  # Path to the sample sheet CSV file
 
 
 # --------------------------------------------------
