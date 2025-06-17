@@ -1,6 +1,8 @@
 run:
 	nextflow run main.nf --with-docker
 
+run-noblast:
+	nextflow run main.nf --use_precomputed_blast --with-docker
 
 docker:
 	docker build -f Dockerfile.samap -t ryansonder/samap:latest .
