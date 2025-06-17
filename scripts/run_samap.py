@@ -2,52 +2,31 @@
 """
 Author : Ryan Sonderman
 Date   : 2025-06-06
-Purpose: Run SAMAP with command-line input
+Purpose: Run SAMAP post-processing with a pickled SAMAP object
 """
 
 import argparse
-import datetime
-import csv
+import pickle
 from pathlib import Path
 from samap.mapping import SAMAP
 from samap.utils import save_samap
-from typing import NamedTuple
-
-
-class Args(NamedTuple):
-    """Command-line arguments"""
-
-    sample_sheet: Path
-    maps: Path
-    output_dir: Path
 
 
 # --------------------------------------------------
-def get_args() -> Args:
+def get_args():
     """Get command-line arguments"""
 
     parser = argparse.ArgumentParser(
-        description="Run SAMAP with command-line input",
+        description="Run SAMAP post-processing with a pickled SAMAP object",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-
     parser.add_argument(
-        "-s",
-        "--sample-sheet",
-        dest="sample_sheet",
+        "-i",
+        "--input",
         type=Path,
         required=True,
-        help="Path to the sample sheet CSV file",
+        help="Path to the pickled SAMAP object (.pkl)",
     )
-
-    parser.add_argument(
-        "-m",
-        "--maps",
-        type=Path,
-        default=Path("data/maps/"),
-        help="Path to the maps directory",
-    )
-
     parser.add_argument(
         "-o",
         "--output",
@@ -56,54 +35,24 @@ def get_args() -> Args:
         default=Path("."),
         help="Directory to save the SAMAP pickle output",
     )
-
-    args = parser.parse_args()
-
-    return Args(args.sample_sheet, args.maps, args.output_dir)
+    return parser.parse_args()
 
 
 # --------------------------------------------------
-def load_species_dict(sample_sheet_path: Path) -> dict:
-    """Load species dictionary from sample sheet CSV, sorted by key"""
-    species = {}
-    with open(sample_sheet_path, newline="") as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            species[row["id2"]] = row["h5ad"]
-    # Sort the dictionary by key (id2)
-    return dict(sorted(species.items()))
-
-
-# --------------------------------------------------
-def main() -> None:
+def main():
     """Run SAMap with command-line input"""
     args = get_args()
+    print(f"[INFO] Loading SAMAP object from: {args.input}")
+    with open(args.input, "rb") as f:
+        samap = pickle.load(f)
 
-    species_dict = load_species_dict(args.sample_sheet)
-    print(species_dict)
-    print(args.maps)
+    print("[INFO] Running SAMAP...")
+    samap.run()
 
-    sm = SAMAP(
-        sams=species_dict,
-        f_maps=str(args.maps),
-        save_processed=False,
-    )
-
-    sm.run()
-
-    save_results(sm, args.output_dir)
-
-
-# --------------------------------------------------
-def save_results(samap: SAMAP, output_dir: Path) -> None:
-    """Save SAMAP results to the specified directory"""
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Create a unique filename with timestamp
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = output_dir / f"samap_results_{timestamp}.pkl"
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = args.output_dir / "samap_results.pkl"
     save_samap(samap, str(output_file))
-    print(f"SAMAP results saved to {output_file}")
+    print(f"[INFO] SAMAP results saved to {output_file}")
 
 
 # --------------------------------------------------
