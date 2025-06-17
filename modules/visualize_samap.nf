@@ -1,22 +1,45 @@
+/*
+ *  MODULE: visualize_samap.nf
+ *
+ *  Description: 
+ *      Produces several visualizations from analysis.py from 
+ *      https://github.com/atarashansky/SAMap
+ *
+ *  Inputs:
+ *      run_id:         Timestamp of the nextflow process
+ *      samap_object:   Channel containing a pickled SAMAP object
+ *      sample_sheet:   Path to the sample sheet CSV with sample metadata
+ *
+ *  Outputs:
+ *      Several visualizations about the SAMap results
+ *      results/${run_id}/plots/sankey.html
+ *      results/${run_id}/plots/scatter.png
+ *      results/${run_id}/csv/hms.csv 
+ *      results/${run_id}/csv/pms.csv 
+ *      results/${run_id}/logs/vis.log
+ */
+
 process VISUALIZE_SAMAP {
-    tag "SAMap visualization"
-    publishDir('results/plots', mode: 'copy', pattern: '*.html')
-    publishDir('results/plots', mode: 'copy', pattern: '*.png')
-    publishDir('results/csv', mode: 'copy', pattern: '*.csv')
-    publishDir('results/logs', mode: 'copy', pattern: '*.log')
+    tag "${run_id} - SAMap visualization"
+
+    publishDir("results/${run_id}/plots/", mode: 'copy', pattern: '*.html')
+    publishDir("results/${run_id}/plots/", mode: 'copy', pattern: '*.png')
+    publishDir("results/${run_id}/csv/", mode: 'copy', pattern: '*.csv')
+    publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
 
     container 'ryansonder/samap:latest'
 
     input:
+        val run_id
         path samap_obj
         path sample_sheet
 
     output:
-        path 'sankey_*.html'
-        path 'scatter_*.png'
-        path 'hms_*.csv'
-        path 'pms_*.csv'
-        path 'visualization_*.log'
+        path 'sankey.html'
+        path 'scatter.png'
+        path 'hms.csv'
+        path 'pms.csv'
+        path 'vis.log'
 
     script:
     """
