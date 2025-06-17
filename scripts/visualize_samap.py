@@ -83,7 +83,7 @@ def load_samap_pickle(pickle_file: str) -> SAMAP:
 def save_sankey_plot(pairwise_mapping_scores, output_dir: str, timestamp: str) -> str:
     """Generate and save Sankey plot as HTML using holoviews"""
     sankey_obj = sankey_plot(
-        pairwise_mapping_scores, align_thr=0.05, species_order=["pl", "hy", "sc"]
+        pairwise_mapping_scores, align_thr=0.05
     )
     sankey_html_outfile = os.path.join(output_dir, f"sankey_{timestamp}.html")
     try:
