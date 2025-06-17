@@ -1,4 +1,4 @@
 id,h5ad,fasta,annotation
 00,data/planarian.h5ad,data/transcriptomes/planarian_transcriptome.fasta,cluster
-01,data/hydra.h5ad,data/transcriptomes/hydra_transcriptome.fasta,cluster
+01,data/hydra_mod.h5ad,data/transcriptomes/hydra_transcriptome.fasta,Cluster
 02,data/schistosome.h5ad,data/transcriptomes/schistosome_proteome.fasta,tissue
