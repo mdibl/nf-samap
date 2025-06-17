@@ -2,13 +2,13 @@
 """
 Author : Ryan Sonderman
 Date   : 2025-06-09
+Version: 1.0.0
 Purpose: Visualize SAMAP results from pickle
 """
 
 import argparse
 import os
 import pickle
-import datetime
 import json
 import csv
 from typing import NamedTuple, Optional
@@ -22,6 +22,14 @@ hv.extension("bokeh")
 
 
 class Args(NamedTuple):
+    """
+    Command-line arguments for the script.
+
+    Attributes:
+        input: Path to the input SAMAP pickle file.
+        output_dir: Optional directory where visualizations will be saved.
+        sample_sheet: Path to the sample sheet CSV file for annotations.
+    """
     input: str
     output_dir: Optional[str]
     sample_sheet: Path
@@ -29,8 +37,12 @@ class Args(NamedTuple):
 
 # --------------------------------------------------
 def get_args() -> Args:
-    """Get command-line arguments"""
+    """
+    Parse and return command-line arguments.
 
+    Returns:
+        Args: A NamedTuple containing the input file, output directory, and sample sheet path.
+    """
     parser = argparse.ArgumentParser(
         description="Visualize SAMAP results from pickle",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -62,6 +74,12 @@ def get_args() -> Args:
 
 # --------------------------------------------------
 def create_output_dir(output_dir: str) -> None:
+    """
+    Create the specified output directory if it does not already exist.
+
+    Args:
+        output_dir (str): Path to the output directory.
+    """
     """Create output directory if it does not exist"""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -72,7 +90,15 @@ def create_output_dir(output_dir: str) -> None:
 
 # --------------------------------------------------
 def load_samap_pickle(pickle_file: str) -> SAMAP:
-    """Load SAMAP object from a pickle file"""
+    """
+    Load the SAMAP object from a pickle file.
+
+    Args:
+        pickle_file (str): Path to the SAMAP pickle file.
+
+    Returns:
+        SAMAP: Loaded SAMAP object.
+    """
     with open(pickle_file, "rb") as f:
         samap_obj = pickle.load(f)
     print(f"Loaded SAMAP object of type: {type(samap_obj)}")
@@ -80,12 +106,21 @@ def load_samap_pickle(pickle_file: str) -> SAMAP:
 
 
 # --------------------------------------------------
-def save_sankey_plot(pairwise_mapping_scores, output_dir: str, timestamp: str) -> str:
-    """Generate and save Sankey plot as HTML using holoviews"""
+def save_sankey_plot(pairwise_mapping_scores, output_dir: str) -> str:
+    """
+    Generate and save a Sankey plot as an interactive HTML file using Holoviews.
+
+    Args:
+        pairwise_mapping_scores: Data used to generate the Sankey plot.
+        output_dir (str): Directory where the plot will be saved.
+
+    Returns:
+        str: Path to the saved Sankey plot HTML file.
+    """
     sankey_obj = sankey_plot(
         pairwise_mapping_scores, align_thr=0.05
     )
-    sankey_html_outfile = os.path.join(output_dir, f"sankey_{timestamp}.html")
+    sankey_html_outfile = os.path.join(output_dir, "sankey.html")
     try:
         hv.save(sankey_obj, sankey_html_outfile, backend="bokeh")
         print(f"Saved Sankey plot as interactive HTML to: {sankey_html_outfile}")
@@ -95,34 +130,54 @@ def save_sankey_plot(pairwise_mapping_scores, output_dir: str, timestamp: str) -
 
 
 # --------------------------------------------------
-def save_mapping_scores(samap: SAMAP, keys: dict, output_dir: str, timestamp: str):
-    """Save mapping scores to CSV files and Sankey plot"""
+def save_mapping_scores(samap: SAMAP, keys: dict, output_dir: str):
+    """
+    Save the highest mapping scores and pairwise mapping scores to CSV files,
+    and generate and save a Sankey plot.
+
+    Args:
+        samap (SAMAP): The SAMAP object containing the results.
+        keys (dict): Dictionary of annotations for each sample.
+        output_dir (str): Directory where the results will be saved.
+
+    Returns:
+        tuple: Paths to the saved CSV files and Sankey plot HTML.
+    """
     highest_mapping_scores, pairwise_mapping_scores = get_mapping_scores(
         samap, keys, n_top=0
     )
 
     # Save mapping dataframes to CSV
-    hms_outfile = os.path.join(output_dir, f"hms_{timestamp}.csv")
+    hms_outfile = os.path.join(output_dir, "hms.csv")
     highest_mapping_scores.to_csv(hms_outfile)
     print(f"Saved highest mapping scores to: {hms_outfile}")
 
-    pms_outfile = os.path.join(output_dir, f"pms_{timestamp}.csv")
+    pms_outfile = os.path.join(output_dir, "pms.csv")
     pairwise_mapping_scores.to_csv(pms_outfile)
     print(f"Saved pairwise mapping scores to: {pms_outfile}")
 
     # Save Sankey plot using the new function
     sankey_html_outfile = save_sankey_plot(
-        pairwise_mapping_scores, output_dir, timestamp
+        pairwise_mapping_scores, output_dir
     )
 
     return hms_outfile, pms_outfile, sankey_html_outfile
 
 
 # --------------------------------------------------
-def save_scatter_plot(samap: SAMAP, output_dir: str, timestamp: str):
-    """Save scatter plot of SAMAP results"""
+def save_scatter_plot(samap: SAMAP, output_dir: str):
+    """
+    Save a scatter plot of the SAMAP results to the output directory.
+
+    Args:
+        samap (SAMAP): The SAMAP object containing the results.
+        output_dir (str): Directory where the scatter plot will be saved.
+
+    Returns:
+        str: Path to the saved scatter plot image.
+    """
     samap.scatter()
-    sc_outfile = os.path.join(output_dir, f"scatter_{timestamp}.png")
+    sc_outfile = os.path.join(output_dir, "scatter.png")
     plt.savefig(sc_outfile, dpi=300)
     print(f"Saved scatter plot to {sc_outfile}")
     plt.close()
@@ -132,14 +187,24 @@ def save_scatter_plot(samap: SAMAP, output_dir: str, timestamp: str):
 
 # --------------------------------------------------
 def save_log(
-    input_file: str, outputs: dict, log_file: str, timestamp: str, keys_json: dict
+    input_file: str, outputs: dict, log_file: str, keys_json: dict
 ) -> None:
-    """Save a JSON log with input, keys, outputs, and timestamp in nf module format"""
+    """
+    Save a JSON log with input, keys, and outputs in Nextflow module format.
+
+    Args:
+        input_file (str): Path to the input SAMAP pickle file.
+        outputs (dict): Dictionary of paths to the generated output files.
+        log_file (str): Path to the log file.
+        keys_json (dict): Dictionary of sample annotations.
+
+    Returns:
+        None
+    """
     log = {
         "input": input_file,
         "keys": keys_json,
         "outputs": outputs,
-        "timestamp": timestamp,
     }
     with open(log_file, "w") as f:
         json.dump(log, f, indent=2)
@@ -148,7 +213,16 @@ def save_log(
 
 # --------------------------------------------------
 def load_keys_from_sample_sheet(sample_sheet_path: Path) -> dict:
-    """Load keys dictionary from sample sheet CSV: {id2: annotation}"""
+    """
+    Load a dictionary of keys from the sample sheet CSV. The keys are 
+    mapped from id2 to their corresponding annotations.
+
+    Args:
+        sample_sheet_path (Path): Path to the sample sheet CSV.
+
+    Returns:
+        dict: Dictionary where the key is id2 and the value is the annotation.
+    """
     keys = {}
     with open(sample_sheet_path, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
@@ -159,7 +233,15 @@ def load_keys_from_sample_sheet(sample_sheet_path: Path) -> dict:
 
 # --------------------------------------------------
 def main() -> None:
-    """Visualize SAMAP results from pickle"""
+    """
+    Visualize SAMAP results from a pickle file.
+
+    This function:
+    1. Loads the SAMAP object from the provided pickle file.
+    2. Loads sample annotations from the sample sheet.
+    3. Saves mapping scores, Sankey plot, and scatter plot to the output directory.
+    4. Saves a log of the process in JSON format.
+    """
 
     args = get_args()
 
@@ -172,26 +254,23 @@ def main() -> None:
     keys = load_keys_from_sample_sheet(args.sample_sheet)
     print(keys)  # or use as needed in your visualization logic
 
-    # Create a global timestamp for all outputs
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-
     outputs = {}
 
     # Save mapping scores and Sankey
     hms_file, pms_file, sankey_file = save_mapping_scores(
-        sm, keys, args.output_dir, timestamp
+        sm, keys, args.output_dir
     )
     outputs["highest_mapping_scores"] = hms_file
     outputs["pairwise_mapping_scores"] = pms_file
     outputs["sankey_html"] = sankey_file
 
     # Save scatter plot
-    scatter_file = save_scatter_plot(sm, args.output_dir, timestamp)
+    scatter_file = save_scatter_plot(sm, args.output_dir)
     outputs["scatter_plot"] = scatter_file
 
     # Save log, now including keys json
-    log_file = os.path.join(args.output_dir, f"visualization_{timestamp}.log")
-    save_log(args.input, outputs, log_file, timestamp, keys)
+    log_file = os.path.join(args.output_dir, "vis.log")
+    save_log(args.input, outputs, log_file, keys)
 
 
 # --------------------------------------------------
