@@ -12,6 +12,7 @@
  *      data_dir:       Staging the data directory so the script can access it
  *
  *  Outputs:
+ *      A sample sheet with the added values
  *      results/run_id/run_id_sample_sheet.csv
  */
 
