@@ -13,6 +13,5 @@ RUN chmod +x /usr/local/bin/visualize_samap.py
 
 # Load the custom patch to fix the analysis module
 COPY patches/analysis.py /root/miniconda/lib/python3.8/site-packages/samap/analysis.py
-# COPY patches/mapping.py /root/miniconda/lib/python3.8/site-packages/samap/mapping.py
 
 WORKDIR /workspace
