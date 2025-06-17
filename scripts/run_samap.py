@@ -2,6 +2,7 @@
 """
 Author : Ryan Sonderman
 Date   : 2025-06-06
+Version: 1.0.0
 Purpose: Run SAMAP post-processing with a pickled SAMAP object
 """
 
@@ -14,8 +15,12 @@ from samap.utils import save_samap
 
 # --------------------------------------------------
 def get_args():
-    """Get command-line arguments"""
+    """
+    Parse and return command-line arguments.
 
+    Returns:
+        argparse.Namespace: A Namespace object containing the parsed arguments.
+    """
     parser = argparse.ArgumentParser(
         description="Run SAMAP post-processing with a pickled SAMAP object",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -40,15 +45,26 @@ def get_args():
 
 # --------------------------------------------------
 def main():
-    """Run SAMap with command-line input"""
+    """
+    Main function to run SAMAP post-processing.
+
+    1. Loads the pickled SAMAP object from the provided input path.
+    2. Runs the SAMap post-processing.
+    3. Saves the processed SAMAP object to the specified output directory.
+    """
+    # Get command-line arguments
     args = get_args()
+
+    # Load the pickled SAMAP object
     print(f"[INFO] Loading SAMAP object from: {args.input}")
     with open(args.input, "rb") as f:
         samap = pickle.load(f)
 
+    # Run SAMap post-processing
     print("[INFO] Running SAMAP...")
     samap.run()
 
+    # Save the processed SAMAP object
     args.output_dir.mkdir(parents=True, exist_ok=True)
     output_file = args.output_dir / "samap_results.pkl"
     save_samap(samap, str(output_file))
