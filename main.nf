@@ -77,15 +77,19 @@ workflow {
     // Run BLAST or load precomputed map files 
     if (params.use_precomputed_blast) {
         // Set path to maps from provided data
-        maps_dir = data_dir.map { it -> it.resolve('maps/') } 
+        maps_dir = data_dir.map { it -> it.resolve('maps/') }.unique()
     } else {
-        RUN_BLAST_PAIR(
+        blast_maps = RUN_BLAST_PAIR(
             run_id_ch,
             pairs_channel,
             data_dir.first(),
         )
         // Set path to maps from BLAST results
-        maps_dir = results_dir.map { it -> it.resolve('maps/') } 
+        maps_dir = blast_maps.map {
+            paths -> 
+            // Paths is a list
+            paths[0].getParent().getParent().unique()
+        }
     }
 
 
