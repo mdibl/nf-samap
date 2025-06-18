@@ -8,6 +8,11 @@
  *      Performs preprocessing of input metadata, reciprocal BLAST between
  *      species, SAMap alignment, and visualization of results.
  *
+ *  Inputs:
+ *      - data/transcriptomes/*.fasta      Input transcriptome FASTA files
+ *      - data/*.h5ad                      Precomputed AnnData files
+ *      - sample_sheet.csv                 Sample metadata sheet
+ *
  *  Workflow Overview:
  *      1. Preprocess sample sheet to classify inputs and assign IDs
  *      2. Generate all unordered species pairs
@@ -16,23 +21,23 @@
  *      5. Run SAMap on each BLAST result
  *      6. Visualize SAMap alignment and write results
  *
- *  Inputs:
- *      - data/transcriptomes/*.fasta      Input transcriptome FASTA files
- *      - data/*.h5ad                      Precomputed AnnData files
- *      - sample_sheet.csv                 Sample metadata sheet
- *
  *  Parameters:
- *      --use_precomputed_blast=BOOL   If true, skips BLAST and uses precomputed maps. Default: false
+ *      --run_id        Run ID provided by user. If none is provided a timestamp is used. Default: null
+ *      --sample_sheet  Path to the sample sheet provided by user. Default: 'sample_sheet.csv'
+ *      --data_dir      Path to the directory containing the data. Default: 'data'
+ *      --maps_dir      Path to a directory containing precomputed BLAST maps if any are provided. 
+ *                      Any value other than null will skip the BLAST module. Default: null
+ *      --results_dir   The directory all where all results will be stored. Default: 'results'
  *
  *  Outputs:
- *      - results/${run_id}/sample_sheet.csv       Updated metadata with type and ID
- *      - results/${run_id}/maps/                  Reciprocal BLAST outputs per sample pair
- *      - results/${run_id}/samap_objects/         Pickled SAMap object (Python)
- *      - results/${run_id}/plots/sankey.html      Mapping Sankey diagram
- *      - results/${run_id}/plots/scatter.png      Gene mapping scatter plot
- *      - results/${run_id}/csv/hms.csv            Highest mapping scores (HMS) matrix
- *      - results/${run_id}/csv/pms.csv            Pairwise mapping scores (PMS) matrix
- *      - results/${run_id}/logs/vis.log           Log file for visualization step
+ *      - results_dir/run_id/sample_sheet.csv       Updated metadata with type and ID
+ *      - results_dir/run_id/maps/                  Reciprocal BLAST outputs per sample pair
+ *      - results_dir/run_id/samap_objects/         Pickled SAMap object (Python)
+ *      - results_dir/run_id/plots/sankey.html      Mapping Sankey diagram
+ *      - results_dir/run_id/plots/scatter.png      Gene mapping scatter plot
+ *      - results_dir/run_id/csv/hms.csv            Highest mapping scores (HMS) matrix
+ *      - results_dir/run_id/csv/pms.csv            Pairwise mapping scores (PMS) matrix
+ *      - results_dir/run_id/logs/vis.log           Log file for visualization step
  *
  *  Author:     Ryan Sonderman
  *  Created:    2025-06-12
@@ -48,15 +53,15 @@ include { RUN_SAMAP } from './modules/run_samap.nf'
 include { VISUALIZE_SAMAP } from './modules/visualize_samap.nf'
 
 workflow {
-    // Generate a workflow id from a timestamp
-    run_id = "${new Date().format('yyyyMMdd_HHmmss')}"
+    // Generate run ID unless one is provided
+    run_id = params.run_id ?: "${new Date().format('yyyyMMdd_HHmmss')}"
     run_id_ch = Channel.value(run_id)
 
 
     // Stage static input files
-    data_dir    = Channel.fromPath('data')
-    results_dir = Channel.fromPath('results')
-    sample_sheet = Channel.fromPath('sample_sheet.csv')
+    data_dir        = Channel.fromPath(params.data_dir)
+    results_dir     = Channel.fromPath(params.results_dir)
+    sample_sheet    = Channel.fromPath(params.sample_sheet)
 
 
     // Preprocess sample sheet to add type and ID
@@ -75,21 +80,20 @@ workflow {
 
 
     // Run BLAST or load precomputed map files 
-    if (params.use_precomputed_blast) {
-        // Set path to maps from provided data
-        maps_dir = data_dir.map { it -> it.resolve('maps/') }.unique()
+    if (params.maps_dir) {
+        // Use user-supplied BLAST maps
+        maps_dir = Channel.fromPath(params.maps_dir)
     } else {
+        // Run BLAST and extract parent maps directory
         blast_maps = RUN_BLAST_PAIR(
             run_id_ch,
             pairs_channel,
             data_dir.first(),
         )
         // Set path to maps from BLAST results
-        maps_dir = blast_maps.map {
-            paths -> 
-            // Paths is a list
-            paths[0].getParent().getParent().unique()
-        }
+        maps_dir = blast_maps
+            .map { it[0].getParent().getParent() }
+            .unique()
     }
 
 
