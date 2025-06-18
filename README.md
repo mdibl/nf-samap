@@ -146,3 +146,34 @@ This pipeline is licensed under the MIT License. See the [LICENSE](LICENSE) file
 
 - [ ] **Data Accesibility**
     - Add a way to easily clone the data from the original SAMap repo
+
+- [ ] **nf-core requirements**
+    - [*] Acknowledgements
+    - [ ] Continuous integration testing
+    - [*] Community owned
+    - [ ] Docker support (no latest)
+    - [ ] Bundled documentation
+    - [ ] Use nf-core git branches
+    - [ ] Identity and branding
+    - [ ] GitHub keywords
+    - [ ] Pass lint tests
+    - [ ] Minimum inputs
+    - [*] MIT License
+    - [*] Nextflow
+    - [ ] Standardised parameters
+    - [ ] Research object crate
+    - [ ] Semantic versioning
+    - [*] Single command 
+    - [ ] Use the template
+    - [ ] Workflow name
+    - [*] Workflow size
+
+- [ ] **nf-core recommendations**
+    - [ ] Publication credit
+    - [ ] Testing
+    - [ ] Bioconda
+    - [ ] Build with community
+    - [ ] Cloud compatible
+    - [ ] Custom containers
+    - [ ] DOIs
+    - [ ] Fiel formats
