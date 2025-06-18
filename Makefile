@@ -39,4 +39,4 @@ clean-results:
 clean-docker:
 	docker rmi pipeline/samap:latest || true
 
-clean-all: clean-nextflow clean-results clean-docker
+clean-all: clean-nextflow clean-results
