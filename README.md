@@ -1,102 +1,139 @@
-# Ryan Sonderman's SAMap Pipeline
+# 🧬 SAMap Pipeline - Cross-species transcriptome alignment using BLAST and SAMap
 
-## Source
+> This project wraps SAMap (https://github.com/atarashansky/SAMap) in a NextFlow pipeline. 
 
-This pipeline is based on SAMap, which can be found at https://github.com/atarashansky/SAMap.
+---
+# 🚀 Quickstart
 
-## Citation
+This project uses Makefile to simplify many of the necessary actions. Each step can be done manually or with a make target. 
 
-Tarashansky, Alexander J., et al. "Mapping single-cell atlases throughout Metazoa unravels cell type evolution." Elife 10 (2021): e66747.
+I will soon add a make target to clone the example data from SAMap and format it correctly.
 
-## About
-
-This project uses a Nextflow pipeline to run SAMap, using a modified docker image from `docker.io/avianalter/samap`. 
-
-Currently, the pipeline is designed to take a JSON config describing the locations of your input files and orthology maps. The expected directory structure is:
-
+## 1. Build the custom docker images
+```bash
+docker build -f Dockerfile.samap -t pipeline/samap:latest .
+docker build -f Dockerfile.blast -t pipeline/samap-blast:latest .
 ```
-data/
-├── hydro.h5ad
-├── planarian.h5ad
-├── schistosome.h5ad
-└── maps
-    ├── hypl
-    │   ├── hy_to_pl.txt
-    │   └── pl_to_hy.txt
-    ├── hysc
-    │   ├── hy_to_sc.txt
-    │   └── sc_to_hy.txt
-    └── plsc
-        ├── pl_to_sc.txt
-        └── sc_to_pl.txt
-```
-
-## Usage
-
-### 1. Build the Docker Image
-
+-or-
 ```bash
 make docker
 ```
 
-This will update the docker image with any changes to scripts, patches, etc.
-
-### 2. Prepare Your Config
-
-Create a `config.json` file describing your species and map locations. Example that follows the previously mentioned tree:
-
-```json
-{
-  "maps": "data/maps/",
-  "species": {
-    "pl": "data/planarian.h5ad",
-    "hy": "data/hydra.h5ad",
-    "sc": "data/schistosome.h5ad"
-  }
-}
+## 2. Run the pipeline
+```bash
+nextflow run main.nf --with-docker
 ```
-
-### 3. Run the Pipeline
-
+-or-
 ```bash
 make run
 ```
 
-This will run the Nextflow pipeline using Docker.
+---
+# 📂 Input Files
 
-## Development
+The pipeline expects the following input files to be present:
 
-- To open a shell inside the Docker container with your workspace mounted:
+```
+sample_sheet.csv
+*.fasta
+*.h5ad
+```
 
-  ```bash
-  make docker-shell
-  ```
-
-## Output
-
-The pipeline will generate:
-
-- `samap_obj.pkl`: The main SAMap results object (pickle)
-- more visualization stuff (to be implemented)
-
-## Notes
-
-- All output files are written with the correct user permissions when using the provided Makefile or Nextflow pipeline.
-- If you modify the scripts, rebuild the Docker image with `make docker`.
-- For custom species or obs keys, provide a JSON mapping as described in the documentation.
-
-## License
-
-See [LICENSE](LICENSE) for details.
+An example tree:
+```
+sample_sheet.csv
+data/
+├── transcriptomes/
+│   ├── hydra.fasta
+│   ├── planarian.fasta
+│   └── schistosome.fasta
+├── hydra.h5ad
+├── planarian.h5ad
+└── schistosome.h5ad
+```
 
 ---
+# 📜 Sample Sheet Format
 
+The sample sheet dictates metadata about each sample. Samples will not be put through the pipeline unless they are present and correctly described in the sample sheet. An example `sample_sheet.csv` might look like:
 
-## TODO
+```csv
+id,h5ad,fasta,annotation
+00,data/planarian.h5ad,data/transcriptomes/planarian_transcriptome.fasta,cluster
+01,data/hydra_mod.h5ad,data/transcriptomes/hydra_transcriptome.fasta,Cluster
+02,data/schistosome.h5ad,data/transcriptomes/schistosome_proteome.fasta,tissue
+```
 
-- [ ] **Helper Scripts**
-    - Bash script to build the keys JSON for the Python visualization script
-    - Add support for SAM format I/O (SAM → JSON → SAMap)
+---
+# ⚙️ Parameters
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| --use_precomputed_blast | Skip the blast step and look for precomputed BLAST mappings | false |
+
+---
+# 🏁 Output Files
+
+Results are stored in `results/{run_id}/`.
+
+| Path | Description |
+|------|-------------|
+| {run_id}_sample_sheet.csv | Processed sample sheet |
+| csv/hms.csv | Highest mapping scores |
+| csv/pms.csv | Pairwise mapping scores |
+| logs/vis.log | Log of visualizations |
+| plots/sankey.html | Sankey plot |
+| plots/scatter.png | Scatterplot |
+| samap_objects/samap_results.pkl | Pickled SAMAP object after running SAMap |
+| samap_objects/samap.pkl | Pickled SAMAP object before running SAMap |
+| sams/* | Pickled SAM objects named according to the 2-char hash assigned to their sample |
+
+---
+# 🧱 Module Overview
+
+### 1. PREPROCESS
+
+Reads the sample_sheet.csv, classifies transcriptomes based on input FASTA files, and assigns unique two-character IDs. Outputs an enriched sample sheet with metadata used downstream.
+
+### 2. RUN_BLAST_PAIR
+
+For each unique unordered species pair, performs a reciprocal BLAST to generate mapping files. Skipped if --use_precomputed_blast is true.
+
+### 3. LOAD_SAMS
+
+Loads input .h5ad files and constructs SAM objects required for SAMap. Outputs pickled SAM objects.
+
+### 4. BUILD_SAMAP
+
+Combines the SAM objects and reciprocal BLAST maps to build a SAMAP object.
+
+### 5. RUN_SAMAP
+
+Runs the SAMap algorithm on the built object to calculate pairwise gene mapping scores.
+
+### 6. VISUALIZE_SAMAP
+
+Generates outputs such as Sankey diagrams, scatter plots, and CSV summaries of the alignment results for downstream analysis or interpretation.
+
+---
+# 🔗 Links
+
+- SAMap Repository:   https://github.com/atarashansky/SAMap
+- SAMap Paper:        https://pmc.ncbi.nlm.nih.gov/articles/PMC8139856/
+- SAMap Docker Image: https://hub.docker.com/r/avianalter/samap
+- BLAST Docker Image: https://hub.docker.com/r/staphb/blast
+
+---
+# 👤 Author and Licenses
+
+**Ryan Sonderman**
+
+GitHub: [@RyanSonder](https://github.com/RyanSonder)
+
+This pipeline is licensed under the MIT License. See the [LICENSE](LICENSE) file for full details.
+
+---
+# 📋 To Do List
 
 - [ ] **Visualization Improvements**
     - Sort the Sankey diagram for better interpretability
@@ -105,4 +142,7 @@ See [LICENSE](LICENSE) for details.
 
 - [ ] **Reproducibility & Reporting**
     - Add version reporting for SAMap in logs and outputs
-    - Ensure Docker image versioning is clear and consistent (`ryansonder/samap:v1.0.0`)
+    - Ensure Docker image versioning is clear and consistent (`pipeline/samap:v1.0.0`)
+
+- [ ] **Data Accesibility**
+    - Add a way to easily clone the data from the original SAMap repo
