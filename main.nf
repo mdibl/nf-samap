@@ -57,11 +57,15 @@ workflow {
     run_id = params.run_id ?: "${new Date().format('yyyyMMdd_HHmmss')}"
     run_id_ch = Channel.value(run_id)
 
-
     // Stage static input files
     data_dir        = Channel.fromPath(params.data_dir)
     results_dir     = Channel.fromPath(params.results_dir)
     sample_sheet    = Channel.fromPath(params.sample_sheet)
+
+    // Validation of necessary files
+    if (!new File(params.sample_sheet).exists()) {
+        error "Missing required file: sample sheet '${params.sample_sheet}'"
+    }
 
 
     // Preprocess sample sheet to add type and ID
@@ -120,7 +124,7 @@ workflow {
     samap_results = RUN_SAMAP(
         run_id_ch,
         results_dir,
-        samap
+        samap,
     )
 
 
