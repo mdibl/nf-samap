@@ -67,9 +67,13 @@ id,h5ad,fasta,annotation
 ---
 # ⚙️ Parameters
 
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| --use_precomputed_blast | Skip the blast step and look for precomputed BLAST mappings | false |
+| Parameter | Requirement | Description | Default |
+|-----------|-------------|-------------|---------|
+| `run_id` | Optional | Custom run ID | `null` |
+| `sample_sheet` | Optional | Sample sheet describing sample metadata | `'sample_sheet.csv'` |
+| `data_dir` | Optional | Path to directory containing sample data | `'data'` |
+| `maps_dir` | Optional | Path to directory of precomputed BLAST maps | `null` |
+| `results_dir` | Optional | Path to directory where results are stored | `'results'` |
 
 ---
 # 🏁 Output Files
