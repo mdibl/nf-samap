@@ -85,7 +85,7 @@ Results are stored in `results/{run_id}/`.
 | {run_id}_sample_sheet.csv | Processed sample sheet |
 | csv/hms.csv | Highest mapping scores |
 | csv/pms.csv | Pairwise mapping scores |
-| logs/vis.log | Log of visualizations |
+| plots/chord.html | Chord plot |
 | plots/sankey.html | Sankey plot |
 | plots/scatter.png | Scatterplot |
 | samap_objects/samap_results.pkl | Pickled SAMAP object after running SAMap |
