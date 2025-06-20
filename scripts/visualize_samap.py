@@ -106,56 +106,64 @@ def load_samap_pickle(pickle_file: str) -> SAMAP:
 
 
 # --------------------------------------------------
-def save_sankey_plot(pairwise_mapping_scores, output_dir: str) -> str:
+def save_sankey_plot(mapping_table, 
+                    output_dir: str,
+                    align_thr=0.05,
+                    file_ext='html',
+                    file_name='sankey',
+                    toolbar=True,
+                    title='Sankey Plot',):
     """
-    Generate and save a Sankey plot as an interactive HTML file using Holoviews.
+    Generate and save a Sankey plot using Holoviews.
 
     Args:
-        pairwise_mapping_scores: Data used to generate the Sankey plot.
-        output_dir (str): Directory where the plot will be saved.
-
-    Returns:
-        str: Path to the saved Sankey plot HTML file.
+        mapping_table (pandas.dataFrame): Pairwise mapping scores.
+        output_dir (str): Directory where the plot will be saved. 
+        align_thr (float, default=0.05): The alignment score threshold below which to remove cell type mappings.
+        file_ext (str, default='html'): File extension applied to the plot.
+        file_name (str, default='sankey'): Name of the saved file.
+        toolbar (bool, default=True): Whether to include toolbar in the plot.
+        title (str, default='Sankey Plot'): Custom title for exported HTML file.
     """
-    sankey_obj = sankey_plot(
-        pairwise_mapping_scores, align_thr=0.05
-    )
-    sankey_html_outfile = os.path.join(output_dir, "sankey.html")
+    file_fmt = file_ext.lstrip('.')
+    sankey_obj = sankey_plot(mapping_table, align_thr=align_thr)
+    sankey_outfile = os.path.join(output_dir, f"{file_name}.{file_fmt}")
     try:
-        hv.save(sankey_obj, sankey_html_outfile, backend="bokeh")
-        print(f"Saved Sankey plot as interactive HTML to: {sankey_html_outfile}")
+        print(f"[INFO] Saving sankey plot to '{sankey_outfile}'")
+        hv.save(sankey_obj, sankey_outfile, backend="bokeh", fmt=file_fmt, toolbar=toolbar, title=title)
+        print(f"[INFO] Successfully saved sankey plot to '{sankey_outfile}'")
     except Exception as e:
-        print(f"Warning: Could not save Sankey plot as HTML. Error: {e}")
-    return sankey_html_outfile
+        print(f"[ERROR] Could not save sankey plot. Error: {e}")
 
 
 # --------------------------------------------------
 def save_chord_plot(mapping_table, 
                     output_dir: str, 
-                    align_thr=0.1, 
+                    align_thr=0.05, 
                     file_ext='html',
-                    toolbar=True):
+                    file_name='chord',
+                    toolbar=True,
+                    title='Chord Plot',):
     """
-    Generate and save a Chord plot.
+    Generate and save a Chord plot using Holoviews.
 
     Args:
-        mapping_table (pandas.dataFrame):
-            Pairwise mapping scores.
+        mapping_table (pandas.dataFrame): Pairwise mapping scores.
         output_dir (str): Directory where the plot will be saved.
-        align_thr (float, optional, default 0.1):
-            The alignment score threshold below which to remove cell type mappings.
-        file_type (str): File extension applied to the chord plot.
+        align_thr (float, default=0.05): The alignment score threshold below which to remove cell type mappings.
+        file_ext (str, default='html'): File extension applied to the plot.
+        file_name (str, default='chord'): Name of the saved file.
+        toolbar (bool, default=True): Whether to include toolbar in the plot.
     """
     file_fmt = file_ext.lstrip('.')
     chord_obj = chord_plot(mapping_table, align_thr)
-    chord_outfile = os.path.join(output_dir, f"chord.{file_fmt}")
+    chord_outfile = os.path.join(output_dir, f"{file_name}.{file_fmt}")
     try:
-        print(f"[INFO] Saving chord plot to {chord_outfile}")
-        hv.save(chord_obj, chord_outfile, backend="bokeh", fmt=file_fmt, toolbar=toolbar)
-        print(f"[INFO] Successfully saved chord plot to {chord_outfile}")
+        print(f"[INFO] Saving chord plot to '{chord_outfile}'")
+        hv.save(chord_obj, chord_outfile, backend="bokeh", fmt=file_fmt, toolbar=toolbar, title=title)
+        print(f"[INFO] Successfully saved chord plot to '{chord_outfile}'")
     except Exception as e:
         print(f"[ERROR] Could not save chord plot. Error: {e}")
-    return chord_obj
 
 
 # --------------------------------------------------
