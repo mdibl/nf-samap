@@ -12,14 +12,16 @@
  *      data_dir:       Staging the data directory so the script can access it
  *
  *  Outputs:
- *      A sample sheet with the added values
+ *      A sample sheet with the added values and a logfile
  *      results/run_id/run_id_sample_sheet.csv
+ *      results/run_id/logs/run_id_preprocess.log
  */
 
 process PREPROCESS {
     tag "${run_id} - sample sheet preprocessing"
 
     publishDir("results/${run_id}/", mode: 'copy', pattern: '*.csv')
+    publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
 
     container 'pipeline/samap-blast:latest'
 
@@ -30,14 +32,12 @@ process PREPROCESS {
 
     output:       
         path "${run_id}_sample_sheet.csv"
+        path "${run_id}_preprocess.log"
 
     script:
     """
-    update_sample_sheet.sh ${sample_sheet}
-    if [[ ! -f out.csv ]]; then
-        echo "ERROR: out.csv not found!" >&2
-        exit 1
-    fi
-    mv out.csv ${run_id}_sample_sheet.csv
+    LOG=${run_id}_preprocess.log
+
+    update_sample_sheet.sh ${sample_sheet} ${run_id}_${sample_sheet}>> \$LOG 2>&1
     """
 }
