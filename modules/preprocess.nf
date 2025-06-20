@@ -31,8 +31,8 @@ process PREPROCESS {
         path data_dir
 
     output:       
-        path "${run_id}_sample_sheet.csv"
-        path "${run_id}_preprocess.log"
+        path "${run_id}_sample_sheet.csv", emit: sample_sheet_pr
+        path "${run_id}_preprocess.log", emit: logfile
 
     script:
     """

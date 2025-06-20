@@ -70,11 +70,12 @@ workflow {
 
 
     // Preprocess sample sheet to add type and ID
-    sample_sheet_pr = PREPROCESS(
+    PREPROCESS(
         run_id_ch,
         sample_sheet,
         data_dir,
-    ).first()
+    )
+    sample_sheet_pr = PREPROCESS.out.sample_sheet_pr
 
 
     // Generate unique unordered sample pairs
