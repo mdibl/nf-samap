@@ -14,7 +14,7 @@ log() {
     local level="$1"
     local message="$2"
     local timestamp
-    timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    timestamp=$(date +"%Y-%m-%d %H:%M:%S.%3N")
     echo "$timestamp [$level]: $message"
 }
 
@@ -115,3 +115,5 @@ tail -n +2 "$input_csv" | while IFS=, read -r id h5ad fasta annotation; do
 
     echo "${id},${h5ad},${fasta},${annotation},${type},${id2}" >> "$output_csv"
 done < <(tail -n +2 "$input_csv")
+
+log "INFO" "Script complete, see $output_csv"
