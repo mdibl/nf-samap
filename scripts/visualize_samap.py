@@ -106,6 +106,45 @@ def load_samap_pickle(pickle_file: str) -> SAMAP:
 
 
 # --------------------------------------------------
+def save_mapping_scores(samap: SAMAP, 
+                        keys: dict, 
+                        output_dir: str,
+                        n_top=0,
+                        hms_name='hms',
+                        pms_name='pms'):
+    """
+    Save the highest mapping scores and pairwise mapping scores to CSV files.
+
+    Args:
+        samap (SAMAP): The SAMAP object containing the results.
+        keys (dict): Dictionary of annotations for each sample.
+        output_dir (str): Directory where the results will be saved.
+        n_top (int, default=0): Average the alignment scores for the n top cells (0 averages all cells)
+        hms_name (str, default='hms'): Name which the highest mapping scores table will be saved to.
+        pms_name (str, default='pms'): Name which the pairwise mapping scores table will be saved to.
+
+    Returns:
+        tuple (pandas.dataFrame): Highest mapping scores and pairwise mapping scores.
+    """
+    hms, pms = get_mapping_scores(sm=samap, keys=keys, n_top=n_top)
+    hms_outfile = os.path.join(output_dir, f"{hms_name}.csv")
+    try: # Save the highest mapping scores to csv
+        print(f"[INFO] Saving highest mapping scores to '{hms_outfile}'")
+        hms.to_csv(hms_outfile)
+        print(f"[INFO] Successfully saved highest mapping scores to '{hms_outfile}'")
+    except Exception as e:
+        print(f"[ERROR] Could not save highest mapping scores. Error: {e}")
+    pms_outfile = os.path.join(output_dir, f"{pms_name}.csv")
+    try: # Save the pairwise mapping scores to csv
+        print(f"[INFO] Saving pairwise mapping scores to '{pms_outfile}'")
+        pms.to_csv(pms_outfile)
+        print(f"[INFO] Successfully saved pairwise mapping scores to '{pms_outfile}'")
+    except Exception as e:
+        print(f"[ERROR] Could not save pairwise mapping scores. Error: {e}")
+    return hms, pms # Return the data frames
+
+
+# --------------------------------------------------
 def save_sankey_plot(mapping_table, 
                     output_dir: str,
                     align_thr=0.05,
@@ -164,44 +203,6 @@ def save_chord_plot(mapping_table,
         print(f"[INFO] Successfully saved chord plot to '{chord_outfile}'")
     except Exception as e:
         print(f"[ERROR] Could not save chord plot. Error: {e}")
-
-
-# --------------------------------------------------
-def save_mapping_scores(samap: SAMAP, keys: dict, output_dir: str):
-    """
-    Save the highest mapping scores and pairwise mapping scores to CSV files,
-    and generate and save a Sankey plot.
-
-    Args:
-        samap (SAMAP): The SAMAP object containing the results.
-        keys (dict): Dictionary of annotations for each sample.
-        output_dir (str): Directory where the results will be saved.
-
-    Returns:
-        tuple: Paths to the saved CSV files and Sankey plot HTML.
-    """
-    highest_mapping_scores, pairwise_mapping_scores = get_mapping_scores(
-        samap, keys, n_top=0
-    )
-
-    # Save mapping dataframes to CSV
-    hms_outfile = os.path.join(output_dir, "hms.csv")
-    highest_mapping_scores.to_csv(hms_outfile)
-    print(f"Saved highest mapping scores to: {hms_outfile}")
-
-    pms_outfile = os.path.join(output_dir, "pms.csv")
-    pairwise_mapping_scores.to_csv(pms_outfile)
-    print(f"Saved pairwise mapping scores to: {pms_outfile}")
-
-    # Save Sankey plot
-    sankey_html_outfile = save_sankey_plot(
-        pairwise_mapping_scores, output_dir
-    )
-    
-    # Save chord plot
-    save_chord_plot(pairwise_mapping_scores, output_dir=output_dir)
-
-    return hms_outfile, pms_outfile, sankey_html_outfile
 
 
 # --------------------------------------------------
@@ -296,13 +297,10 @@ def main() -> None:
 
     outputs = {}
 
-    # Save mapping scores and Sankey
-    hms_file, pms_file, sankey_file = save_mapping_scores(
-        sm, keys, args.output_dir
-    )
-    outputs["highest_mapping_scores"] = hms_file
-    outputs["pairwise_mapping_scores"] = pms_file
-    outputs["sankey_html"] = sankey_file
+    # Save and get mapping scores and use them to generate plots
+    _, pms = save_mapping_scores(sm, keys, args.output_dir)
+    save_chord_plot(mapping_table=pms, output_dir=args.output_dir)
+    save_sankey_plot(mapping_table=pms, output_dir=args.output_dir)
 
     # Save scatter plot
     scatter_file = save_scatter_plot(sm, args.output_dir)
