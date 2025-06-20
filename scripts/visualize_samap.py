@@ -9,7 +9,6 @@ Purpose: Visualize SAMAP results from pickle
 import argparse
 import os
 import pickle
-import json
 import csv
 from typing import NamedTuple, Optional
 from pathlib import Path
