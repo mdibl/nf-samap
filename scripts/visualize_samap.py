@@ -83,9 +83,9 @@ def create_output_dir(output_dir: str) -> None:
     """Create output directory if it does not exist"""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-        print(f"Output directory created: {output_dir}")
+        print(f"[INFO] Output directory created: '{output_dir}'")
     else:
-        print(f"Output directory already exists: {output_dir}")
+        print(f"[INFO] Output directory already exists: '{output_dir}'")
 
 
 # --------------------------------------------------
@@ -99,9 +99,10 @@ def load_samap_pickle(pickle_file: str) -> SAMAP:
     Returns:
         SAMAP: Loaded SAMAP object.
     """
+    print(f"[INFO] Loading SAMAP object from pickle at '{pickle_file}")
     with open(pickle_file, "rb") as f:
         samap_obj = pickle.load(f)
-    print(f"Loaded SAMAP object of type: {type(samap_obj)}")
+    print(f"[INFO] Loaded SAMAP object of type: '{type(samap_obj)}'")
     return samap_obj
 
 
@@ -206,24 +207,25 @@ def save_chord_plot(mapping_table,
 
 
 # --------------------------------------------------
-def save_scatter_plot(samap: SAMAP, output_dir: str):
+def save_scatter_plot(samap: SAMAP, output_dir: str, out_name='scatter', dpi=300):
     """
     Save a scatter plot of the SAMAP results to the output directory.
 
     Args:
         samap (SAMAP): The SAMAP object containing the results.
         output_dir (str): Directory where the scatter plot will be saved.
+        out_name (str, default='scatter'): Name of the saved file.
+        dpi (int, default=300): DPI of the saved image.
 
     Returns:
         str: Path to the saved scatter plot image.
     """
     samap.scatter()
-    sc_outfile = os.path.join(output_dir, "scatter.png")
-    plt.savefig(sc_outfile, dpi=300)
-    print(f"Saved scatter plot to {sc_outfile}")
+    scatter_outfile = os.path.join(output_dir, f"{out_name}.png")
+    print(f"[INFO] Saving scatter plot to '{scatter_outfile}'")
+    plt.savefig(scatter_outfile, dpi=dpi)
+    print(f"[INFO] Successfully saved scatter plot to '{scatter_outfile}'")
     plt.close()
-
-    return sc_outfile
 
 
 # --------------------------------------------------
@@ -238,11 +240,14 @@ def load_keys_from_sample_sheet(sample_sheet_path: Path) -> dict:
     Returns:
         dict: Dictionary where the key is id2 and the value is the annotation.
     """
+    print(f"[INFO] Loading annotation keys from '{sample_sheet_path}'")
     keys = {}
     with open(sample_sheet_path, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             keys[row["id2"]] = row["annotation"]
+    print("[INFO] All annotation keys loaded.")
+    print(f"[INFO] Annotation dictionary: {keys}")
     return keys
 
 
@@ -259,22 +264,15 @@ def main() -> None:
 
     args = get_args()
 
-    # Create output directory if it does not exist
     create_output_dir(args.output_dir)
-    # Load SAMAP object from pickle
     sm = load_samap_pickle(args.input)
-
-    # Load keys from sample sheet
     keys = load_keys_from_sample_sheet(args.sample_sheet)
-    print(keys)  # or use as needed in your visualization logic
-
+    
     # Save and get mapping scores and use them to generate plots
     _, pms = save_mapping_scores(sm, keys, args.output_dir)
     save_chord_plot(mapping_table=pms, output_dir=args.output_dir)
     save_sankey_plot(mapping_table=pms, output_dir=args.output_dir)
-
-    # Save scatter plot
-    save_scatter_plot(sm, args.output_dir)
+    save_scatter_plot(samap=sm, output_dir=args.output_dir)
 
 
 # --------------------------------------------------
