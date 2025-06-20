@@ -227,32 +227,6 @@ def save_scatter_plot(samap: SAMAP, output_dir: str):
 
 
 # --------------------------------------------------
-def save_log(
-    input_file: str, outputs: dict, log_file: str, keys_json: dict
-) -> None:
-    """
-    Save a JSON log with input, keys, and outputs in Nextflow module format.
-
-    Args:
-        input_file (str): Path to the input SAMAP pickle file.
-        outputs (dict): Dictionary of paths to the generated output files.
-        log_file (str): Path to the log file.
-        keys_json (dict): Dictionary of sample annotations.
-
-    Returns:
-        None
-    """
-    log = {
-        "input": input_file,
-        "keys": keys_json,
-        "outputs": outputs,
-    }
-    with open(log_file, "w") as f:
-        json.dump(log, f, indent=2)
-    print(f"Saved log to {log_file}")
-
-
-# --------------------------------------------------
 def load_keys_from_sample_sheet(sample_sheet_path: Path) -> dict:
     """
     Load a dictionary of keys from the sample sheet CSV. The keys are 
@@ -281,7 +255,6 @@ def main() -> None:
     1. Loads the SAMAP object from the provided pickle file.
     2. Loads sample annotations from the sample sheet.
     3. Saves mapping scores, Sankey plot, chord plot, and scatter plot to the output directory.
-    4. Saves a log of the process in JSON format.
     """
 
     args = get_args()
@@ -295,20 +268,13 @@ def main() -> None:
     keys = load_keys_from_sample_sheet(args.sample_sheet)
     print(keys)  # or use as needed in your visualization logic
 
-    outputs = {}
-
     # Save and get mapping scores and use them to generate plots
     _, pms = save_mapping_scores(sm, keys, args.output_dir)
     save_chord_plot(mapping_table=pms, output_dir=args.output_dir)
     save_sankey_plot(mapping_table=pms, output_dir=args.output_dir)
 
     # Save scatter plot
-    scatter_file = save_scatter_plot(sm, args.output_dir)
-    outputs["scatter_plot"] = scatter_file
-
-    # Save log, now including keys json
-    log_file = os.path.join(args.output_dir, "vis.log")
-    save_log(args.input, outputs, log_file, keys)
+    save_scatter_plot(sm, args.output_dir)
 
 
 # --------------------------------------------------

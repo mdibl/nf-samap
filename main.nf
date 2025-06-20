@@ -38,7 +38,6 @@
  *      - results_dir/run_id/plots/scatter.png      Gene mapping scatter plot
  *      - results_dir/run_id/csv/hms.csv            Highest mapping scores (HMS) matrix
  *      - results_dir/run_id/csv/pms.csv            Pairwise mapping scores (PMS) matrix
- *      - results_dir/run_id/logs/vis.log           Log file for visualization step
  *
  *  Author:     Ryan Sonderman
  *  Created:    2025-06-12
