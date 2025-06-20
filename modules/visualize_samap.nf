@@ -12,6 +12,7 @@
  *
  *  Outputs:
  *      Several visualizations about the SAMap results
+ *      results/${run_di}/plots/chord.html
  *      results/${run_id}/plots/sankey.html
  *      results/${run_id}/plots/scatter.png
  *      results/${run_id}/csv/hms.csv 
@@ -35,6 +36,7 @@ process VISUALIZE_SAMAP {
         path sample_sheet
 
     output:
+        path 'chord.html'
         path 'sankey.html'
         path 'scatter.png'
         path 'hms.csv'

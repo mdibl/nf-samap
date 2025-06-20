@@ -33,6 +33,7 @@
  *      - results_dir/run_id/sample_sheet.csv       Updated metadata with type and ID
  *      - results_dir/run_id/maps/                  Reciprocal BLAST outputs per sample pair
  *      - results_dir/run_id/samap_objects/         Pickled SAMap object (Python)
+ *      - results_dir/run_id/plots/chord.html       Chord plot
  *      - results_dir/run_id/plots/sankey.html      Mapping Sankey diagram
  *      - results_dir/run_id/plots/scatter.png      Gene mapping scatter plot
  *      - results_dir/run_id/csv/hms.csv            Highest mapping scores (HMS) matrix

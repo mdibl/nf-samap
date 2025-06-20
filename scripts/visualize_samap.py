@@ -14,7 +14,7 @@ import csv
 from typing import NamedTuple, Optional
 from pathlib import Path
 from samap.mapping import SAMAP
-from samap.analysis import get_mapping_scores, sankey_plot
+from samap.analysis import get_mapping_scores, sankey_plot, chord_plot
 import matplotlib.pyplot as plt
 import holoviews as hv
 
@@ -130,6 +130,35 @@ def save_sankey_plot(pairwise_mapping_scores, output_dir: str) -> str:
 
 
 # --------------------------------------------------
+def save_chord_plot(mapping_table, 
+                    output_dir: str, 
+                    align_thr=0.1, 
+                    file_ext='html',
+                    toolbar=True):
+    """
+    Generate and save a Chord plot.
+
+    Args:
+        mapping_table (pandas.dataFrame):
+            Pairwise mapping scores.
+        output_dir (str): Directory where the plot will be saved.
+        align_thr (float, optional, default 0.1):
+            The alignment score threshold below which to remove cell type mappings.
+        file_type (str): File extension applied to the chord plot.
+    """
+    file_fmt = file_ext.lstrip('.')
+    chord_obj = chord_plot(mapping_table, align_thr)
+    chord_outfile = os.path.join(output_dir, f"chord.{file_fmt}")
+    try:
+        print(f"[INFO] Saving chord plot to {chord_outfile}")
+        hv.save(chord_obj, chord_outfile, backend="bokeh", fmt=file_fmt, toolbar=toolbar)
+        print(f"[INFO] Successfully saved chord plot to {chord_outfile}")
+    except Exception as e:
+        print(f"[ERROR] Could not save chord plot. Error: {e}")
+    return chord_obj
+
+
+# --------------------------------------------------
 def save_mapping_scores(samap: SAMAP, keys: dict, output_dir: str):
     """
     Save the highest mapping scores and pairwise mapping scores to CSV files,
@@ -156,10 +185,13 @@ def save_mapping_scores(samap: SAMAP, keys: dict, output_dir: str):
     pairwise_mapping_scores.to_csv(pms_outfile)
     print(f"Saved pairwise mapping scores to: {pms_outfile}")
 
-    # Save Sankey plot using the new function
+    # Save Sankey plot
     sankey_html_outfile = save_sankey_plot(
         pairwise_mapping_scores, output_dir
     )
+    
+    # Save chord plot
+    save_chord_plot(pairwise_mapping_scores, output_dir=output_dir)
 
     return hms_outfile, pms_outfile, sankey_html_outfile
 
@@ -239,7 +271,7 @@ def main() -> None:
     This function:
     1. Loads the SAMAP object from the provided pickle file.
     2. Loads sample annotations from the sample sheet.
-    3. Saves mapping scores, Sankey plot, and scatter plot to the output directory.
+    3. Saves mapping scores, Sankey plot, chord plot, and scatter plot to the output directory.
     4. Saves a log of the process in JSON format.
     """
 
