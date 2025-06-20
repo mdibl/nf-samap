@@ -94,7 +94,7 @@ workflow {
             run_id_ch,
             pairs_channel,
             data_dir.first(),
-        ).first()
+        )
         // Set path to maps from BLAST results
         maps_dir = blast_maps
             .map { it[0].getParent().getParent() }
