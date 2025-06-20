@@ -13,14 +13,16 @@
  *      data_dir:       Staging the data directory so the script can access it
  *
  *  Outputs:
- *      Two BLAST result text files for each direction.
- *      results/${run_id}/maps/{pair_id}/[A_to_B.txt, B_to_A.txt]
+ *      Two BLAST result text files for each direction and a logfile.
+ *      results/run_id/maps/{pair_id}/[A_to_B.txt, B_to_A.txt]
+ *      results/run_id/logs/run_id_pair_id_blast.log
  */
 
 process RUN_BLAST_PAIR {
     tag "${run_id} - ${a.id2}_vs_${b.id2}"
 
-    publishDir("results/${run_id}/", mode: 'copy')
+    publishDir("results/${run_id}/", mode: 'copy', pattern: '*.txt')
+    publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
 
     container 'pipeline/samap-blast:latest'
 
@@ -31,11 +33,14 @@ process RUN_BLAST_PAIR {
 
     output:
         path "maps/*/*_to_*.txt"
+        path "${run_id}_${a.id}_${b.id}_blast.log"
 
     script:
     """
+    LOG=${run_id}_${a.id}_${b.id}_blast.log
+
     map_genes.sh \\
         --tr1 ${a.fasta} --t1 ${a.type} --n1 ${a.id2} \\
-        --tr2 ${b.fasta} --t2 ${b.type} --n2 ${b.id2}
+        --tr2 ${b.fasta} --t2 ${b.type} --n2 ${b.id2} >> \$LOG 2>&1
     """
 }
