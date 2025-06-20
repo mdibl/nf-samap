@@ -11,14 +11,16 @@
  *      data_dir:       Staging the data directory so the script can access it
  *
  *  Outputs:
- *      One pickled SAM object per sample
- *      results/${run_id}/sams/{id2}.pkl
+ *      One pickled SAM object per sample and a logfile.
+ *      results/run_id/sams/id2.pkl
+ *      results/run_id/logs/run_id_load_sams.log
  */
 
 process LOAD_SAMS {
     tag "${run_id} - load and pickle SAM objects"
 
-    publishDir "results/${run_id}/sams/", mode: 'copy'
+    publishDir("results/${run_id}/sams/", mode: 'copy', pattern: '*.pkl')
+    publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
 
     container 'pipeline/samap:latest'
 
@@ -28,11 +30,14 @@ process LOAD_SAMS {
         path data_dir 
 
     output:
-        path "*.pkl"
+        path "*.pkl", emit: sams
+        path "${run_id}_load_sams.log", emit: logfile
 
     script:
     """
+    LOG="${run_id}_load_sams.log"
+
     load_sams.py \\
-        --sample-sheet ${sample_sheet}
+        --sample-sheet ${sample_sheet}>> \$LOG 2>&1
     """
 }

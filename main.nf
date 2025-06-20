@@ -104,11 +104,12 @@ workflow {
 
 
     // Load SAM objects from the AnnData h5ad files
-    sams = LOAD_SAMS(
+    LOAD_SAMS(
         run_id_ch,
         sample_sheet_pr,
         data_dir,
     )
+    sams = LOAD_SAMS.out.sams
 
 
     // Build the SAMap object from the SAM objects and the BLAST maps
