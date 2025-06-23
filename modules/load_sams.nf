@@ -36,8 +36,7 @@ process LOAD_SAMS {
     script:
     """
     LOG="${run_id}_load_sams.log"
-
     load_sams.py \\
-        --sample-sheet ${sample_sheet}>> \$LOG 2>&1
+        --sample-sheet ${sample_sheet} 2>&1 | tee -a \$LOG
     """
 }
