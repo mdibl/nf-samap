@@ -91,6 +91,7 @@ Results are stored in `results/{run_id}/`.
 | samap_objects/samap_results.pkl | Pickled SAMAP object after running SAMap |
 | samap_objects/samap.pkl | Pickled SAMAP object before running SAMap |
 | sams/* | Pickled SAM objects named according to the 2-char hash assigned to their sample |
+| logs/* | Logfile output for each module |
 
 ---
 # 🧱 Module Overview
