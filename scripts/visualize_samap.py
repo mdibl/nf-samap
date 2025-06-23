@@ -10,6 +10,7 @@ import argparse
 import os
 import pickle
 import csv
+from log_utils import log
 from typing import NamedTuple, Optional
 from pathlib import Path
 from samap.mapping import SAMAP
@@ -82,9 +83,9 @@ def create_output_dir(output_dir: str) -> None:
     """Create output directory if it does not exist"""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-        print(f"[INFO] Output directory created: '{output_dir}'")
+        log(f"Successfully created output directory at '{output_dir}'", "INFO")
     else:
-        print(f"[INFO] Output directory already exists: '{output_dir}'")
+        log(f"Output directory already exists at '{output_dir}, skipping step", "INFO")
 
 
 # --------------------------------------------------
@@ -98,10 +99,9 @@ def load_samap_pickle(pickle_file: str) -> SAMAP:
     Returns:
         SAMAP: Loaded SAMAP object.
     """
-    print(f"[INFO] Loading SAMAP object from pickle at '{pickle_file}")
     with open(pickle_file, "rb") as f:
         samap_obj = pickle.load(f)
-    print(f"[INFO] Loaded SAMAP object of type: '{type(samap_obj)}'")
+    log(f"Successfully loaded pickle of type '{type(samap_obj)}", "INFO")
     return samap_obj
 
 
@@ -129,18 +129,19 @@ def save_mapping_scores(samap: SAMAP,
     hms, pms = get_mapping_scores(sm=samap, keys=keys, n_top=n_top)
     hms_outfile = os.path.join(output_dir, f"{hms_name}.csv")
     try: # Save the highest mapping scores to csv
-        print(f"[INFO] Saving highest mapping scores to '{hms_outfile}'")
+        log(f"  Attempting to save highest mapping scores to '{hms_outfile}'", "INFO")
         hms.to_csv(hms_outfile)
-        print(f"[INFO] Successfully saved highest mapping scores to '{hms_outfile}'")
+        log(f"  Successfully saved highest mapping scores to '{hms_outfile}'", "INFO")
     except Exception as e:
-        print(f"[ERROR] Could not save highest mapping scores. Error: {e}")
+        log(f"  Failed to save highest mapping scores to '{hms_outfile}'. Error: {e}", "ERROR")
     pms_outfile = os.path.join(output_dir, f"{pms_name}.csv")
     try: # Save the pairwise mapping scores to csv
-        print(f"[INFO] Saving pairwise mapping scores to '{pms_outfile}'")
+        log(f"  Attempting to save pairwise mapping scores to '{pms_outfile}'", "INFO")
         pms.to_csv(pms_outfile)
-        print(f"[INFO] Successfully saved pairwise mapping scores to '{pms_outfile}'")
+        log(f"  Scussessfully save pairwise mapping scores to '{pms_outfile}'", "INFO")
     except Exception as e:
         print(f"[ERROR] Could not save pairwise mapping scores. Error: {e}")
+        log(f"  Failed to save pairwise mapping scores to '{pms_outfile}'. Error: {e}", "ERROR")
     return hms, pms # Return the data frames
 
 
@@ -168,11 +169,11 @@ def save_sankey_plot(mapping_table,
     sankey_obj = sankey_plot(mapping_table, align_thr=align_thr)
     sankey_outfile = os.path.join(output_dir, f"{file_name}.{file_fmt}")
     try:
-        print(f"[INFO] Saving sankey plot to '{sankey_outfile}'")
+        log(f"  Attempting to save sankey plot to '{sankey_outfile}'", "INFO")
         hv.save(sankey_obj, sankey_outfile, backend="bokeh", fmt=file_fmt, toolbar=toolbar, title=title)
-        print(f"[INFO] Successfully saved sankey plot to '{sankey_outfile}'")
+        log(f"  Successfully saved sankey plot to '{sankey_outfile}'", "INFO")
     except Exception as e:
-        print(f"[ERROR] Could not save sankey plot. Error: {e}")
+        log(f"  Failed to save sankey plot to '{sankey_outfile}'. Error: {e}", "ERROR")
 
 
 # --------------------------------------------------
@@ -198,11 +199,11 @@ def save_chord_plot(mapping_table,
     chord_obj = chord_plot(mapping_table, align_thr)
     chord_outfile = os.path.join(output_dir, f"{file_name}.{file_fmt}")
     try:
-        print(f"[INFO] Saving chord plot to '{chord_outfile}'")
+        log(f"  Attempting to save chord plot to '{chord_outfile}'", "INFO")
         hv.save(chord_obj, chord_outfile, backend="bokeh", fmt=file_fmt, toolbar=toolbar, title=title)
-        print(f"[INFO] Successfully saved chord plot to '{chord_outfile}'")
+        log(f"  Successfully saved chord plot to '{chord_outfile}'", "INFO")
     except Exception as e:
-        print(f"[ERROR] Could not save chord plot. Error: {e}")
+        log(f"  Failed to save chord plot to '{chord_outfile}'. Error: {e}")
 
 
 # --------------------------------------------------
@@ -221,9 +222,9 @@ def save_scatter_plot(samap: SAMAP, output_dir: str, out_name='scatter', dpi=300
     """
     samap.scatter()
     scatter_outfile = os.path.join(output_dir, f"{out_name}.png")
-    print(f"[INFO] Saving scatter plot to '{scatter_outfile}'")
+    log(f"  Attempting to save scatter plot to '{scatter_outfile}'", "INFO")
     plt.savefig(scatter_outfile, dpi=dpi)
-    print(f"[INFO] Successfully saved scatter plot to '{scatter_outfile}'")
+    log(f"  Successfully saved scatter plot to '{scatter_outfile}'", "INFO")
     plt.close()
 
 
@@ -239,14 +240,13 @@ def load_keys_from_sample_sheet(sample_sheet_path: Path) -> dict:
     Returns:
         dict: Dictionary where the key is id2 and the value is the annotation.
     """
-    print(f"[INFO] Loading annotation keys from '{sample_sheet_path}'")
     keys = {}
     with open(sample_sheet_path, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             keys[row["id2"]] = row["annotation"]
-    print("[INFO] All annotation keys loaded.")
-    print(f"[INFO] Annotation dictionary: {keys}")
+            log(f"  Loading annotation for {row['id2']}: {row['annotation']}", "INFO")
+    log("Successfully loaded all annotation keys")
     return keys
 
 
@@ -261,17 +261,26 @@ def main() -> None:
     3. Saves mapping scores, Sankey plot, chord plot, and scatter plot to the output directory.
     """
 
+    log("Beginning execution of script", "INFO")
     args = get_args()
-
+    
+    log(f"Attempting to create output directory at '{args.output_dir}'", "INFO")
     create_output_dir(args.output_dir)
+    log(f"Attempting to load SAMAP pickle from '{args.input}'", "INFO")
     sm = load_samap_pickle(args.input)
+    log(f"Attempting to load annotation keys from '{args.sample_sheet}'", "INFO")
     keys = load_keys_from_sample_sheet(args.sample_sheet)
     
     # Save and get mapping scores and use them to generate plots
+    log("Attempting to save mapping scores")
     _, pms = save_mapping_scores(sm, keys, args.output_dir)
+    log("Attempting to create chord plot", "INFO")
     save_chord_plot(mapping_table=pms, output_dir=args.output_dir)
+    log("Attempting to create sankey plot", "INFO")
     save_sankey_plot(mapping_table=pms, output_dir=args.output_dir)
+    log("Attempting to create scatter plot", "INFO")
     save_scatter_plot(samap=sm, output_dir=args.output_dir)
+    log("Script complete", "INFO")
 
 
 # --------------------------------------------------
