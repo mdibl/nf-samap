@@ -113,7 +113,7 @@ workflow {
 
 
     // Build the SAMap object from the SAM objects and the BLAST maps
-    samap = BUILD_SAMAP(
+    BUILD_SAMAP(
         run_id_ch,
         sample_sheet_pr,
         data_dir,
@@ -121,6 +121,7 @@ workflow {
         results_dir,
         sams,
     )
+    samap = BUILD_SAMAP.out.samap
 
 
     // Run SAMap on the SAMAP object to generate mapping results

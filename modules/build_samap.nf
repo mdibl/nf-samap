@@ -2,7 +2,7 @@
  *  MODULE: build_samap.nf
  *
  *  Description: 
- *      Creates a SAMAP object from 
+ *      Creates a SAMAP object from blast mappings and SAM objects
  *
  *  Inputs:
  *      run_id:         Timestamp of the nextflow process
@@ -13,14 +13,16 @@
  *      sams:           Channel containing the SAM objects
  *
  *  Outputs:
- *      A pickled SAMAP object
- *      results/${run_id}/samap_objects/${run_id}_samap.pkl
+ *      A pickled SAMAP object and a logfile.
+ *      results/run_id/samap_objects/run_id_samap.pkl
+ *      results/run_id/logs/run_id_build_samap.log
  */
 
 process BUILD_SAMAP {
     tag "${run_id} - build SAMAP object"
 
-    publishDir "results/${run_id}/samap_objects/", mode: 'copy'
+    publishDir("results/${run_id}/samap_objects/", mode: 'copy', pattern: '*.pkl')
+    publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
 
     container 'pipeline/samap:latest'
 
@@ -33,13 +35,15 @@ process BUILD_SAMAP {
         path sams // SAM objects to be used in the SAMap
 
     output:
-        path "samap.pkl"
+        path "samap.pkl", emit: samap
+        path "${run_id}_build_samap.log", emit: logfile
 
     script:
     """
+    LOG="${run_id}_build_samap.log"
     build_samap.py \\
         --sams-dir ${results_dir}/${run_id}/sams \\
         --sample-sheet ${sample_sheet} \\
-        --f-maps ${maps_dir}
+        --maps ${maps_dir} 2>&1 | tee -a \$LOG
     """
 }
