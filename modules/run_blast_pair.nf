@@ -31,8 +31,8 @@ process RUN_BLAST_PAIR {
         path data_dir
 
     output:
-        path "maps/*/*_to_*.txt"
-        path "${run_id}_${a.id}${b.id}_blast.log"
+        path "maps/*/*_to_*.txt", emit: maps
+        path "${run_id}_${a.id}${b.id}_blast.log", emit: logfile
 
     script:
     """

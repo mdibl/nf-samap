@@ -91,13 +91,13 @@ workflow {
         maps_dir = Channel.fromPath(params.maps_dir)
     } else {
         // Run BLAST and extract parent maps directory
-        blast_maps = RUN_BLAST_PAIR(
+        RUN_BLAST_PAIR(
             run_id_ch,
             pairs_channel,
             data_dir.first(),
         )
         // Set path to maps from BLAST results
-        maps_dir = blast_maps
+        maps_dir = RUN_BLAST_PAIR.out.maps
             .map { it[0].getParent().getParent() }
             .unique()
     }
