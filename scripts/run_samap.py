@@ -8,6 +8,7 @@ Purpose: Run SAMAP post-processing with a pickled SAMAP object
 
 import argparse
 import pickle
+from log_utils import log, capture_output
 from pathlib import Path
 from samap.mapping import SAMAP  # noqa: F401
 from samap.utils import save_samap
@@ -40,6 +41,13 @@ def get_args():
         default=Path("."),
         help="Directory to save the SAMAP pickle output",
     )
+    parser.add_argument(
+        "-n", 
+        "--name",
+        type=str,
+        default="samap_results.pkl",
+        help="Name of the saved SAMAP pickle"
+    )
     return parser.parse_args()
 
 
@@ -56,19 +64,21 @@ def main():
     args = get_args()
 
     # Load the pickled SAMAP object
-    print(f"[INFO] Loading SAMAP object from: {args.input}")
+    log(f"Loading SAMAP object from {args.input}", "INFO")
     with open(args.input, "rb") as f:
         samap = pickle.load(f)
 
     # Run SAMap post-processing
-    print("[INFO] Running SAMAP...")
-    samap.run()
+    log("Attempting to run SAMap", "INFO")
+    capture_output(samap.run)
+    log("Successfully ran SAMap", "INFO")
 
     # Save the processed SAMAP object
+    log("Attempting to save SAMAP object", "INFO")
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = args.output_dir / "samap_results.pkl"
+    output_file = args.output_dir / args.name
     save_samap(samap, str(output_file))
-    print(f"[INFO] SAMAP results saved to {output_file}")
+    log(f"Successfully saved SAMAP results to {output_file}", "INFO")
 
 
 # --------------------------------------------------

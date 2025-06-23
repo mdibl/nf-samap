@@ -125,11 +125,12 @@ workflow {
 
 
     // Run SAMap on the SAMAP object to generate mapping results
-    samap_results = RUN_SAMAP(
+    RUN_SAMAP(
         run_id_ch,
         results_dir,
         samap,
     )
+    samap_results = RUN_SAMAP.out.results
 
 
     // Visualize the SAMap results
