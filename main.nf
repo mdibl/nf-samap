@@ -98,7 +98,7 @@ workflow {
         )
         // Set path to maps from BLAST results
         maps_dir = RUN_BLAST_PAIR.out.maps
-            .map { it[0].getParent().getParent() }
+            .map { it.getParent().getParent() }
             .unique()
     }
 
