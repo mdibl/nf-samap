@@ -31,13 +31,14 @@ process RUN_BLAST_PAIR {
         path data_dir
 
     output:
-        path "maps/*/*_to_*.txt"
+        path "maps/*/*_to_*.txt", emit: maps
         path "${run_id}_${a.id}${b.id}_blast.log"
 
     script:
     """
     LOG="${run_id}_${a.id}${b.id}_blast.log"
     map_genes.sh \\
+        --threads ${task.cpus} \\
         --tr1 ${a.fasta} --t1 ${a.type} --n1 ${a.id2} \\
         --tr2 ${b.fasta} --t2 ${b.type} --n2 ${b.id2} | \\
         while IFS= read -r line; do
