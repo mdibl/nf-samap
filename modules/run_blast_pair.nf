@@ -20,7 +20,7 @@
 process RUN_BLAST_PAIR {
     tag "${run_id} - ${a.id2}_vs_${b.id2}"
 
-    publishDir("results/${run_id}/", mode: 'copy', pattern: "*.txt")
+    publishDir("results/${run_id}/", mode: 'copy', pattern: "maps/*/*_to_*.txt")
     publishDir("results/${run_id}/logs", mode: 'copy', pattern: "*.log")
 
     container 'pipeline/samap-blast:latest'
@@ -32,11 +32,11 @@ process RUN_BLAST_PAIR {
 
     output:
         path "maps/*/*_to_*.txt", emit: maps
-        path "${run_id}_${a.id}${b.id}_blast.log", emit: logfile
+        path "${run_id}_${a.id2}${b.id2}_blast.log", emit: logfile
 
     script:
     """
-    LOG="${run_id}_${a.id}${b.id}_blast.log"
+    LOG="${run_id}_${a.id2}${b.id2}_blast.log"
     map_genes.sh \\
         --tr1 ${a.fasta} --t1 ${a.type} --n1 ${a.id2} \\
         --tr2 ${b.fasta} --t2 ${b.type} --n2 ${b.id2} | \\
