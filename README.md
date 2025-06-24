@@ -123,7 +123,7 @@ Runs the SAMap algorithm on the built object to calculate pairwise gene mapping 
 Generates outputs such as Sankey diagrams, scatter plots, and CSV summaries of the alignment results for downstream analysis or interpretation.
 
 ---
-# 🔗 Links
+# 🔗 Links and Acknowledgements
 
 - SAMap Repository:   https://github.com/atarashansky/SAMap
 - SAMap Paper:        https://pmc.ncbi.nlm.nih.gov/articles/PMC8139856/
@@ -131,11 +131,15 @@ Generates outputs such as Sankey diagrams, scatter plots, and CSV summaries of t
 - BLAST Docker Image: https://hub.docker.com/r/staphb/blast
 
 ---
-# 👤 Author and Licenses
+# 👤 Authors and Licenses
 
 **Ryan Sonderman**
 
 GitHub: [@RyanSonder](https://github.com/RyanSonder)
+
+**Riley Grindle**
+
+GitHub: [@Riley-Grindle](https://github.com/Riley-Grindle)
 
 This pipeline is licensed under the MIT License. See the [LICENSE](LICENSE) file for full details.
 
