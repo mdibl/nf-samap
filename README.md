@@ -2,6 +2,8 @@
 
 > This project wraps SAMap (https://github.com/atarashansky/SAMap) in a NextFlow pipeline. 
 
+> Current version: `v1.1.0`
+
 ---
 # 🚀 Quickstart
 
