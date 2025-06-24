@@ -32,7 +32,7 @@ process RUN_BLAST_PAIR {
 
     output:
         path "maps/*/*_to_*.txt", emit: maps
-        path "${run_id}_${a.id}${b.id}_blast.log"
+        path "${run_id}_${a.id}${b.id}_blast.log", emit: logfile
 
     script:
     """
