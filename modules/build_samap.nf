@@ -39,7 +39,7 @@ process BUILD_SAMAP {
         path "${run_id}_build_samap.log", emit: logfile
 
     script:
-    """
+    """  
     LOG="${run_id}_build_samap.log"
     build_samap.py \\
         --sams-dir ${results_dir}/${run_id}/sams \\

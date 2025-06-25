@@ -97,9 +97,7 @@ workflow {
             data_dir.first(),
         )
         // Set path to maps from BLAST results
-        maps_dir = RUN_BLAST_PAIR.out.maps
-            .map { it.getParent().getParent() }
-            .unique()
+	maps_dir = results_dir.combine(run_id_ch).map { results_dir, run_id -> results_dir.resolve(run_id).resolve('maps') }
     }
 
 
@@ -110,7 +108,6 @@ workflow {
         data_dir,
     )
     sams = LOAD_SAMS.out.sams
-
 
     // Build the SAMap object from the SAM objects and the BLAST maps
     BUILD_SAMAP(
