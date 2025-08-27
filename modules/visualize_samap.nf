@@ -27,7 +27,7 @@ process VISUALIZE_SAMAP {
     publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
     publishDir("results/${run_id}/csv/", mode: 'copy', pattern: '*.csv')
 
-    container 'pipeline/samap:latest'
+    container 'mdiblbiocore/samap:latest'
 
     input:
         val run_id
