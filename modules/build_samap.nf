@@ -24,7 +24,7 @@ process BUILD_SAMAP {
     publishDir("results/${run_id}/samap_objects/", mode: 'copy', pattern: '*.pkl')
     publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
 
-    container 'pipeline/samap:latest'
+    container 'mdiblbiocore/samap:latest'
 
     input:
         val run_id
