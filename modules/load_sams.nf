@@ -22,7 +22,7 @@ process LOAD_SAMS {
     publishDir("results/${run_id}/sams/", mode: 'copy', pattern: '*.pkl')
     publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
 
-    container 'pipeline/samap:latest'
+    container 'mdiblbiocore/samap:latest'
 
     input:
         val run_id
