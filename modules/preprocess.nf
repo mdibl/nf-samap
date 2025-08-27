@@ -23,7 +23,7 @@ process PREPROCESS {
     publishDir("results/${run_id}/", mode: 'copy', pattern: '*.csv')
     publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
 
-    container 'pipeline/samap-blast:latest'
+    container 'mdiblbiocore/samap-blast:latest'
 
     input:
         val run_id
