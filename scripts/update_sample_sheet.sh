@@ -80,7 +80,7 @@ echo "${header},type,id2" > "$output_csv"
 
 # Process each row in the csv
 log "INFO" "Updating sample sheet with type and id2 values"
-tail -n +2 "$input_csv" | while IFS=, read -r id h5ad fasta annotation; do
+while IFS=, read -r id h5ad fasta annotation; do
     log "INFO" "> Updating entry $id - ($fasta)"
     log "INFO" "  > Classifying fasta"
     type=$(classify_fasta "$fasta")
