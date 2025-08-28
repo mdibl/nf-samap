@@ -31,16 +31,11 @@ process PREPROCESS {
         path data_dir
 
     output:       
-        path "${run_id}_sample_sheet.csv", emit: sample_sheet_pr
+        path "${run_id}_${sample_sheet}", emit: sample_sheet_pr
         path "${run_id}_preprocess.log", emit: logfile
 
     script:
     """
-    while true; do
-        echo "."
-        sleep 5
-    done
-
     LOG=${run_id}_preprocess.log
     update_sample_sheet.sh ${sample_sheet} ${run_id}_${sample_sheet} 2>&1 | tee -a \$LOG
     """
