@@ -31,12 +31,12 @@ process PREPROCESS {
         path data_dir
 
     output:       
-        path "${run_id}_${sample_sheet}", emit: sample_sheet_pr
+        path "${run_id}_\$(basename ${sample_sheet})", emit: sample_sheet_pr
         path "${run_id}_preprocess.log", emit: logfile
 
     script:
     """
     LOG=${run_id}_preprocess.log
-    update_sample_sheet.sh ${sample_sheet} ${filename} 2>&1 | tee -a \$LOG
+    update_sample_sheet.sh ${sample_sheet} ${run_id}_\$(basename ${sample_sheet}) 2>&1 | tee -a \$LOG
     """
 }
