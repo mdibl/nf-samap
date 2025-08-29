@@ -9,6 +9,7 @@
  *      run_id:         Timestamp of the nextflow process
  *      samap_object:   Channel containing a pickled SAMAP object
  *      sample_sheet:   Path to the sample sheet CSV with sample metadata
+ *      outdir:         Directory in which to save final output
  *
  *  Outputs:
  *      Several visualizations about the SAMap results and a logfile
@@ -22,10 +23,10 @@
 process VISUALIZE_SAMAP {
     tag "${run_id} - SAMap visualization"
 
-    publishDir("results/${run_id}/plots/", mode: 'copy', pattern: '*.html')
-    publishDir("results/${run_id}/plots/", mode: 'copy', pattern: '*.png')
-    publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
-    publishDir("results/${run_id}/csv/", mode: 'copy', pattern: '*.csv')
+    publishDir("${outdir}/${run_id}/plots/", mode: 'copy', pattern: '*.html')
+    publishDir("${outdir}/${run_id}/plots/", mode: 'copy', pattern: '*.png')
+    publishDir("${outdir}/${run_id}/logs/", mode: 'copy', pattern: '*.log')
+    publishDir("${outdir}/${run_id}/csv/", mode: 'copy', pattern: '*.csv')
 
     container 'mdiblbiocore/samap:latest'
 
@@ -33,6 +34,7 @@ process VISUALIZE_SAMAP {
         val run_id
         path samap_obj
         path sample_sheet
+        path outdir
 
     output:
         path "chord.html"

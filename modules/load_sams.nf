@@ -19,8 +19,8 @@
 process LOAD_SAMS {
     tag "${run_id} - load and pickle SAM objects"
 
-    publishDir("results/${run_id}/sams/", mode: 'copy', pattern: '*.pkl')
-    publishDir("results/${run_id}/logs/", mode: 'copy', pattern: '*.log')
+    publishDir("${outdir}/${run_id}/sams/", mode: 'copy', pattern: '*.pkl')
+    publishDir("${outdir}/${run_id}/logs/", mode: 'copy', pattern: '*.log')
 
     container 'mdiblbiocore/samap:latest'
 
@@ -28,6 +28,7 @@ process LOAD_SAMS {
         val run_id
         path sample_sheet 
         path data_dir 
+        path outdir
 
     output:
         path "*.pkl", emit: sams

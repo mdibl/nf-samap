@@ -6,7 +6,6 @@
  *
  *  Inputs:
  *      run_id:         Timestamp of the nextflow process
- *      results_dir:    Directory to store the results
  *      samap_object:   Channel containing a pickled SAMAP object
  *
  *  Outputs:
@@ -18,15 +17,15 @@
 process RUN_SAMAP {
     tag "${run_id} - run SAMap"
 
-    publishDir("results/${run_id}/samap_objects/", mode: 'copy', pattern: '*.pkl')
-    publishDir("results/${run_id}/logs", mode: 'copy', pattern: '*.log')
+    publishDir("${outdir}/${run_id}/samap_objects/", mode: 'copy', pattern: '*.pkl')
+    publishDir("${outdir}/${run_id}/logs", mode: 'copy', pattern: '*.log')
 
     container 'mdiblbiocore/samap:latest'
 
     input:
         val run_id
-        path results_dir 
         path samap_object
+        path outdir
 
     output:
         path "samap_results.pkl", emit: results

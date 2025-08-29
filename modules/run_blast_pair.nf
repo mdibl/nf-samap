@@ -20,8 +20,8 @@
 process RUN_BLAST_PAIR {
     tag "${run_id} - ${a.id2}_vs_${b.id2}"
 
-    publishDir("results/${run_id}/", mode: 'copy', pattern: "maps/*/*_to_*.txt")
-    publishDir("results/${run_id}/logs", mode: 'copy', pattern: "*.log")
+    publishDir("${outdir}/${run_id}/", mode: 'copy', pattern: "maps/*/*_to_*.txt")
+    publishDir("${outdir}/${run_id}/logs", mode: 'copy', pattern: "*.log")
 
     container 'mdiblbiocore/samap-blast:latest'
 
@@ -29,6 +29,8 @@ process RUN_BLAST_PAIR {
         val run_id
         tuple val(a), val(b)
         path data_dir
+        path outdir
+
 
     output:
         path "maps/*/*_to_*.txt", emit: maps

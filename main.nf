@@ -60,7 +60,6 @@ workflow {
 
     // Stage static input files
     data_dir        = Channel.fromPath(params.data_dir)
-    results_dir     = Channel.fromPath(params.results_dir)
     sample_sheet    = Channel.fromPath(params.sample_sheet)
 
     // Validation of necessary files
@@ -74,6 +73,7 @@ workflow {
         run_id_ch,
         sample_sheet,
         data_dir,
+        params.outdir,
     )
     sample_sheet_pr = PREPROCESS.out.sample_sheet_pr
 
@@ -95,9 +95,11 @@ workflow {
             run_id_ch,
             pairs_channel,
             data_dir.first(),
+            params.outdir,
         )
         // Set path to maps from BLAST results
-	maps_dir = results_dir.combine(run_id_ch).map { results_dir, run_id -> results_dir.resolve(run_id).resolve('maps') }
+	    // maps_dir = results_dir.combine(run_id_ch).map { results_dir, run_id -> results_dir.resolve(run_id).resolve('maps') }
+    maps_dir = RUN_BLAST_PAIR.out.maps
     }
 
 
@@ -106,6 +108,7 @@ workflow {
         run_id_ch,
         sample_sheet_pr,
         data_dir,
+        params.outdir,
     )
     sams = LOAD_SAMS.out.sams
 
@@ -115,8 +118,8 @@ workflow {
         sample_sheet_pr,
         data_dir,
         maps_dir,
-        results_dir,
         sams,
+        params.outdir,
     )
     samap = BUILD_SAMAP.out.samap
 
@@ -124,8 +127,8 @@ workflow {
     // Run SAMap on the SAMAP object to generate mapping results
     RUN_SAMAP(
         run_id_ch,
-        results_dir,
         samap,
+        params.outdir,
     )
     samap_results = RUN_SAMAP.out.results
 
@@ -135,5 +138,6 @@ workflow {
         run_id_ch,
         samap_results,
         sample_sheet_pr,
+        params.outdir,
     )
 }
