@@ -31,7 +31,7 @@ process PREPROCESS {
         path data_dir
 
     output:       
-        path "${run_id}_\$(basename ${sample_sheet})", emit: sample_sheet_pr
+        path "${run_id}_${sample_sheet.getFileName()}", emit: sample_sheet_pr
         path "${run_id}_preprocess.log", emit: logfile
 
     script:
