@@ -28,7 +28,6 @@ process PREPROCESS {
     input:
         val run_id
         path sample_sheet
-        path data_dir // Not used, is it still necessary???
         path outdir
 
     output:       
