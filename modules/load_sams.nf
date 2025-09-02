@@ -26,8 +26,7 @@ process LOAD_SAMS {
 
     input:
         val run_id
-        path sample_sheet 
-        path data_dir 
+        path sample_sheet  
         path outdir
 
     output:
