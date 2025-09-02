@@ -28,7 +28,6 @@ process BUILD_SAMAP {
     input:
         val run_id
         path sample_sheet // Sample sheet containing metadata for the samples
-        path data_dir // Load all the data necessary for building the SAMap object
         path maps_dir // Directory containing the BLAST mappings
         path sams // SAM objects to be used in the SAMap
         path outdir
