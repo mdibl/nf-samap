@@ -28,7 +28,6 @@ process RUN_BLAST_PAIR {
     input:
         val run_id
         tuple val(a), val(b)
-        path data_dir
         path outdir
 
 
