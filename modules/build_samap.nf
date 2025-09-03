@@ -42,6 +42,6 @@ process BUILD_SAMAP {
         build_samap.py \
         --sams-dir ${sams} \
         --sample-sheet ${sample_sheet} \
-        --maps ${maps_dir} 2>&1 | tee -a $LOG
+        --maps ${maps_dir} 2>&1 | tee -a \$LOG
     """
 }

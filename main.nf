@@ -52,6 +52,7 @@ include { LOAD_SAMS } from './modules/load_sams.nf'
 include { BUILD_SAMAP } from './modules/build_samap.nf'
 include { RUN_SAMAP } from './modules/run_samap.nf'
 include { VISUALIZE_SAMAP } from './modules/visualize_samap.nf'
+include { validateParameters; paramsHelp; samplesheetToList } from 'plugin/nf-schema'
 
 workflow {
     // Generate run ID unless one is provided
@@ -67,42 +68,44 @@ workflow {
         error "Missing required file: sample sheet '${params.sample_sheet}'"
     }
 
-
     // Preprocess sample sheet to add type and ID
     PREPROCESS(
         run_id_ch,
         sample_sheet,
-        data_dir,
-        params.outdir,
     )
-    sample_sheet_pr = PREPROCESS.out.sample_sheet_pr
+    
+    PREPROCESS.out.sample_sheet_pr
+        .map { file -> 
+            def list = samplesheetToList(file.toString(), "./assets/schema_input.json")
+            return list
+        }
+        .flatten()
+        .collate(3)
+        .set { ch_samples }
 
 
     // Generate unique unordered sample pairs
-    samples_channel = sample_sheet_pr.splitCsv(header: true, sep: ',')
-    pairs_channel = samples_channel
-        .combine(samples_channel)
-        .filter { a, b -> a.id2 < b.id2 }
-
+    pairs_channel = ch_samples
+        .combine(ch_samples)
+        .filter { a,b,c,d,e,f -> a.id2 < d.id2 }
+    pairs_channel.view()
 
     // Run BLAST or load precomputed map files 
-    if (params.maps_dir) {
+   if (params.maps_dir) {
         // Use user-supplied BLAST maps
         maps_dir = Channel.fromPath(params.maps_dir)
     } else {
         // Run BLAST and extract parent maps directory
         RUN_BLAST_PAIR(
             run_id_ch,
-            pairs_channel,
-            data_dir.first(),
-            params.outdir,
+            pairs_channel.map{[it[0], it[3], it[2], it[5]]},
         )
         // Set path to maps from BLAST results
 	    // maps_dir = results_dir.combine(run_id_ch).map { results_dir, run_id -> results_dir.resolve(run_id).resolve('maps') }
     maps_dir = RUN_BLAST_PAIR.out.maps
     }
 
-
+    /*
     // Load SAM objects from the AnnData h5ad files
     LOAD_SAMS(
         run_id_ch,
@@ -139,5 +142,5 @@ workflow {
         samap_results,
         sample_sheet_pr,
         params.outdir,
-    )
+    ) */
 }

@@ -2,8 +2,10 @@ run:
 	nextflow run main.nf 
 
 docker:
-	docker build -f Dockerfile.samap -t pipeline/samap:latest .
-	docker build -f Dockerfile.blast -t pipeline/samap-blast:latest .
+	docker build -f Dockerfile.samap -t docker.io/mdiblbiocore/samap:latest .
+	docker build --platform=linux/amd64 -f Dockerfile.blast -t docker.io/mdiblbiocore/samap-blast:latest .
+	docker push docker.io/mdiblbiocore/samap:latest
+	docker push docker.io/mdiblbiocore/samap-blast:latest  
 
 docker-shell-samap:
 	docker run --rm -it \

@@ -18,30 +18,27 @@
  */
 
 process RUN_BLAST_PAIR {
-    tag "${run_id} - ${a.id2}_vs_${b.id2}"
-
-    publishDir("${outdir}/${run_id}/", mode: 'copy', pattern: "maps/*/*_to_*.txt")
-    publishDir("${outdir}/${run_id}/logs", mode: 'copy', pattern: "*.log")
+    stageInMode 'copy'
+    tag "${run_id} - ${meta1.id2}_vs_${meta2.id2}"
 
     container 'mdiblbiocore/samap-blast:latest'
 
     input:
         val run_id
-        tuple val(a), val(b)
-        path outdir
+        tuple val(meta1), val(meta2), path(fasta1), path(fasta2)
 
 
     output:
         path "maps/*/*_to_*.txt", emit: maps
-        path "${run_id}_${a.id2}${b.id2}_blast.log", emit: logfile
+        path "${run_id}_${meta1.id2}${meta2.id2}_blast.log", emit: logfile
 
     script:
     """
-    LOG="${run_id}_${a.id2}${b.id2}_blast.log"
+    LOG="${run_id}_${meta1.id2}${meta2.id2}_blast.log"
     map_genes.sh \\
         --threads ${task.cpus} \\
-        --tr1 ${a.fasta} --t1 ${a.type} --n1 ${a.id2} \\
-        --tr2 ${b.fasta} --t2 ${b.type} --n2 ${b.id2} | \\
+        --tr1 ${fasta1} --t1 ${meta1.type} --n1 ${meta1.id2} \\
+        --tr2 ${fasta2} --t2 ${meta2.type} --n2 ${meta2.id2} | \\
         while IFS= read -r line; do
             echo "[\$(date +'%Y-%m-%d %H:%M:%S.%3N')] \$line"
         done 2>&1 | tee -a \$LOG

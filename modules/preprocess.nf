@@ -20,18 +20,14 @@
 process PREPROCESS {
     tag "${run_id} - sample sheet preprocessing"
 
-    publishDir("${outdir}/${run_id}/", mode: 'copy', pattern: '*.csv')
-    publishDir("${outdir}/${run_id}/logs/", mode: 'copy', pattern: '*.log')
-
     container 'mdiblbiocore/samap-blast:latest'
 
     input:
         val run_id
         path sample_sheet
-        path outdir
 
     output:       
-        path "${run_id}_${sample_sheet.getFileName()}", emit: sample_sheet_pr
+        path "${run_id}_${sample_sheet.getBaseName()}.csv", emit: sample_sheet_pr
         path "${run_id}_preprocess.log", emit: logfile
 
     script:
