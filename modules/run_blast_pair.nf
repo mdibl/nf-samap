@@ -18,7 +18,6 @@
  */
 
 process RUN_BLAST_PAIR {
-    stageInMode 'copy'
     tag "${run_id} - ${meta1.id2}_vs_${meta2.id2}"
 
     container 'mdiblbiocore/samap-blast:latest'

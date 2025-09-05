@@ -19,15 +19,14 @@
 process LOAD_SAMS {
     tag "${run_id} - load and pickle SAM objects"
 
-    publishDir("${outdir}/${run_id}/sams/", mode: 'copy', pattern: '*.pkl')
-    publishDir("${outdir}/${run_id}/logs/", mode: 'copy', pattern: '*.log')
-
     container 'mdiblbiocore/samap:latest'
 
     input:
         val run_id
-        path sample_sheet  
-        path outdir
+        tuple val(meta), val(h5ad) 
+
+    // this might be the only module where I actually need to stage the data_dir, since the list of paths won't be recognized by memVerge and automatically staged
+    // since I need them all to be strings inside the list, bc can't really make LOAD_SAMS work with the channel one-by-one standard
 
     output:
         path "*.pkl", emit: sams
@@ -37,6 +36,8 @@ process LOAD_SAMS {
     """
     LOG="${run_id}_load_sams.log"
     load_sams.py \\
-        --sample-sheet ${sample_sheet} 2>&1 | tee -a \$LOG
+        --id2 ${meta[0].join(' ')} \\
+        --h5ad ${h5ad.join(' ')} \\
+        2>&1 | tee -a \$LOG
     """
 }

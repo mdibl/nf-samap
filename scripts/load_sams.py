@@ -3,7 +3,7 @@
 Author : Ryan Sonderman
 Date   : 2025-06-16
 Version: 1.1.0
-Purpose: Load SAM objects from a sample sheet CSV file and pickle them
+Purpose: Load SAM objects from data originating in the sample sheet CSV file and pickle them
 """
 
 import argparse
@@ -18,7 +18,8 @@ import pickle
 class Args(NamedTuple):
     """Command-line arguments for the script"""
 
-    sample_sheet: Path  # Path to the sample sheet CSV file
+    id2: str    # List containing all id2 values
+    h5ad: Path  # List containing the Paths to the h5ad objects
     output: Path # Path to the output directory
 
 
@@ -32,17 +33,28 @@ def get_args() -> Args:
     """
 
     parser = argparse.ArgumentParser(
-        description="Load SAM objects from a sample sheet CSV file",
+        description="Load SAM objects from a channel containing the h5ad objects and corresponding id2 values",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     parser.add_argument(
-        "-s",
-        "--sample-sheet",
+        "-i",
+        "--id2",
+        metavar="ID",
+        type=str,
+        nargs="+",
+        required=True,
+        help="List of id2 values for samples in Sample Sheet",
+    )
+
+    parser.add_argument(
+        "-h",
+        "--h5ad",
         metavar="FILE",
         type=Path,
+        nargs="+",
         required=True,
-        help="Path to the sample sheet CSV file containing 'id2' and 'h5ad' columns",
+        help="List of Paths to h5ad objects referenced in Sample Sheet",
     )
     
     parser.add_argument(
@@ -55,27 +67,32 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
-    return Args(args.sample_sheet, args.output)
+    return Args(args.id2, args.h5ad, args.output)
 
 
 # --------------------------------------------------
-def get_h5ad_dict(sample_sheet_path: Path) -> dict:
+def get_h5ad_dict(id2: str, h5ad: Path) -> dict:
     """
-    Read a sample sheet CSV file and return a dictionary mapping 'id2' to 'h5ad' file paths.
+    Read the id2, h5ad lists and return a dictionary mapping 'id2' to 'h5ad' file paths.
 
     Args:
-        sample_sheet_path (Path): Path to the sample sheet CSV file.
+        id2 (str): List of id2 strings associated with the h5ad objects.
+        h5ad (Path): List of Paths to the h5ad objects.
 
     Returns:
         dict: A dictionary where the key is 'id2' and the value is the corresponding 'h5ad' file path.
     """
-    h5ad_dict = {}
+
+    h5ad_dict = dict(zip(id2,h5ad))
+    return h5ad_dict
+
+    """ h5ad_dict = {}
     with open(sample_sheet_path, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             h5ad_dict[row["id2"]] = row["h5ad"]
             log(f"  {row['id2']}: {row['h5ad']}", level="INFO")
-    return h5ad_dict
+    return h5ad_dict """
 
 
 # --------------------------------------------------
@@ -130,11 +147,11 @@ def main() -> None:
 
     # Get command-line arguments
     args = get_args()
-    log(f"Loaded sample sheet from {args.sample_sheet}", level="INFO")
+    log(f"Loaded h5ad objects and corresponding id2 values", level="INFO")
 
     # Load the h5ad files as a dict from the sample sheet
     log("Loading h5ad dict", level="INFO")
-    h5ad_dict = get_h5ad_dict(args.sample_sheet)
+    h5ad_dict = get_h5ad_dict(args.id2, args.h5ad)
     log(f"Loaded h5ad dict with {len(h5ad_dict)} entries", level="INFO")
 
     # Load SAM objects from the h5ad dict

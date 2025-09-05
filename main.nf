@@ -71,7 +71,7 @@ workflow {
     // Preprocess sample sheet to add type and ID
     PREPROCESS(
         run_id_ch,
-        sample_sheet,
+        sample_sheet
     )
     
     PREPROCESS.out.sample_sheet_pr
@@ -82,13 +82,13 @@ workflow {
         .flatten()
         .collate(3)
         .set { ch_samples }
+    
 
 
     // Generate unique unordered sample pairs
     pairs_channel = ch_samples
         .combine(ch_samples)
-        .filter { a,b,c,d,e,f -> a.id2 < d.id2 }
-    pairs_channel.view()
+        .filter { a,b,c,d,e,f -> a.id2 < d.id2 }  
 
     // Run BLAST or load precomputed map files 
    if (params.maps_dir) {
@@ -98,23 +98,43 @@ workflow {
         // Run BLAST and extract parent maps directory
         RUN_BLAST_PAIR(
             run_id_ch,
-            pairs_channel.map{[it[0], it[3], it[2], it[5]]},
+            pairs_channel.map{[it[0], it[3], it[2], it[5]]}
         )
         // Set path to maps from BLAST results
 	    // maps_dir = results_dir.combine(run_id_ch).map { results_dir, run_id -> results_dir.resolve(run_id).resolve('maps') }
     maps_dir = RUN_BLAST_PAIR.out.maps
     }
 
-    /*
+    // Grab all id2 values, to be used in LOAD_SAMS to reference the appropriate SAM object
+    id2 = ch_samples
+    .map { tuple ->
+        def (meta, h5ad, fasta) = tuple
+        return meta.id2 // Might need to be meta[3] instead, don't know if it's referenced specifically as "id2" in the metadata or just in the columns
+    }
+    .collect()
+
+    // Grab all h5ad paths, to be used in LOAD_SAMS to reference the appropriate SAM object
+    h5ad = ch_samples
+    .map { tuple ->
+        def (meta, h5ad, fasta) = tuple
+        return h5ad
+    }
+    .collect()
+    
+    //Combine into a single channel obj
+    condensedSampleSheet = id2
+        .map { ids -> [ ids, h5ad.getVal() ] }
+    condensedSampleSheet.view()
+    
     // Load SAM objects from the AnnData h5ad files
     LOAD_SAMS(
         run_id_ch,
-        sample_sheet_pr,
-        data_dir,
-        params.outdir,
+        condensedSampleSheet
     )
     sams = LOAD_SAMS.out.sams
-
+  
+  
+  /*
     // Build the SAMap object from the SAM objects and the BLAST maps
     BUILD_SAMAP(
         run_id_ch,
@@ -122,7 +142,7 @@ workflow {
         data_dir,
         maps_dir,
         sams,
-        params.outdir,
+        params.outdir
     )
     samap = BUILD_SAMAP.out.samap
 
@@ -131,7 +151,7 @@ workflow {
     RUN_SAMAP(
         run_id_ch,
         samap,
-        params.outdir,
+        params.outdir
     )
     samap_results = RUN_SAMAP.out.results
 
@@ -141,6 +161,6 @@ workflow {
         run_id_ch,
         samap_results,
         sample_sheet_pr,
-        params.outdir,
+        params.outdir
     ) */
 }
