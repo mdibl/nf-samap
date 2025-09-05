@@ -76,7 +76,7 @@ workflow {
     
     PREPROCESS.out.sample_sheet_pr
         .map { file -> 
-            def list = samplesheetToList(file.toString(), "./assets/schema_input.json")
+            def list = samplesheetToList(file.toString(), "./nf-samap/assets/schema_input.json")
             return list
         }
         .flatten()

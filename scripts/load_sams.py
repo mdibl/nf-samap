@@ -38,7 +38,6 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
-        "-i",
         "--id2",
         metavar="ID",
         type=str,
@@ -48,7 +47,6 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
-        "-h",
         "--h5ad",
         metavar="FILE",
         type=Path,
