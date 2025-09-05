@@ -36,7 +36,7 @@ process LOAD_SAMS {
     """
     LOG="${run_id}_load_sams.log"
     load_sams.py \\
-        --id2 ${meta[0].join(' ')} \\
+        --id2 ${meta.join(' ')} \\
         --h5ad ${h5ad.join(' ')} \\
         2>&1 | tee -a \$LOG
     """

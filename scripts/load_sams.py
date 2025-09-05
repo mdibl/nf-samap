@@ -107,7 +107,7 @@ def load_sams(h5ad_dict: dict) -> dict:
     sams = {}
     for id2, h5ad in h5ad_dict.items():
         sams[id2] = SAM()
-        sams[id2].load_data(h5ad)
+        sams[id2].load_data(str(h5ad))
         log(f"  Loading {id2}", level="INFO")
     return sams
 

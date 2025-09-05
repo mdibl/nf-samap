@@ -47,10 +47,10 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
-        '-s', '--sample-sheet',
+        '-i', '--id2',
         required=True,
-        type=Path,
-        help='Path to the sample sheet CSV file'
+        type=str,
+        help='list of id2 from the Sample Sheet'
     )
 
     parser.add_argument(
@@ -77,11 +77,11 @@ def get_args() -> Args:
     )
 
     args = parser.parse_args()
-    return Args(args.sams_dir, args.sample_sheet, args.maps, args.name, args.output_dir)
+    return Args(args.sams_dir, args.id2, args.maps, args.name, args.output_dir)
 
 
 # --------------------------------------------------
-def load_species_dict(sample_sheet_path: Path, sams_dir: Path) -> dict:
+def load_species_dict(id2: str, sams_dir: Path) -> dict:
     """
     Load a dictionary of species, mapping id2 to corresponding SAM objects from the sams_dir directory.
 
@@ -93,7 +93,20 @@ def load_species_dict(sample_sheet_path: Path, sams_dir: Path) -> dict:
         dict: A dictionary with id2 as the key and the corresponding SAM object as the value.
     """
     species = {}
-    with open(sample_sheet_path, newline="") as csvfile:
+    for val in id2
+        log(f"  Attempting to load SAM pickle for '{val}'", "INFO")
+        # Find the pickle file in sams_dir that starts with id2 
+        matching_files = list(sams_dir.glob(f"{val}*.pkl"))
+        if not matching_files:
+            log(f"  No SAM pickle found for '{val}' in '{sams_dir}'", "ERROR")
+        sam_path = matching_files[0]
+        with open(sam_path, "rb") as f:
+            species[val] = pickle.load(f)
+        log(f"  Loaded SAM for '{val}' from '{sam_path}'", "INFO")
+    return species
+
+
+"""     with open(sample_sheet_path, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             id2 = row["id2"]
@@ -106,7 +119,7 @@ def load_species_dict(sample_sheet_path: Path, sams_dir: Path) -> dict:
             with open(sam_path, "rb") as f:
                 species[id2] = pickle.load(f)
             log(f"  Loaded SAM for '{id2}' from '{sam_path}'", "INFO")
-    return species
+    return species """
 
 
 # --------------------------------------------------
@@ -129,8 +142,8 @@ def main() -> None:
     log(f"  Using SAMs directory '{sams_dir}'", "DEBUG")
     maps = str(args.maps)
     log(f"  Using maps directory '{maps}'", "DEBUG")
-    sample_sheet = args.sample_sheet
-    log(f"  Using sample sheet '{sample_sheet}'", "DEBUG")
+    id2 = args.id2
+    log(f"  Using sample sheet '{id2}'", "DEBUG")
     name = args.name
     log(f"  SAMAP object will be saved with name '{name}'", "DEBUG")
     output_dir = args.output_dir
@@ -138,7 +151,7 @@ def main() -> None:
     
     # Load species dictionary from sample sheet
     log("Loading species dictionary from sample sheet", "INFO")
-    species_dict = load_species_dict(sample_sheet, sams_dir)
+    species_dict = load_species_dict(id2, sams_dir)
     log(f"Loaded species dictionary with {len(species_dict)} entries", "INFO")
 
 
