@@ -124,7 +124,7 @@ workflow {
     //Combine into a single channel obj
     condensedSampleSheet = id2
         .map { ids -> [ ids, h5ad.getVal() ] }
-    condensedSampleSheet.view()
+    condensedSampleSheet
     
     // Load SAM objects from the AnnData h5ad files
     LOAD_SAMS(
@@ -132,7 +132,7 @@ workflow {
         condensedSampleSheet
     )
     sams = LOAD_SAMS.out.sams
-  
+    sams.view()
   
     // Build the SAMap object from the SAM objects and the BLAST maps
     BUILD_SAMAP(

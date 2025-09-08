@@ -21,7 +21,7 @@ class Args(NamedTuple):
     """ Command-line arguments for the script"""
     
     sams_dir: Path      # Directory containing SAM pickles
-    sample_sheet: Path  # Path to the sample sheet CSV file
+    id2: str            # List of id2 strings corresponding to the SAM object dictionary
     maps: Path          # Path to the maps directory
     name: str           # Name of the output pickle
     output_dir: Path    # Path to the output directory
@@ -43,6 +43,7 @@ def get_args() -> Args:
         '-d', '--sams-dir',
         required=True,
         type=Path,
+        nargs='+',
         help='Directory containing SAM pickle files'
     )
 

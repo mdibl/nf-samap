@@ -36,7 +36,7 @@ process BUILD_SAMAP {
     """  
     LOG="${run_id}_build_samap.log"
         build_samap.py \
-        --sams-dir ${sams} \
+        --sams-dir ${sams.join(' ')} \
         --id2 ${meta.join(' ')} \
         --maps ${maps_dir} 2>&1 | tee -a \$LOG
     """
