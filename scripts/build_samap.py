@@ -20,8 +20,8 @@ from pathlib import Path
 class Args(NamedTuple):
     """ Command-line arguments for the script"""
     
-    sams: list[Path]   # List of SAM pickle files
-    id2: list[str]     # List of id2 strings
+    sams: Path   # List of SAM pickle files
+    id2: str     # List of id2 strings
     maps: Path          # Path to the maps directory
     name: str           # Name of the output pickle
     output_dir: Path    # Path to the output directory
