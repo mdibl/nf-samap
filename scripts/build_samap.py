@@ -20,7 +20,7 @@ from pathlib import Path
 class Args(NamedTuple):
     """ Command-line arguments for the script"""
     
-    sams: Path   # List of SAM pickle files
+    sams_dir: Path   # List of SAM pickle files
     id2: str     # List of id2 strings
     maps: Path          # Path to the maps directory
     name: str           # Name of the output pickle
@@ -96,7 +96,7 @@ def load_species_dict(id2: str, sams_dir: Path) -> dict:
     """
     species = {}
     for val in id2:
-        matching_files = [f for f in sams if f.name.startswith(val) and f.suffix == ".pkl"]
+        matching_files = [f for f in sams_dir if f.name.startswith(val) and f.suffix == ".pkl"]
         if not matching_files:
             log(f"  No SAM pickle found for '{val}' in provided files", "ERROR")
             continue
