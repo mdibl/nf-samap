@@ -43,7 +43,7 @@ def get_args() -> Args:
         '-d', '--sams-dir',
         required=True,
         type=Path,
-        nargs=
+        nargs='+',
         help='Directory containing SAM pickle files'
     )
 
@@ -144,7 +144,7 @@ def main() -> None:
     maps = str(args.maps)
     log(f"  Using maps directory '{maps}'", "DEBUG")
     id2 = args.id2
-    log(f"  Using sample sheet '{id2}'", "DEBUG")
+    log(f"  Using id2 list '{id2}'", "DEBUG")
     name = args.name
     log(f"  SAMAP object will be saved with name '{name}'", "DEBUG")
     output_dir = args.output_dir
