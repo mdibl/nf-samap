@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Author : Ryan Sonderman
+Author : Ryan Sonderman, Markus Sujansky
 Date   : 2025-06-16
 Version: 1.0.0
 Purpose: Build a SAMAP object from sams and maps
@@ -50,6 +50,7 @@ def get_args() -> Args:
         '-i', '--id2',
         required=True,
         type=str,
+        nargs='+',
         help='list of id2 from the Sample Sheet'
     )
 
@@ -93,7 +94,7 @@ def load_species_dict(id2: str, sams_dir: Path) -> dict:
         dict: A dictionary with id2 as the key and the corresponding SAM object as the value.
     """
     species = {}
-    for val in id2
+    for val in id2:
         log(f"  Attempting to load SAM pickle for '{val}'", "INFO")
         # Find the pickle file in sams_dir that starts with id2 
         matching_files = list(sams_dir.glob(f"{val}*.pkl"))
@@ -177,7 +178,7 @@ def main() -> None:
         f_maps=maps,
         save_processed=False,
     )
-    log("Successfully created SAMAP object with {len(samap.sams)} SAMs", "INFO")
+    log(f"Successfully created SAMAP object with {len(samap.sams)} SAMs", "INFO")
     
     # Save SAMAP object
     log("Attempting to pickle SAMAP object", "INFO")

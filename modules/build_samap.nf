@@ -20,17 +20,13 @@
 process BUILD_SAMAP {
     tag "${run_id} - build SAMAP object"
 
-    publishDir("${outdir}/${run_id}/samap_objects/", mode: 'copy', pattern: '*.pkl')
-    publishDir("${outdir}/${run_id}/logs/", mode: 'copy', pattern: '*.log')
-
     container 'mdiblbiocore/samap:latest'
 
     input:
         val run_id
-        path sample_sheet // Sample sheet containing metadata for the samples
+        tuple val(meta), val(h5ad)
         path maps_dir // Directory containing the BLAST mappings
         path sams // SAM objects to be used in the SAMap
-        path outdir
 
     output:
         path "samap.pkl", emit: samap
@@ -41,7 +37,7 @@ process BUILD_SAMAP {
     LOG="${run_id}_build_samap.log"
         build_samap.py \
         --sams-dir ${sams} \
-        --sample-sheet ${sample_sheet} \
+        --id2 ${meta.join(' ')} \
         --maps ${maps_dir} 2>&1 | tee -a \$LOG
     """
 }
