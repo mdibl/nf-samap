@@ -41,6 +41,6 @@ process VISUALIZE_SAMAP {
     script:
     """
     LOG="${run_id}_viz.log"
-    visualize_samap.py --input ${samap_obj} --id2 ${id2} --annotation ${anno} 2>&1 | tee -a \$LOG
+    visualize_samap.py --input ${samap_obj} --id2 ${id2.join(' ')} --annotation ${anno.join(' ')} 2>&1 | tee -a \$LOG
     """
 }

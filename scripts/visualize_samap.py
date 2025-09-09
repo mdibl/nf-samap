@@ -80,7 +80,7 @@ def get_args() -> Args:
 
     args = parser.parse_args()
 
-    return Args(args.input, args.id2, args.annotation)
+    return Args(args.input, args.output_dir, args.id2, args.annotation)
 
 
 # --------------------------------------------------
