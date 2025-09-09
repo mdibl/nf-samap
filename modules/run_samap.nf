@@ -17,15 +17,12 @@
 process RUN_SAMAP {
     tag "${run_id} - run SAMap"
 
-    publishDir("${outdir}/${run_id}/samap_objects/", mode: 'copy', pattern: '*.pkl')
-    publishDir("${outdir}/${run_id}/logs", mode: 'copy', pattern: '*.log')
-
     container 'mdiblbiocore/samap:latest'
 
     input:
         val run_id
         path samap_object
-        path outdir
+
 
     output:
         path "samap_results.pkl", emit: results
