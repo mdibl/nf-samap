@@ -170,21 +170,6 @@ def main() -> None:
         for map_file in Path(maps).rglob('*.txt'):  # Use rglob for recursive search
             log(f"  Found map file '{map_file}", "DEBUG")
 
-    #Debugging step, remove when done
-    for sid, ad in species_dict.items():
-        print(f"{sid} has {ad.n_vars} features")
-        print("Example features:", ad.var_names[:10])
-
-    maps_genes = set()
-    with open("maps/fd_cf.txt") as f:
-        for line in f:
-            g1, g2, *_ = line.strip().split()
-            maps_genes.update([g1, g2])
-
-    print("Example map genes:", list(maps_genes)[:20])
-
-    #END OF DEBUGGING CODE
-
     # Create SAMAP object
     log("Attempting to create SAMAP object", "INFO")
     samap = SAMAP(

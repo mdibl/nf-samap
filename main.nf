@@ -142,7 +142,7 @@ workflow {
     )
     samap = BUILD_SAMAP.out.samap
     samap.view()
-
+/*
     // Run SAMap on the SAMAP object to generate mapping results
     RUN_SAMAP(
         run_id_ch,
@@ -150,7 +150,7 @@ workflow {
     )
     samap_results = RUN_SAMAP.out.results
 
-/*
+
     // Visualize the SAMap results
     VISUALIZE_SAMAP(
         run_id_ch,
