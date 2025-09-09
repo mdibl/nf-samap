@@ -23,18 +23,12 @@
 process VISUALIZE_SAMAP {
     tag "${run_id} - SAMap visualization"
 
-    publishDir("${outdir}/${run_id}/plots/", mode: 'copy', pattern: '*.html')
-    publishDir("${outdir}/${run_id}/plots/", mode: 'copy', pattern: '*.png')
-    publishDir("${outdir}/${run_id}/logs/", mode: 'copy', pattern: '*.log')
-    publishDir("${outdir}/${run_id}/csv/", mode: 'copy', pattern: '*.csv')
-
     container 'mdiblbiocore/samap:latest'
 
     input:
         val run_id
         path samap_obj
-        path sample_sheet
-        path outdir
+        tuple val(id2), val(anno)
 
     output:
         path "chord.html"
@@ -47,6 +41,6 @@ process VISUALIZE_SAMAP {
     script:
     """
     LOG="${run_id}_viz.log"
-    visualize_samap.py --input ${samap_obj} --sample-sheet ${sample_sheet} 2>&1 | tee -a \$LOG
+    visualize_samap.py --input ${samap_obj} --id2 ${id2} --annotation ${anno} 2>&1 | tee -a \$LOG
     """
 }

@@ -141,8 +141,7 @@ workflow {
         sams
     )
     samap = BUILD_SAMAP.out.samap
-    samap.view()
-/*
+
     // Run SAMap on the SAMAP object to generate mapping results
     RUN_SAMAP(
         run_id_ch,
@@ -150,12 +149,22 @@ workflow {
     )
     samap_results = RUN_SAMAP.out.results
 
+    // Building channel obj for visualization module
+    anno = ch_samples
+    .map { tuple ->
+        def (meta, h5ad, fasta) = tuple
+        return meta.annotation // Might need to be meta[3] instead, don't know if it's referenced specifically as "id2" in the metadata or just in the columns
+    }
+    .collect()
+
+    annotations = id2
+        .map { ids -> [ ids, anno.getVal()] }
+    annotations.view()
 
     // Visualize the SAMap results
-    VISUALIZE_SAMAP(
+     VISUALIZE_SAMAP(
         run_id_ch,
         samap_results,
-        sample_sheet_pr,
-        params.outdir
-    ) */
+        annotations
+    )  
 }

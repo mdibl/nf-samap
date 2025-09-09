@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Author : Ryan Sonderman
+Author : Ryan Sonderman, Markus Sujansky
 Date   : 2025-06-09
 Version: 1.0.0
 Purpose: Visualize SAMAP results from pickle
@@ -28,11 +28,13 @@ class Args(NamedTuple):
     Attributes:
         input: Path to the input SAMAP pickle file.
         output_dir: Optional directory where visualizations will be saved.
-        sample_sheet: Path to the sample sheet CSV file for annotations.
+        id2: List of id2 values from sample sheet.
+        annotation: Life of annotations from sample sheet
     """
     input: str
     output_dir: Optional[str]
-    sample_sheet: Path
+    id2: str
+    annotation: str
 
 
 # --------------------------------------------------
@@ -61,15 +63,24 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
-        "--sample-sheet",
-        type=Path,
+        '-d', '--id2',
         required=True,
-        help="Path to the sample sheet CSV",
+        type=str,
+        nargs='+',
+        help='list of id2s from the Sample Sheet'
+    )
+
+    parser.add_argument(
+        '-n', '--annotation',
+        required=True,
+        type=str,
+        nargs='+',
+        help='list of annotations from the Sample Sheet'
     )
 
     args = parser.parse_args()
 
-    return Args(args.input, args.output_dir, args.sample_sheet)
+    return Args(args.input, args.id2, args.annotation)
 
 
 # --------------------------------------------------
@@ -229,7 +240,7 @@ def save_scatter_plot(samap: SAMAP, output_dir: str, out_name='scatter', dpi=300
 
 
 # --------------------------------------------------
-def load_keys_from_sample_sheet(sample_sheet_path: Path) -> dict:
+def load_keys(id2: str, annotation: str) -> dict:
     """
     Load a dictionary of keys from the sample sheet CSV. The keys are 
     mapped from id2 to their corresponding annotations.
@@ -240,14 +251,8 @@ def load_keys_from_sample_sheet(sample_sheet_path: Path) -> dict:
     Returns:
         dict: Dictionary where the key is id2 and the value is the annotation.
     """
-    keys = {}
-    with open(sample_sheet_path, newline="") as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            keys[row["id2"]] = row["annotation"]
-            log(f"  Loading annotation for {row['id2']}: {row['annotation']}", "INFO")
-    log("Successfully loaded all annotation keys")
-    return keys
+    anno_dict = dict(zip(id2,annotation))
+    return anno_dict
 
 
 # --------------------------------------------------
@@ -268,8 +273,8 @@ def main() -> None:
     create_output_dir(args.output_dir)
     log(f"Attempting to load SAMAP pickle from '{args.input}'", "INFO")
     sm = load_samap_pickle(args.input)
-    log(f"Attempting to load annotation keys from '{args.sample_sheet}'", "INFO")
-    keys = load_keys_from_sample_sheet(args.sample_sheet)
+    log(f"creating id2 -> annotation dictionary", "INFO")
+    keys = load_keys(args.id2, args.annotation)
     
     # Save and get mapping scores and use them to generate plots
     log("Attempting to save mapping scores")
