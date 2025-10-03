@@ -66,15 +66,9 @@ workflow {
     if (!new File(params.sample_sheet).exists()) {
         error "Missing required file: sample sheet '${params.sample_sheet}'"
     }
-
-    // Preprocess sample sheet to add type and ID
-    PREPROCESS(
-        run_id_ch,
-        sample_sheet
-    )
     
     // Reformat output of preprocessing step to remove necessity of Sample_Sheet for downstream processes
-    PREPROCESS.out.sample_sheet_pr
+    sample_sheet
         .map { file -> 
             def list = samplesheetToList(file.toString(), "./nf-samap/assets/schema_input.json")
             return list
@@ -88,8 +82,8 @@ workflow {
     // Generate unique unordered sample pairs
     pairs_channel = ch_samples
         .combine(ch_samples)
-        .filter { a,b,c,d,e,f -> a.id2 < d.id2 }  
-
+        .filter { a,b,c,d,e,f -> a.id < d.id }  
+    
     // Run BLAST or load precomputed map files 
    if (params.maps_dir) {
         // Use user-supplied BLAST maps
@@ -104,11 +98,11 @@ workflow {
     maps_dir = RUN_BLAST_PAIR.out.maps
     }
 
-    // Grab all id2 values, to be used in LOAD_SAMS to reference the appropriate SAM object
-    id2 = ch_samples
+    // Grab all id values, to be used in LOAD_SAMS to reference the appropriate SAM object
+    id = ch_samples
     .map { tuple ->
         def (meta, h5ad, fasta) = tuple
-        return meta.id2
+        return meta.id
     }
     .collect()
 
@@ -121,9 +115,10 @@ workflow {
     .collect()
     
     //Combine into a single channel obj
-    condensedSampleSheet = id2
+    condensedSampleSheet = id
         .map { ids -> [ ids, h5ad.getVal() ] }
     condensedSampleSheet
+    condensedSampleSheet.view()
     
     // Load SAM objects from the AnnData h5ad files
     LOAD_SAMS(
@@ -131,7 +126,10 @@ workflow {
         condensedSampleSheet
     )
     sams = LOAD_SAMS.out.sams
-  
+    
+    // Extract the mappings paths from the ch_samples object, pass as an additional parameter!!!
+    // DO THAT HERE
+   
     // Build the SAMap object from the SAM objects and the BLAST maps
     BUILD_SAMAP(
         run_id_ch,
@@ -140,7 +138,7 @@ workflow {
         sams
     )
     samap = BUILD_SAMAP.out.samap
-
+/*
     // Run SAMap on the SAMAP object to generate mapping results
     RUN_SAMAP(
         run_id_ch,
@@ -165,5 +163,5 @@ workflow {
         run_id_ch,
         samap_results,
         annotations
-    )  
-}
+    )  */
+} 

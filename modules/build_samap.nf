@@ -27,6 +27,7 @@ process BUILD_SAMAP {
         tuple val(meta), val(h5ad)
         path maps_dir // Directory containing the BLAST mappings
         path sams // SAM objects to be used in the SAMap
+        path mappings // Paths to the mapping files that convert protein/transcripts fasta headers in BLAST to gene symbols in SAM objects
 
     output:
         path "samap.pkl", emit: samap
@@ -38,6 +39,7 @@ process BUILD_SAMAP {
         build_samap.py \
         --sams-dir ${sams.join(' ')} \
         --id2 ${meta.join(' ')} \
-        --maps ${maps_dir} 2>&1 | tee -a \$LOG
+        --maps ${maps_dir} \
+        --mappings ${mappings.join(' ')} 2>&1 | tee -a \$LOG
     """
 }

@@ -10,6 +10,7 @@ import argparse
 import csv
 import pickle
 import os
+import ast
 from log_utils import log
 from samap.mapping import SAMAP
 from samap.utils import save_samap
@@ -56,6 +57,14 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
+        '-p', '--mappings',
+        required=False,
+        type=str,
+        nargs='+',
+        help='list of mappings from the Sample Sheet'
+    )
+
+    parser.add_argument(
         '-m', '--maps',
         required=True,
         type=Path,
@@ -88,7 +97,7 @@ def load_species_dict(id2: str, sams_dir: Path) -> dict:
     Load a dictionary of species, mapping id2 to corresponding SAM objects from the sams_dir directory.
 
     Args:
-        sample_sheet_path (Path): Path to the sample sheet CSV file.
+        id2 (list): List of ids in the sample sheet (FUTURE: change from id2 -> id)
         sams_dir (Path): Path to the directory containing the SAM pickle files.
 
     Returns:
@@ -107,20 +116,29 @@ def load_species_dict(id2: str, sams_dir: Path) -> dict:
     return species
 
 
-"""     with open(sample_sheet_path, newline="") as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            id2 = row["id2"]
-            log(f"  Attempting to load SAM pickle for '{id2}'", "INFO")
-            # Find the pickle file in sams_dir that starts with id2 
-            matching_files = list(sams_dir.glob(f"{id2}*.pkl"))
-            if not matching_files:
-                log(f"  No SAM pickle found for '{id2}' in '{sams_dir}'", "ERROR")
-            sam_path = matching_files[0]
-            with open(sam_path, "rb") as f:
-                species[id2] = pickle.load(f)
-            log(f"  Loaded SAM for '{id2}' from '{sam_path}'", "INFO")
-    return species """
+    # --------------------------------------------------
+def load_mapping_dict(id2: str, mapping_dir: Path) -> dict:
+    """
+    Load a dictionary of mappings connecting protein/transcript ids in the BLAST maps to the format in the inputted h5ad files, creating a dictionary with the species id as the key
+
+    Args:
+        id2 (list): List of ids in the sample sheet (FUTURE: change from id2 -> id)
+        mapping_dir (Path): Path to the directory containing the mapping files.
+
+    Returns:
+        dict: A dictionary with id2 as the key and the corresponding SAM object as the value.
+    """
+    mappings = {}
+    for val in id2:
+        matching_files = [f for f in mapping_dir if f.name.startswith(val) and f.suffix == ".txt"]
+        if not matching_files:
+            log(f"  No mapping file found for '{val}' in provided path", "ERROR")
+            continue
+        map_path = matching_files[0]
+        with open(map_path, "rb") as f:
+            mappings[val] = ast.literal_eval(f.read().strip())
+        log(f"  Loaded BLAST protein/transcript -> gene symbol conversions for '{val}' from '{map_path}'", "INFO")
+    return mappings
 
 
 # --------------------------------------------------
@@ -141,6 +159,9 @@ def main() -> None:
     args = get_args()
     sams_dir = args.sams_dir
     log(f"  Using SAMs directory '{sams_dir}'", "DEBUG")
+    if args.mappings.exists():
+        mapping_dir = args.mappings
+        log(f"  Using Mappings directory '{mapping_dir}'", "DEBUG")
     maps = str(args.maps)
     log(f"  Using maps directory '{maps}'", "DEBUG")
     id2 = args.id2
@@ -154,7 +175,6 @@ def main() -> None:
     log("Loading species dictionary from sample sheet", "INFO")
     species_dict = load_species_dict(id2, sams_dir)
     log(f"Loaded species dictionary with {len(species_dict)} entries", "INFO")
-
 
     # Ensure maps is valid and formatted correctly
     log(f"Ensuring validity of '{maps}'", "INFO")
@@ -170,13 +190,27 @@ def main() -> None:
         for map_file in Path(maps).rglob('*.txt'):  # Use rglob for recursive search
             log(f"  Found map file '{map_file}", "DEBUG")
 
-    # Create SAMAP object
-    log("Attempting to create SAMAP object", "INFO")
-    samap = SAMAP(
-        sams=species_dict,
-        f_maps=maps,
-        save_processed=False,
-    )
+
+    if mapping_dir.exists():
+        #Load mapping dict from sample sheet
+        log("Loading mapping dictionary from sample sheet to line up BLAST protein/transcript headers with SAM feature type", "INFO")
+        mapping_dict = load_mapping_dict(id2, mapping_dir)
+        log(f"Loaded mapping dictionary with {len(mapping_dict)} entries", "INFO")
+        # Create SAMAP object
+        log("Attempting to create SAMAP object", "INFO")
+        samap = SAMAP(
+            sams=species_dict,
+            f_maps=maps,
+            save_processed=False,
+            names = mapping_dict
+        )
+    else:
+        log("Attempting to create SAMAP object", "INFO")
+        samap = SAMAP(
+            sams=species_dict,
+            f_maps=maps,
+            save_processed=False,
+        )
     log(f"Successfully created SAMAP object with {len(samap.sams)} SAMs", "INFO")
     
     # Save SAMAP object
