@@ -19,9 +19,10 @@
                 "type": "string",
                 "meta": ["type"]
             },
-            "id2": {
+            "mapping_dict": {
                 "type": "string",
-                "meta": ["id2"]
+                "meta": ["map_dict"],
+                "format": "file-path"
             },
             "h5ad": {
                 "type": "string",

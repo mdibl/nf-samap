@@ -76,7 +76,7 @@ workflow {
         .flatten()
         .collate(3)
         .set { ch_samples }
-    
+    ch_samples.view()
 
 
     // Generate unique unordered sample pairs
@@ -128,8 +128,13 @@ workflow {
     sams = LOAD_SAMS.out.sams
     
     // Extract the mappings paths from the ch_samples object, pass as an additional parameter!!!
-    // DO THAT HERE
-   
+    map_dict = ch_samples
+    .map { tuple ->
+        def (meta, h5ad, fasta) = tuple
+        return meta.map_dict
+    }
+    .collect()   
+
     // Build the SAMap object from the SAM objects and the BLAST maps
     BUILD_SAMAP(
         run_id_ch,
@@ -138,7 +143,7 @@ workflow {
         sams
     )
     samap = BUILD_SAMAP.out.samap
-/*
+
     // Run SAMap on the SAMAP object to generate mapping results
     RUN_SAMAP(
         run_id_ch,
@@ -163,5 +168,5 @@ workflow {
         run_id_ch,
         samap_results,
         annotations
-    )  */
+    )  
 } 
