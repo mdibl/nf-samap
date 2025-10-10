@@ -88,7 +88,7 @@ def get_args() -> Args:
     )
 
     args = parser.parse_args()
-    return Args(args.sams_dir, args.id2, args.maps, args.name, args.output_dir)
+    return Args(args.sams_dir, args.id2, args.maps, args.mappings, args.name, args.output_dir)
 
 
 # --------------------------------------------------
@@ -159,6 +159,8 @@ def main() -> None:
     args = get_args()
     sams_dir = args.sams_dir
     log(f"  Using SAMs directory '{sams_dir}'", "DEBUG")
+    mapping_dir = args.mappings
+    log(f"  Using Mappings directory '{mapping_dir}'", "DEBUG")
     if args.mappings.exists():
         mapping_dir = args.mappings
         log(f"  Using Mappings directory '{mapping_dir}'", "DEBUG")

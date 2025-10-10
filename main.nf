@@ -140,7 +140,8 @@ workflow {
         run_id_ch,
         condensedSampleSheet,
         maps_dir,
-        sams
+        sams,
+        map_dict
     )
     samap = BUILD_SAMAP.out.samap
 
@@ -159,7 +160,7 @@ workflow {
     }
     .collect()
 
-    annotations = id2
+    annotations = id
         .map { ids -> [ ids, anno.getVal()] }
     annotations.view()
 
