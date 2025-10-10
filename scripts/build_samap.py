@@ -194,7 +194,9 @@ def main() -> None:
         log("  No mappings argument provided", "DEBUG")
         mapping_dir = None
 
-    maps = str(args.maps)
+    maps = str(Path(args.maps).resolve())
+    if not maps.endswith('/'): # SAMap *will* crash if passed a dir without a '/'
+        maps += '/'
     log(f"  Using maps directory '{maps}'", "DEBUG")
     id2 = args.id2
     log(f"  Using id2 list '{id2}'", "DEBUG")
