@@ -163,7 +163,7 @@ def load_mapping_dict(id2: str, mapping_dir: list) -> dict:
                     p = p.replace("(", "").replace(")", "")
                     fasta, gene = p.split(",")
                     mapping_dict[val].append((fasta.strip(), gene.strip()))
-                    log(f" Linked mapping file '{map_path}' to species '{val}'", "LOG")
+                    log(f" Linked mapping file '{map_path}' to species '{val}'", "INFO")
         except Exception as e:
             log(f"  Failed to parse mapping file '{map_path}' for species '{val}': {e}", "ERROR")
     
@@ -229,6 +229,15 @@ def main() -> None:
         log("Loading mapping dictionary from sample sheet to line up BLAST protein/transcript headers with SAM feature type", "INFO")
         mapping_dict = load_mapping_dict(id2, mapping_dir)
         log(f"Loaded mapping dictionary with {len(mapping_dict)} entries", "INFO")
+
+        maps_dir = Path(maps)
+        for map_file in maps_dir.rglob('*.txt'):
+            log(f"absolute path is '{map_file.resolve()}'", "INFO")
+        
+        log(f"Species dict keys:, '{list(species_dict.keys())}'", "INFO")
+        log(f"Mapping dict keys:, '{list(mapping_dict.keys())}'", "INFO")
+
+
         # Create SAMAP object
         log("Attempting to create SAMAP object", "INFO")
         samap = SAMAP(
