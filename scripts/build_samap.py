@@ -231,12 +231,17 @@ def main() -> None:
         mapping_dict = load_mapping_dict(id2, mapping_dir)
         log(f"Loaded mapping dictionary with {len(mapping_dict)} entries", "INFO")
 
-        log(f"Using resolved maps path: '{Path(maps).resolve()}'", "INFO")
-        for id_a in id2:
-            for id_b in id2:
-                if id_a != id_b:
-                    expected = Path(maps) / f"{id_a}_to_{id_b}.txt"
-                    log(f"Checking existence of '{expected}': {expected.exists()}", "INFO")
+        #Sanity checks
+        for key, sam in species_dict.items():
+        log(f"Species key '{key}', internal SAM species: '{getattr(sam, 'species', None)}'", "INFO")
+        if hasattr(sam, 'adata'):
+            if 'species' in sam.adata.uns:
+                log(f"  adata.uns['species'] = {sam.adata.uns['species']}", "INFO")
+
+
+        for key, sam in species_dict.items():
+            sam.species = key
+
 
         # Create SAMAP object
         log("Attempting to create SAMAP object", "INFO")
