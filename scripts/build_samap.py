@@ -163,7 +163,7 @@ def load_mapping_dict(id2: str, mapping_dir: list) -> dict:
                     p = p.replace("(", "").replace(")", "")
                     fasta, gene = p.split(",")
                     mapping_dict[val].append((fasta.strip(), gene.strip()))
-
+                    log(f" Linked mapping file '{map_path}' to species '{val}'", "LOG")
         except Exception as e:
             log(f"  Failed to parse mapping file '{map_path}' for species '{val}': {e}", "ERROR")
     
@@ -221,7 +221,7 @@ def main() -> None:
     else:
         log(f"Maps directory found at '{maps}'", "INFO")
         for map_file in Path(maps).rglob('*.txt'):  # Use rglob for recursive search
-            log(f"  Found map file '{map_file}", "DEBUG")
+            log(f"  Found map file '{map_file}", "INFO")
 
 
     if mapping_dir is not None:
