@@ -118,7 +118,7 @@ def load_species_dict(id2: str, sams_dir: Path) -> dict:
 
 
     # --------------------------------------------------
-def load_mapping_dict(id2: str, mapping_dir: Path) -> dict:
+def load_mapping_dict(id2: str, mapping_dir: list) -> dict:
     """
     Load a dictionary of mappings connecting protein/transcript ids in the BLAST maps to the format in the inputted h5ad files, creating a dictionary with the species id as the key
 
@@ -129,9 +129,9 @@ def load_mapping_dict(id2: str, mapping_dir: Path) -> dict:
     Returns:
         dict: A dictionary with id2 as the key and the corresponding SAM object as the value.
     """
-    mappings = {}
+    """ mappings = {}
     for val in id2:
-        matching_files = [f for f in mapping_dir if f.name.startswith(val) and f.suffix == ".txt"]
+        matching_files = [f for f in Path(mapping_dir).iterdir() if f.name.startswith(val) and f.suffix == ".txt"]
         if not matching_files:
             log(f"  No mapping file found for '{val}' in provided path", "ERROR")
             continue
@@ -139,8 +139,28 @@ def load_mapping_dict(id2: str, mapping_dir: Path) -> dict:
         with open(map_path, "rb") as f:
             mappings[val] = ast.literal_eval(f.read().strip())
         log(f"  Loaded BLAST protein/transcript -> gene symbol conversions for '{val}' from '{map_path}'", "INFO")
-    return mappings
+    return mappings """
+    
+    mapping_dict = {}
 
+    # Convert strings to Path objects if needed
+    mapping_dir = [Path(p) for p in mapping_dir]
+
+    for val, map_path in zip(id2, mapping_dir):
+        if not map_path.exists():
+            log(f"  Mapping file '{map_path}' for species '{val}' does not exist", "ERROR")
+            continue
+        
+        try:
+            with open(map_path, "r") as f:
+                # Read the file content as a Python literal list
+                kv_list = ast.literal_eval(f.read().strip())
+                mapping_dict[val] = kv_list
+            log(f"  Loaded mapping for species '{val}' from '{map_path}' with {len(kv_list)} entries", "INFO")
+        except Exception as e:
+            log(f"  Failed to parse mapping file '{map_path}' for species '{val}': {e}", "ERROR")
+    
+    return mapping_dict
 
 # --------------------------------------------------
 def main() -> None:
