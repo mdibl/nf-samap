@@ -152,11 +152,18 @@ def load_mapping_dict(id2: str, mapping_dir: list) -> dict:
             continue
         
         try:
+            mapping_dict[val] = []
             with open(map_path, "r") as f:
-                # Read the file content as a Python literal list
-                kv_list = ast.literal_eval(f.read().strip())
-                mapping_dict[val] = kv_list
-            log(f"  Loaded mapping for species '{val}' from '{map_path}' with {len(kv_list)} entries", "INFO")
+                content = f.read().strip()
+                # Remove surrounding brackets
+                content = content.strip("[]")
+                # Split on '), ('
+                pairs = content.split("), (")
+                for p in pairs:
+                    p = p.replace("(", "").replace(")", "")
+                    fasta, gene = p.split(",")
+                    mapping_dict[val].append((fasta.strip(), gene.strip()))
+
         except Exception as e:
             log(f"  Failed to parse mapping file '{map_path}' for species '{val}': {e}", "ERROR")
     
