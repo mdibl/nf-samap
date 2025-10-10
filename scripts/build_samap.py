@@ -233,7 +233,7 @@ def main() -> None:
 
         #Sanity checks
         for key, sam in species_dict.items():
-        log(f"Species key '{key}', internal SAM species: '{getattr(sam, 'species', None)}'", "INFO")
+            log(f"Species key '{key}', internal SAM species: '{getattr(sam, 'species', None)}'", "INFO")
         if hasattr(sam, 'adata'):
             if 'species' in sam.adata.uns:
                 log(f"  adata.uns['species'] = {sam.adata.uns['species']}", "INFO")
