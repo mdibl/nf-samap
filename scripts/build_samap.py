@@ -23,6 +23,7 @@ class Args(NamedTuple):
     
     sams_dir: Path   # List of SAM pickle files
     id2: str     # List of id2 strings
+    mappings: Path #List of Mapping Files
     maps: Path          # Path to the maps directory
     name: str           # Name of the output pickle
     output_dir: Path    # Path to the output directory
@@ -159,11 +160,14 @@ def main() -> None:
     args = get_args()
     sams_dir = args.sams_dir
     log(f"  Using SAMs directory '{sams_dir}'", "DEBUG")
-    mapping_dir = args.mappings
-    log(f"  Using Mappings directory '{mapping_dir}'", "DEBUG")
-    if args.mappings.exists():
+    
+    if args.mappings:
+        log(f"  Mappings argument provided: {args.mappings}", "DEBUG")
         mapping_dir = args.mappings
-        log(f"  Using Mappings directory '{mapping_dir}'", "DEBUG")
+    else:
+        log("  No mappings argument provided", "DEBUG")
+        mapping_dir = None
+
     maps = str(args.maps)
     log(f"  Using maps directory '{maps}'", "DEBUG")
     id2 = args.id2
@@ -193,7 +197,7 @@ def main() -> None:
             log(f"  Found map file '{map_file}", "DEBUG")
 
 
-    if mapping_dir.exists():
+    if mapping_dir is not None:
         #Load mapping dict from sample sheet
         log("Loading mapping dictionary from sample sheet to line up BLAST protein/transcript headers with SAM feature type", "INFO")
         mapping_dict = load_mapping_dict(id2, mapping_dir)
