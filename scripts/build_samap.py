@@ -89,7 +89,7 @@ def get_args() -> Args:
     )
 
     args = parser.parse_args()
-    return Args(args.sams_dir, args.id2, args.maps, args.mappings, args.name, args.output_dir)
+    return Args(args.sams_dir, args.id2, args.mappings, args.maps, args.name, args.output_dir)
 
 
 # --------------------------------------------------
