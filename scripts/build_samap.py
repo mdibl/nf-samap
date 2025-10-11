@@ -238,11 +238,23 @@ def main() -> None:
             sam.adata.uns['species'] = key.strip().lower()
         log("Set internal species identifiers for all SAM objects", "INFO")
 
+
+        f_maps_dict = {}
+        maps_dir = Path(maps)  # maps already resolved in your script
+        for a, b in permutations(list(species_dict.keys()), 2):
+            p = maps_dir / f"{a}_to_{b}.txt"
+            if p.exists():
+                f_maps_dict[(a, b)] = str(p.resolve())
+            else:
+                # you can log missing ones if you want
+                log(f"Expected map file not found for ({a},{b}): {p}", "WARN")
+
+
         # Create SAMAP object
         log("Attempting to create SAMAP object", "INFO")
         samap = SAMAP(
             sams=species_dict,
-            f_maps=maps,
+            f_maps=f_maps_dict,
             save_processed=False,
             names = mapping_dict
         )
