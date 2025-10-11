@@ -230,16 +230,13 @@ def main() -> None:
         log(f"Loaded mapping dictionary with {len(mapping_dict)} entries", "INFO")
 
         #Sanity checks
-        for k, v in species_dict.items():
-            print(f"{k}  ->  adata.uns['species'] = {v.adata.uns.get('species', None)}")
+        for k, sam in species_dict.items():
+            species_name = sam.adata.uns.get('species', None)
+            log(f"SAM object key '{k}' internal species field: '{species_name}'", "INFO")
 
-        print("SAMAP species being passed:", list(species_dict.keys()))
-        print("Files in maps directory:", os.listdir("/mnt/jfs/nextflow/maps"))
-
-        species_keys = list(species_dict.keys())
-        for a, b in permutations(species_keys, 2):
-            expected = f"/mnt/jfs/nextflow/maps/{a}_to_{b}.txt"
-            print(f"Checking {expected}: {'FOUND' if os.path.exists(expected) else 'MISSING'}")
+        for key, sam in species_dict.items():
+            sam.adata.uns['species'] = key.strip().lower()
+        log("Set internal species identifiers for all SAM objects", "INFO")
 
         # Create SAMAP object
         log("Attempting to create SAMAP object", "INFO")
