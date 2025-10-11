@@ -242,7 +242,7 @@ def main() -> None:
         log("Attempting to create SAMAP object", "INFO")
         samap = SAMAP(
             sams=species_dict,
-            f_maps=f_maps_dict,
+            f_maps=maps,
             save_processed=False,
             names = mapping_dict
         )
