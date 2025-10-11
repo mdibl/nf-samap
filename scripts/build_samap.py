@@ -16,6 +16,8 @@ from samap.mapping import SAMAP
 from samap.utils import save_samap
 from typing import NamedTuple
 from pathlib import Path
+from itertools import permutations
+
 
 
 class Args(NamedTuple):
@@ -228,12 +230,16 @@ def main() -> None:
         log(f"Loaded mapping dictionary with {len(mapping_dict)} entries", "INFO")
 
         #Sanity checks
-        for key, sam in species_dict.items():
-            log(f"Species key '{key}', internal SAM species: '{getattr(sam, 'species', None)}'", "INFO")
-        if hasattr(sam, 'adata'):
-            if 'species' in sam.adata.uns:
-                log(f"  adata.uns['species'] = {sam.adata.uns['species']}", "INFO")
+        for k, v in species_dict.items():
+            print(f"{k}  ->  adata.uns['species'] = {v.adata.uns.get('species', None)}")
 
+        print("SAMAP species being passed:", list(species_dict.keys()))
+        print("Files in maps directory:", os.listdir("/mnt/jfs/nextflow/maps"))
+
+        species_keys = list(species_dict.keys())
+        for a, b in permutations(species_keys, 2):
+            expected = f"/mnt/jfs/nextflow/maps/{a}_to_{b}.txt"
+            print(f"Checking {expected}: {'FOUND' if os.path.exists(expected) else 'MISSING'}")
 
         # Create SAMAP object
         log("Attempting to create SAMAP object", "INFO")
