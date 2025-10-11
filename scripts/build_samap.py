@@ -231,7 +231,7 @@ def main() -> None:
         df = pd.read_csv("/mnt/jfs/nextflow/maps/axmu/ax_to_mu.txt", sep="\t", header=None)
 
         log(f"map file head:\n, {[df.head()]}", "INFO")
-        log(f"mapping dictionary head: {list(mapping_dict.items())[:5]}")
+        log(f"mapping dictionary head: {list(mapping_dict.items())[:5]}", "INFO")
 
         # Create SAMAP object
         log("Attempting to create SAMAP object", "INFO")
