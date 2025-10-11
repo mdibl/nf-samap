@@ -129,18 +129,6 @@ def load_mapping_dict(id2: str, mapping_dir: list) -> dict:
     Returns:
         dict: A dictionary with id2 as the key and the corresponding SAM object as the value.
     """
-    """ mappings = {}
-    for val in id2:
-        matching_files = [f for f in Path(mapping_dir).iterdir() if f.name.startswith(val) and f.suffix == ".txt"]
-        if not matching_files:
-            log(f"  No mapping file found for '{val}' in provided path", "ERROR")
-            continue
-        map_path = matching_files[0]
-        with open(map_path, "rb") as f:
-            mappings[val] = ast.literal_eval(f.read().strip())
-        log(f"  Loaded BLAST protein/transcript -> gene symbol conversions for '{val}' from '{map_path}'", "INFO")
-    return mappings """
-    
     mapping_dict = {}
 
     # Convert strings to Path objects if needed
@@ -210,6 +198,14 @@ def main() -> None:
     species_dict = load_species_dict(id2, sams_dir)
     log(f"Loaded species dictionary with {len(species_dict)} entries", "INFO")
 
+    # Ensure each SAM object knows its species
+    for key, sam in species_dict.items():
+        sam.species = key.strip()
+        sam.species_id = key.strip()
+        if hasattr(sam, 'adata') and hasattr(sam.adata, 'uns'):
+            sam.adata.uns['species'] = key.strip()
+    log("Set internal species identifiers for all SAM objects", "INFO")
+
     # Ensure maps is valid and formatted correctly
     log(f"Ensuring validity of '{maps}'", "INFO")
     if not maps.endswith('/'): # SAMap *will* crash if passed a dir without a '/'
@@ -237,10 +233,6 @@ def main() -> None:
         if hasattr(sam, 'adata'):
             if 'species' in sam.adata.uns:
                 log(f"  adata.uns['species'] = {sam.adata.uns['species']}", "INFO")
-
-
-        for key, sam in species_dict.items():
-            sam.species = key
 
 
         # Create SAMAP object
