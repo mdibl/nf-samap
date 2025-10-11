@@ -228,15 +228,12 @@ def main() -> None:
         mapping_dict = load_mapping_dict(id2, mapping_dir)
         log(f"Loaded mapping dictionary with {len(mapping_dict)} entries", "INFO")
 
-        #Sanity checks
-        for k, sam in species_dict.items():
-            species_name = sam.adata.uns.get('species', None)
-            log(f"SAM object key '{k}' internal species field: '{species_name}'", "INFO")
+        df = pd.read_csv("/mnt/jfs/nextflow/maps/axmu/ax_to_mu.txt", sep="\t", header=None)
 
-        for key, sam in species_dict.items():
-            sam.adata.uns['species'] = key.strip().lower()
-        log("Set internal species identifiers for all SAM objects", "INFO")
-
+        log(f"ax SAM feature example:, {list(ax_sam.var_names[:5])}", "INFO")
+        log(f"mu SAM feature example:, {list(mu_sam.var_names[:5])}", "INFO")
+        log(f"map file head:\n, {[df.head()]}", "INFO")
+        log(f"mapping dictionary head: {list(mapping_dict[:5])}")
 
         # Create SAMAP object
         log("Attempting to create SAMAP object", "INFO")
