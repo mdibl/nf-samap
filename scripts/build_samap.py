@@ -239,15 +239,34 @@ def main() -> None:
         log("Set internal species identifiers for all SAM objects", "INFO")
 
 
-        f_maps_dict = {}
-        maps_dir = Path(maps)  # maps already resolved in your script
+        
+        # 1) create a temporary directory for SAMAP to read maps from
+        temp_maps_dir = Path(tempfile.mkdtemp(prefix="samap_maps_"))
+        log(f"Created temporary maps dir for SAMAP: {temp_maps_dir}", "INFO")
+
+        # 2) for every ordered pair (a,b) create a symlink named exactly "a_to_b.txt"
+        #    pointing to the canonical map file in your real maps dir
         for a, b in permutations(list(species_dict.keys()), 2):
-            p = maps_dir / f"{a}_to_{b}.txt"
-            if p.exists():
-                f_maps_dict[(a, b)] = str(p.resolve())
+            src = Path(maps) / f"{a}_to_{b}.txt"        # original file (existing)
+            dst = temp_maps_dir / f"{a}_to_{b}.txt"    # symlink SAMAP will see
+            if src.exists():
+                try:
+                    # create symlink so SAMAP sees correct naming; if symlink exists, overwrite
+                    if dst.exists() or dst.is_symlink():
+                        dst.unlink()
+                    os.symlink(str(src.resolve()), str(dst))
+                    log(f"Symlinked {dst} -> {src}", "DEBUG")
+                except Exception as e:
+                    log(f"Failed to create symlink {dst} -> {src}: {e}", "WARN")
             else:
-                # you can log missing ones if you want
-                log(f"Expected map file not found for ({a},{b}): {p}", "WARN")
+                log(f"Expected source map file missing: {src}. SAMAP may error.", "WARN")
+
+        # 3) Now pass the temp dir path (string, with trailing slash) to SAMAP as f_maps
+        f_maps_for_samap = str(temp_maps_dir.resolve())
+        if not f_maps_for_samap.endswith('/'):
+            f_maps_for_samap += '/'
+
+        log(f"Passing temporary maps dir to SAMAP: {f_maps_for_samap}", "INFO")
 
 
         # Create SAMAP object
