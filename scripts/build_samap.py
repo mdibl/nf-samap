@@ -231,7 +231,7 @@ def main() -> None:
         ax_map = mapping_dict['ax'] if isinstance(mapping_dict['ax'], dict) else dict(mapping_dict['ax'])
         ax_genes = set(ax_map.values())
         ax_sam = species_dict['ax']
-        ax_varnames = set(ax_sam.var_names)
+        ax_varnames = set(ax_sam.adata.var_names)
 
         log(f"Number of overlapping names: {len(ax_genes & ax_varnames)}", "INFO")
 
