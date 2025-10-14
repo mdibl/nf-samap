@@ -17,6 +17,7 @@ from samap.utils import save_samap
 from typing import NamedTuple
 from pathlib import Path
 from itertools import permutations
+import pandas as pd
 
 
 class Args(NamedTuple):
