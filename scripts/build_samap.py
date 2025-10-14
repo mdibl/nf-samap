@@ -17,7 +17,6 @@ from samap.utils import save_samap
 from typing import NamedTuple
 from pathlib import Path
 from itertools import permutations
-import pandas as pd
 
 
 class Args(NamedTuple):
@@ -229,10 +228,16 @@ def main() -> None:
         mapping_dict = load_mapping_dict(id2, mapping_dir)
         log(f"Loaded mapping dictionary with {len(mapping_dict)} entries", "INFO")
 
-        df = pd.read_csv("/mnt/jfs/nextflow/maps/axmu/ax_to_mu.txt", sep="\t", header=None)
+        ax_map = mapping_dict['ax'] if isinstance(mapping_dict['ax'], dict) else dict(mapping_dict['ax'])
+        ax_genes = set(ax_map.values())
+        ax_sam = species_dict['ax']
+        ax_varnames = set(ax_sam.var_names)
 
-        log(f"map file head:\n, {[df.head()]}", "INFO")
-        log(f"mapping dictionary head: {list(mapping_dict.items())[:5]}", "INFO")
+        log(f"Number of overlapping names: {len(ax_genes & ax_varnames)}", "INFO")
+
+        # For visibility
+        log(f"Example of unmapped genes: {list(ax_genes - ax_varnames)[:10]}", "INFO")
+        log(f"Example of SAM var_names: {list(ax_varnames)[:10]}", "INFO")
 
         # Create SAMAP object
         log("Attempting to create SAMAP object", "INFO")
