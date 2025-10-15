@@ -26,15 +26,17 @@ process PREPROCESS_SEURAT_OBJECT {
 
 
     output:
-        path "${meta.id}_Counts.mtx", emit: counts
-        path "${meta.id}_Obs.csv", emit: obs
-        path "${meta.id}_Feats.csv", emit: feats
+        tuple val(meta.id), 
+          path("${meta.id}_Counts.mtx"), 
+          path("${meta.id}_Obs.csv"), 
+          path("${meta.id}_Feats.csv"), 
+          emit: sample_data
         path "${run_id}_preprocess_seurat_object.log", emit: logfile
 
     script:
     """  
     LOG="${run_id}_preprocess_seurat_object.log"
-        Rscript preprocess_seurat_object.R \
+        Rscript /usr/local/bin/preprocess_seurat_object.R \
         --so ${SO} \
         --id ${meta.id} \
         --anno ${meta.annotation} 2>&1 | tee -a \$LOG

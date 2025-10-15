@@ -90,6 +90,7 @@ workflow {
         run_id_ch,
         SO
     )
+    PREPROCESS_SEURAT_OBJECT.out.sample_data.view()
 
     //PREPROCESS_ANNDATA_OBJECT module here
 
