@@ -76,7 +76,6 @@ workflow {
         .flatten()
         .collate(3)
         .set { ch_samples }
-    ch_samples.view()
 
     // Grab all SO paths to extract relevant info
     SO = ch_samples
@@ -84,14 +83,13 @@ workflow {
         def (meta, SO, fasta) = tuple
         return [meta, SO]
     }
-    .collect()
+    SO.view()
 
     //PREPROCESS_SEURAT_OBJECT module here
     PREPROCESS_SEURAT_OBJECT(
         run_id_ch,
         SO
     )
-    so_info = PREPROCESS_SEURAT_OBJECT.out.so_info
 
     //PREPROCESS_ANNDATA_OBJECT module here
 
