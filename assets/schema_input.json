@@ -24,7 +24,7 @@
                 "meta": ["map_dict"],
                 "format": "file-path"
             },
-            "h5ad": {
+            "so": {
                 "type": "string",
                 "format": "file-path"
             },
@@ -33,6 +33,6 @@
                 "format": "file-path"
             }
         },
-        "required": ["id", "h5ad", "fasta"]
+        "required": ["id", "so", "fasta"]
     }
 }

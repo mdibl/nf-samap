@@ -46,7 +46,7 @@
  */
 
 // Import the required modules 
-include { PREPROCESS } from './modules/preprocess.nf'
+include { PREPROCESS_SEURAT_OBJECT } from './modules/preprocess_seurat_object.nf'
 include { RUN_BLAST_PAIR } from './modules/run_blast_pair.nf'
 include { LOAD_SAMS } from './modules/load_sams.nf'
 include { BUILD_SAMAP } from './modules/build_samap.nf'
@@ -78,8 +78,25 @@ workflow {
         .set { ch_samples }
     ch_samples.view()
 
+    // Grab all SO paths to extract relevant info
+    SO = ch_samples
+    .map { tuple ->
+        def (meta, SO, fasta) = tuple
+        return [meta, SO]
+    }
+    .collect()
 
-    // Generate unique unordered sample pairs
+    //PREPROCESS_SEURAT_OBJECT module here
+    PREPROCESS_SEURAT_OBJECT(
+        run_id_ch,
+        SO
+    )
+    so_info = PREPROCESS_SEURAT_OBJECT.out.so_info
+
+    //PREPROCESS_ANNDATA_OBJECT module here
+
+
+/*     // Generate unique unordered sample pairs
     pairs_channel = ch_samples
         .combine(ch_samples)
         .filter { a,b,c,d,e,f -> a.id < d.id }  
@@ -106,7 +123,7 @@ workflow {
     }
     .collect()
 
-    // Grab all h5ad paths, to be used in LOAD_SAMS to reference the appropriate SAM object
+    // Grab all h5ad paths, to be used in LOAD_SAMS to reference the appropriate SAM object - NEED TO CHANGE AFTER INPUTTING SO -> H5AD FUNCTIONALITY???
     h5ad = ch_samples
     .map { tuple ->
         def (meta, h5ad, fasta) = tuple
@@ -169,5 +186,5 @@ workflow {
         run_id_ch,
         samap_results,
         annotations
-    )  
+    )   */
 } 
