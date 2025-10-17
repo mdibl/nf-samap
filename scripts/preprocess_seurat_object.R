@@ -57,16 +57,17 @@ if (!file.exists(args$so)) {
     stop(paste0("Seurat Object not found for ID: ", args$id))
 }
 seurat_obj <- readRDS(args$so)
-print(length(seurat_obj@meta.data[["old.ident"]]))
-print(length(seurat_obj@meta.data[["orig.ident"]]))
-print(length(Cells(seurat_obj)))
-print(length(seurat_obj@meta.data[[Anno]]))
 
 
 ID <- args$id
 Anno <- args$anno
 
 DefaultAssay(seurat_obj) <- "RNA"
+
+print(length(seurat_obj@meta.data[["old.ident"]]))
+print(length(seurat_obj@meta.data[["orig.ident"]]))
+print(length(Cells(seurat_obj)))
+print(length(seurat_obj@meta.data[[Anno]]))
 
 #".x" part of the AnnData Object, swapped rows and columns to fit correct dimensions
 Counts <- as(t(seurat_obj@assays[["RNA"]]@layers[["counts"]]), "dgCMatrix")
