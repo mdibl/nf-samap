@@ -61,7 +61,7 @@ seurat_obj <- readRDS(args$so)
 
 ID <- args$id
 Anno <- args$anno
-
+print(Anno)
 DefaultAssay(seurat_obj) <- "RNA"
 
 print(length(seurat_obj@meta.data[["old.ident"]]))
