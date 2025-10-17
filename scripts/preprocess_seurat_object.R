@@ -67,7 +67,7 @@ DefaultAssay(seurat_obj) <- "RNA"
 print(length(seurat_obj@meta.data[["old.ident"]]))
 print(length(seurat_obj@meta.data[["orig.ident"]]))
 print(length(Cells(seurat_obj)))
-print(length(seurat_obj@meta.data[[Anno]]))
+print(length(seurat_obj@meta.data[[as.character(Anno)]]))
 
 #".x" part of the AnnData Object, swapped rows and columns to fit correct dimensions
 Counts <- as(t(seurat_obj@assays[["RNA"]]@layers[["counts"]]), "dgCMatrix")
