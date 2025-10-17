@@ -1,4 +1,4 @@
-FROM docker.io/avianalter/samap:latest
+FROM docker.io/mdiblbiocore/samap:latest
 
 # Copy scripts into the container's bin directory
 COPY scripts/log_utils.py /usr/local/bin/log_utils.py
