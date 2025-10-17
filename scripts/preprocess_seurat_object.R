@@ -57,11 +57,11 @@ if (!file.exists(args$so)) {
     stop(paste0("Seurat Object not found for ID: ", args$id))
 }
 seurat_obj <- readRDS(args$so)
-print(seurat_obj@meta.data[["old.ident"]])
 print(length(seurat_obj@meta.data[["old.ident"]]))
-
-print(seurat_obj@meta.data[["orig.ident"]])
 print(length(seurat_obj@meta.data[["orig.ident"]]))
+print(length(Cells(seurat_obj)))
+print(length(seurat_obj@meta.data[[Anno]]))
+
 
 ID <- args$id
 Anno <- args$anno
