@@ -47,6 +47,7 @@
 
 // Import the required modules 
 include { PREPROCESS_SEURAT_OBJECT } from './modules/preprocess_seurat_object.nf'
+include { PREPROCESS_ANNDATA_OBJECT } from './modules/preprocess_anndata_object.nf'
 include { RUN_BLAST_PAIR } from './modules/run_blast_pair.nf'
 include { LOAD_SAMS } from './modules/load_sams.nf'
 include { BUILD_SAMAP } from './modules/build_samap.nf'
@@ -99,7 +100,7 @@ workflow {
     )
     anndata = PREPROCESS_ANNDATA_OBJECT.out.anndata
     anndata.view()
-    
+
      // Generate unique unordered sample pairs
     pairs_channel = ch_samples
         .combine(ch_samples)
