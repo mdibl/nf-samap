@@ -90,12 +90,17 @@ workflow {
         run_id_ch,
         SO
     )
-    PREPROCESS_SEURAT_OBJECT.out.sample_data.view()
+    anndata_parts = PREPROCESS_SEURAT_OBJECT.out.seurat_data
 
     //PREPROCESS_ANNDATA_OBJECT module here
-
-
-/*     // Generate unique unordered sample pairs
+    PREPROCESS_ANNDATA_OBJECT(
+        run_id_ch,
+        anndata_parts
+    )
+    anndata = PREPROCESS_ANNDATA_OBJECT.out.anndata
+    anndata.view()
+    
+     // Generate unique unordered sample pairs
     pairs_channel = ch_samples
         .combine(ch_samples)
         .filter { a,b,c,d,e,f -> a.id < d.id }  
@@ -185,5 +190,5 @@ workflow {
         run_id_ch,
         samap_results,
         annotations
-    )   */
+    )  
 } 

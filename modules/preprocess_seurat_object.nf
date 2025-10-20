@@ -11,7 +11,6 @@
  *
  *  Outputs:
  *      An Obs, Var, and Counts object for every sample and a logfile.
- *      results/run_id/samap_objects/run_id_samap.pkl
  *      results/run_id/logs/run_id_preprocess_seurat_object.log
  */
 
@@ -30,7 +29,7 @@ process PREPROCESS_SEURAT_OBJECT {
           path("${meta.id}_Counts.mtx"), 
           path("${meta.id}_Obs.csv"), 
           path("${meta.id}_Feats.csv"), 
-          emit: sample_data
+          emit: seurat_data
         path "${run_id}_preprocess_seurat_object.log", emit: logfile
 
     script:
