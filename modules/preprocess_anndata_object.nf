@@ -27,13 +27,13 @@ process PREPROCESS_ANNDATA_OBJECT {
 
 
     output: 
-        tuple val(id), path("${meta.id}_preprocessed.h5ad"),
+        tuple val(id), path("${id}_preprocessed.h5ad"),
         emit: anndata
-        path "${run_id}_${meta.id}_preprocess_anndata_object.log", emit: logfile
+        path "${run_id}_${id}_preprocess_anndata_object.log", emit: logfile
 
     script:
     """  
-    LOG="${run_id}_${meta.id}_preprocess_anndata_object.log"
+    LOG="${run_id}_${id}_preprocess_anndata_object.log"
         /usr/local/bin/preprocess_anndata_object.py \
         --counts ${counts} \
         --obs ${obs} \
