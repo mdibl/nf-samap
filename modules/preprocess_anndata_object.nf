@@ -23,16 +23,13 @@ process PREPROCESS_ANNDATA_OBJECT {
 
     input:
         val run_id
-        tuple val(id), 
-          path(counts), 
-          path(obs), 
-          path(feats)
+        tuple val(id), path(counts), path(obs), path(feats)
 
 
     output: 
         tuple val(id), path("${meta.id}_preprocessed.h5ad"),
         emit: anndata
-        path "${run_id}_preprocess_anndata_object.log", emit: logfile
+        path "${run_id}_${meta.id}_preprocess_anndata_object.log", emit: logfile
 
     script:
     """  

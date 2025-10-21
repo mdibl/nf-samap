@@ -85,6 +85,7 @@ workflow {
         return [meta, SO]
     }
     SO.view()
+    SO.view { meta, so -> "META: ${meta}" }
 
     //PREPROCESS_SEURAT_OBJECT module here
     PREPROCESS_SEURAT_OBJECT(
@@ -92,7 +93,8 @@ workflow {
         SO
     )
     anndata_parts = PREPROCESS_SEURAT_OBJECT.out.seurat_data
-
+    anndata_parts.view()
+/*
     //PREPROCESS_ANNDATA_OBJECT module here
     PREPROCESS_ANNDATA_OBJECT(
         run_id_ch,
@@ -101,7 +103,7 @@ workflow {
     anndata = PREPROCESS_ANNDATA_OBJECT.out.anndata
     anndata.view()
 
-    /*
+    
      // Generate unique unordered sample pairs
     pairs_channel = ch_samples
         .combine(ch_samples)
