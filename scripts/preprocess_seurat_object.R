@@ -1,10 +1,10 @@
 #!/usr/bin/env Rscript
-"""
-Author : Markus Sujansky
-Date   : 2025-10-20
-Version: 1.1.0
-Purpose: Extract all necessary information for SAMap from the inputted Seurat Objects
-"""
+
+#Author : Markus Sujansky
+#Date   : 2025-10-20
+#Version: 1.1.0
+#Purpose: Extract all necessary information for SAMap from the inputted Seurat Objects
+
 
 
 # --------------------------------------------------

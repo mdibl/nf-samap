@@ -101,6 +101,7 @@ workflow {
     anndata = PREPROCESS_ANNDATA_OBJECT.out.anndata
     anndata.view()
 
+    /*
      // Generate unique unordered sample pairs
     pairs_channel = ch_samples
         .combine(ch_samples)
@@ -191,5 +192,5 @@ workflow {
         run_id_ch,
         samap_results,
         annotations
-    )  
+    )  */
 } 
