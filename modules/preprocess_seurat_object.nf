@@ -34,7 +34,7 @@ process PREPROCESS_SEURAT_OBJECT {
 
     script:
     """  
-    LOG="${run_id}_preprocess_seurat_object.log"
+    LOG="${run_id}_${meta.id}_preprocess_seurat_object.log"
         Rscript /usr/local/bin/preprocess_seurat_object.R \
         --so ${SO} \
         --id ${meta.id} \

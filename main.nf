@@ -85,7 +85,6 @@ workflow {
         return [meta, SO]
     }
     SO.view()
-    SO.view { meta, so -> "META: ${meta}" }
 
     //PREPROCESS_SEURAT_OBJECT module here
     PREPROCESS_SEURAT_OBJECT(
