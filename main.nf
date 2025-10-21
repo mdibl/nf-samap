@@ -91,8 +91,13 @@ workflow {
         run_id_ch,
         SO
     )
-    anndata_parts = PREPROCESS_SEURAT_OBJECT.out.seurat_data
-    anndata_parts.view()
+    counts = PREPROCESS_SEURAT_OBJECT.out.seurat_data
+    feats = PREPROCESS_SEURAT_OBJECT.out.feats
+    obs = PREPROCESS_SEURAT_OBJECT.out.obs
+
+    counts.view()
+    obs.view()
+    feats.view()
 /*
     //PREPROCESS_ANNDATA_OBJECT module here
     PREPROCESS_ANNDATA_OBJECT(

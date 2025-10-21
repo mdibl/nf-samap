@@ -25,11 +25,9 @@ process PREPROCESS_SEURAT_OBJECT {
 
 
     output:
-        tuple val(meta.id), 
-          path("${meta.id}_Counts.mtx"), 
-          path("${meta.id}_Obs.csv"), 
-          path("${meta.id}_Feats.csv"), 
-          emit: seurat_data
+        tuple val(meta.id), path("${meta.id}_Counts.mtx"), emit: counts
+        path "${meta.id}_Obs.csv", emit: obs
+        path "${meta.id}_Feats.csv", emit: feats
         path "${run_id}_${meta.id}_preprocess_seurat_object.log", emit: logfile
 
     script:
