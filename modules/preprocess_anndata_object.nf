@@ -33,7 +33,7 @@ process PREPROCESS_ANNDATA_OBJECT {
 
     script:
     """  
-    LOG="${run_id}_preprocess_anndata_object.log"
+    LOG="${run_id}_${meta.id}_preprocess_anndata_object.log"
         /usr/local/bin/preprocess_anndata_object.py \
         --counts ${counts} \
         --obs ${obs} \
