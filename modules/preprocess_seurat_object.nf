@@ -30,7 +30,7 @@ process PREPROCESS_SEURAT_OBJECT {
           path("${meta.id}_Obs.csv"), 
           path("${meta.id}_Feats.csv"), 
           emit: seurat_data
-        path "${run_id}_preprocess_seurat_object.log", emit: logfile
+        path "${run_id}_${meta.id}_preprocess_seurat_object.log", emit: logfile
 
     script:
     """  
