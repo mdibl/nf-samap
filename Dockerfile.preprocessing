@@ -1,5 +1,5 @@
 # Start from Jupyter's standard "Python + R + Julia + common data science tools" image
-FROM jupyter/datascience-notebook:latest
+FROM jupyter/datascience-notebook:python-3.10.15
 
 #Install Python Packages
 RUN mamba install -y \
@@ -27,5 +27,8 @@ RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://c
 RUN R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org')"
 RUN R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
 RUN R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')"
+
+COPY nf-samap/scripts/preprocess_seurat_object.R nf-samap/scripts/preprocess_anndata_object.py nf-samap/scripts/log_utils.py /usr/local/bin/
+RUN chmod -R +x /usr/local/bin/*
 
 WORKDIR /workspace
