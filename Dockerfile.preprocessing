@@ -1,7 +1,8 @@
-FROM mdiblbiocore/samap:latest
+# Start from Jupyter's standard "Python + R + Julia + common data science tools" image
+FROM jupyter/datascience-notebook:latest
 
-# Install Python deps into the conda environment
-RUN conda install -y -c conda-forge \
+#Install Python Packages
+RUN mamba install -y \
     anndata==0.7.8 \
     scanpy==1.9.3 \
     numpy==1.23.5 \
@@ -9,7 +10,22 @@ RUN conda install -y -c conda-forge \
     matplotlib==3.8.2 \
     seaborn==0.13.2 \
     scipy==1.10.1 && \
-    conda clean -afy
+    mamba clean -afy
 
-# samalg is not available on conda, so install via pip inside the env
-RUN python -m pip install --no-cache-dir samalg
+# If a package is not available in conda-forge, use pip in the environment
+RUN pip install samalg --no-cache-dir
+
+# -------------------------
+# Install extra R packages
+# -------------------------
+# These are installed into the Jupyter R kernel environment
+RUN R -e "install.packages(c('tidyverse', 'data.table'), repos='https://cloud.r-project.org')"
+RUN R -e "install.packages('remotes', repos='https://cloud.r-project.org')"
+
+# Install specific R package versions
+RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://cloud.r-project.org')"
+RUN R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org')"
+RUN R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
+RUN R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')"
+
+WORKDIR /workspace
