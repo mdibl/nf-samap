@@ -1,5 +1,5 @@
 # Start from Jupyter's standard "Python + R + Julia + common data science tools" image
-FROM jupyter/datascience-notebook:python-3.10.15
+FROM jupyter/datascience-notebook:python-3.10
 
 #Install Python Packages
 RUN mamba install -y \
