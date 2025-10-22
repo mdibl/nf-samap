@@ -1,8 +1,19 @@
 # Start from Jupyter's standard "Python + R + Julia + common data science tools" image
 FROM jupyter/datascience-notebook:python-3.10
 
-#Install Python Packages
-# Install Python packages via pip (bypasses conda solver)
+# Switch to root to create a new user and set ownership
+USER root
+
+# Create a new user 'msujansky' with home directory and workspace
+RUN useradd -m -s /bin/bash msujansky \
+    && mkdir -p /workspace/bin \
+    && chown -R msujansky:msujansky /workspace
+
+# Switch to the new user for all subsequent commands
+USER msujansky
+WORKDIR /workspace
+
+# Install Python packages via pip (user-owned)
 RUN python -m pip install --no-cache-dir \
     anndata==0.7.8 \
     scanpy==1.9.3 \
@@ -11,26 +22,22 @@ RUN python -m pip install --no-cache-dir \
     matplotlib==3.8.2 \
     seaborn==0.13.2 \
     scipy==1.10.1
-    
 
-RUN pip install git+https://github.com/atarashansky/self-assembling-manifold.git
-RUN pip install git+https://github.com/atarashansky/SAMap.git
+RUN pip install --no-cache-dir git+https://github.com/atarashansky/self-assembling-manifold.git
+RUN pip install --no-cache-dir git+https://github.com/atarashansky/SAMap.git
 
-# -------------------------
-# Install extra R packages
-# -------------------------
-# These are installed into the Jupyter R kernel environment
+# Install R packages (user-owned)
 RUN R -e "install.packages(c('tidyverse', 'data.table'), repos='https://cloud.r-project.org')"
 RUN R -e "install.packages('remotes', repos='https://cloud.r-project.org')"
 
-# Install specific R package versions
 RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://cloud.r-project.org')"
 RUN R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org')"
 RUN R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
 RUN R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')"
 
-COPY scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py scripts/log_utils.py /home/jovyan/bin/
-RUN chmod +x /home/jovyan/bin/*.py /home/jovyan/bin/*.R
-ENV PATH="/home/jovyan/bin:${PATH}"
+# Copy scripts to a user-writable directory
+COPY scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py scripts/log_utils.py /workspace/bin/
+RUN chmod +x /workspace/bin/*.py /workspace/bin/*.R
 
-WORKDIR /workspace
+# Add scripts directory to PATH
+ENV PATH="/workspace/bin:${PATH}"
