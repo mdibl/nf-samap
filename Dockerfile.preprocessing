@@ -1,13 +1,15 @@
-# filename: Dockerfile
 FROM mdiblbiocore/samap:latest
 
-# Install extra python packages
-RUN pip install --no-cache-dir \
+# Install Python deps into the conda environment
+RUN conda install -y -c conda-forge \
     anndata==0.7.8 \
     scanpy==1.9.3 \
     numpy==1.23.5 \
     pandas==1.4.1 \
     matplotlib==3.8.2 \
     seaborn==0.13.2 \
-    scipy==1.10.1 \
-    samalg
+    scipy==1.10.1 && \
+    conda clean -afy
+
+# samalg is not available on conda, so install via pip inside the env
+RUN python -m pip install --no-cache-dir samalg
