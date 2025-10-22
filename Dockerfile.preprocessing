@@ -2,7 +2,7 @@
 FROM mdiblbiocore/samap:latest AS source
 
 # ========== Stage 2: Base clean R container ==========
-FROM rocker/r-base:4.0.5
+FROM rocker/r-base:4.2.3
 
 # --- System dependencies for compiled R + python libs ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
