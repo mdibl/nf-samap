@@ -1,68 +1,8 @@
-# Stage 0: source image that already contains R libs (SAMap)
-FROM mdiblbiocore/samap:latest AS source
+# filename: Dockerfile
+FROM mdiblbiocore/samap:latest
 
-# Stage 1: clean rocker R base (modern, apt-friendly)
-FROM rocker/r-base:4.2.3
-
-# Replace unstable references (if present) with stable 'bookworm'
-# (prevents apt GPG / NO_PUBKEY errors)
-RUN if [ -f /etc/apt/sources.list ]; then \
-      sed -i 's/testing/bookworm/g' /etc/apt/sources.list || true; \
-      sed -i 's/sid/bookworm/g' /etc/apt/sources.list || true; \
-      sed -i 's/experimental/bookworm/g' /etc/apt/sources.list || true; \
-    fi
-
-# Install system libs required for compiled R/Python packages and build tools
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    gnupg \
-    build-essential \
-    cmake \
-    git \
-    wget \
-    curl \
-    python3 \
-    python3-dev \
-    python3-pip \
-    libxml2-dev \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libfontconfig1-dev \
-    libfreetype6-dev \
-    libpng-dev \
-    libtiff5-dev \
-    libjpeg-dev \
-    zlib1g-dev \
-    libbz2-dev \
-    liblzma-dev \
-    libblas-dev \
-    liblapack-dev \
-    libopenblas-dev \
-    libgfortran5 \
-    libhdf5-dev \
-    libffi-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy R libraries from source image EXACTLY as-is
-# (these paths are the usual locations; COPY will fail the build if they don't exist)
-COPY --from=source /usr/local/lib/R/site-library /usr/local/lib/R/site-library
-COPY --from=source /usr/lib/R/site-library       /usr/lib/R/site-library
-COPY --from=source /usr/lib/R/library            /usr/lib/R/library
-
-# Copy your utility scripts into image and make them executable
-COPY scripts/log_utils.py /usr/local/bin/log_utils.py
-COPY scripts/preprocess_seurat_object.R /usr/local/bin/preprocess_seurat_object.R
-COPY scripts/preprocess_anndata_object.py /usr/local/bin/preprocess_anndata_object.py
-RUN chmod -R +x /usr/local/bin/* || true
-
-# Make python3 the default "python"
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
-
-# Upgrade pip
-RUN python -m pip install --upgrade pip setuptools wheel
-
-# Install pinned Python packages (no-cache-dir to reduce image size)
-RUN python -m pip install --no-cache-dir \
+# Install extra python packages
+RUN pip install --no-cache-dir \
     anndata==0.7.8 \
     scanpy==1.9.3 \
     numpy==1.23.5 \
@@ -71,6 +11,3 @@ RUN python -m pip install --no-cache-dir \
     seaborn==0.13.2 \
     scipy==1.10.1 \
     samalg
-
-# Final housekeeping
-WORKDIR /workspace
