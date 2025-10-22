@@ -2,18 +2,16 @@
 FROM jupyter/datascience-notebook:python-3.10
 
 #Install Python Packages
-RUN mamba install -y \
+# Install Python packages via pip (bypasses conda solver)
+RUN python -m pip install --no-cache-dir \
     anndata==0.7.8 \
     scanpy==1.9.3 \
     numpy==1.23.5 \
     pandas==1.4.1 \
     matplotlib==3.8.2 \
     seaborn==0.13.2 \
-    scipy==1.10.1 && \
-    mamba clean -afy
-
-# If a package is not available in conda-forge, use pip in the environment
-RUN pip install samalg --no-cache-dir
+    scipy==1.10.1 \
+    samalg
 
 # -------------------------
 # Install extra R packages
