@@ -19,7 +19,7 @@
 process PREPROCESS_ANNDATA_OBJECT {
     tag "${run_id} - use extracted Seurat Object information to build h5ad object"
 
-    container 'mdiblbiocore/samap:latest'
+    container 'mdiblbiocore/preprocessing:latest'
 
     input:
         val run_id

@@ -17,7 +17,7 @@
 process PREPROCESS_SEURAT_OBJECT {
     tag "${run_id} - extract important Seurat Object information"
 
-    container 'mdiblbiocore/samap:latest'
+    container 'mdiblbiocore/preprocessing:latest'
 
     input:
         val run_id
