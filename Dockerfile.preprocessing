@@ -29,7 +29,8 @@ RUN R -e "remotes::install_version('readr', version='2.1.5', repos='https://clou
 RUN R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
 RUN R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')"
 
-COPY scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py scripts/log_utils.py /usr/local/bin/
-RUN chmod -R +x /usr/local/bin/*
+COPY scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py scripts/log_utils.py /home/jovyan/bin/
+RUN chmod +x /home/jovyan/bin/*.py /home/jovyan/bin/*.R
+ENV PATH="/home/jovyan/bin:${PATH}"
 
 WORKDIR /workspace
