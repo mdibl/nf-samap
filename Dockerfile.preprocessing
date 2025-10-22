@@ -10,8 +10,11 @@ RUN python -m pip install --no-cache-dir \
     pandas==1.4.1 \
     matplotlib==3.8.2 \
     seaborn==0.13.2 \
-    scipy==1.10.1 \
-    samalg
+    scipy==1.10.1
+    
+
+RUN pip install git+https://github.com/atarashansky/self-assembling-manifold.git
+RUN pip install git+https://github.com/atarashansky/SAMap.git
 
 # -------------------------
 # Install extra R packages
