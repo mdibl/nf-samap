@@ -35,6 +35,11 @@
 
 FROM docker.io/mdiblbiocore/samap:latest
 
+# First, install pip
+RUN apt-get update && \
+    apt-get install -y python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install R packages as root (so they go to system library)
 RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org')"
 
@@ -44,7 +49,7 @@ RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://c
     R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')" && \
     R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
 
-RUN pip install --no-cache-dir \
+RUN pip3 install --no-cache-dir \
     anndata==0.7.8 \
     scanpy==1.9.3 \
     numpy==1.23.5 \
@@ -54,7 +59,7 @@ RUN pip install --no-cache-dir \
     scipy==1.10.1 \
     logutils
 
-RUN pip install --no-cache-dir \
+RUN pip3 install --no-cache-dir \
     git+https://github.com/atarashansky/self-assembling-manifold.git && \
     rm -rf /tmp/pip-*
 
