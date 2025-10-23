@@ -1,14 +1,17 @@
-FROM docker.io/mdiblbiocore/samap:latest
+# Start from Jupyter's standard "Python + R + Julia + common data science tools" image
+FROM jupyter/datascience-notebook:python-3.10
 
-# Fix the Debian Buster repositories (they've been archived)
-RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
-    sed -i 's/security.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
-    sed -i '/buster-updates/d' /etc/apt/sources.list
+# Switch to root for system-level operations
+USER root
 
-# Now install pip
-RUN apt-get update && \
-    apt-get install -y python3-pip && \
-    rm -rf /var/lib/apt/lists/*
+# Install additional system dependencies that might be needed
+#RUN apt-get update && apt-get install -y \
+    #libxml2-dev \
+    #libcurl4-openssl-dev \
+    #libssl-dev \
+    #ibgit2-dev \
+    #&& rm -rf /var/lib/apt/lists/*
+
 
 # Install R packages as root (so they go to system library)
 RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org')"
@@ -19,8 +22,8 @@ RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://c
     R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')" && \
     R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
 
-# Now use pip3 to install Python packages
-RUN pip3 install --no-cache-dir \
+# Use conda's pip explicitly to install to the conda environment
+RUN /opt/conda/bin/pip install --no-cache-dir \
     anndata==0.7.8 \
     scanpy==1.9.3 \
     numpy==1.23.5 \
@@ -30,15 +33,21 @@ RUN pip3 install --no-cache-dir \
     scipy==1.10.1 \
     logutils
 
-# Install Git packages with pip3
-RUN pip3 install --no-cache-dir \
+# Install Git packages with conda's pip
+RUN /opt/conda/bin/pip install --no-cache-dir \
     git+https://github.com/atarashansky/self-assembling-manifold.git && \
     rm -rf /tmp/pip-*
 
+ #Set the default command
+ CMD ["/bin/bash"]
+
+
+#FROM docker.io/mdiblbiocore/preprocessing:latest
+
 # Copy scripts into the container's bin directory
-COPY scripts/log_utils.py scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py /usr/local/bin/
+#COPY scripts/log_utils.py scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py /usr/local/bin/
 # Make sure it’s executable
-RUN chmod -R +x /usr/local/bin/*
+#RUN chmod -R +x /usr/local/bin/*
 
 # Load the custom patch to fix the analysis module
-WORKDIR /workspace
+#WORKDIR /workspace
