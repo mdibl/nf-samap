@@ -2,7 +2,7 @@ run:
 	nextflow run main.nf 
 
 docker:
-	docker build -f Dockerfile.preprocessing -t docker.io/mdiblbiocore/preprocessing:latest .
+	docker build --platform=linux/amd64 -f Dockerfile.preprocessing -t docker.io/mdiblbiocore/preprocessing:latest .
 	docker build -f Dockerfile.samap -t docker.io/mdiblbiocore/samap:latest .
 	docker build --platform=linux/amd64 -f Dockerfile.blast -t docker.io/mdiblbiocore/samap-blast:latest .
 	docker push docker.io/mdiblbiocore/preprocessing:latest

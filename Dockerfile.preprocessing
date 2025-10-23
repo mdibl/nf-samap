@@ -1,53 +1,53 @@
 # Start from Jupyter's standard "Python + R + Julia + common data science tools" image
-#FROM jupyter/datascience-notebook:python-3.10
+FROM --platform=linux/amd64 jupyter/datascience-notebook:python-3.10
 
 # Switch to root for system-level operations
-#USER root
+USER root
 
 # Install additional system dependencies that might be needed
-#RUN apt-get update && apt-get install -y \
-    #libxml2-dev \
-    #libcurl4-openssl-dev \
-    #libssl-dev \
-    #ibgit2-dev \
-    #&& rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    libxml2-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    ibgit2-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 
 # Install R packages as root (so they go to system library)
-#RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org')"
+RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org')"
 
 # Install specific R package versions
-#RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://cloud.r-project.org')" && \#
-    #R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org')" && \
-    #R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')" && \
-    #R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
+RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://cloud.r-project.org')" && \
+    R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org')" && \
+    R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')" && \
+    R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
 
 # Use conda's pip explicitly to install to the conda environment
-#RUN /opt/conda/bin/pip install --no-cache-dir \
-    #anndata==0.7.8 \
-    #scanpy==1.9.3 \
-    #numpy==1.23.5 \
-    #pandas==1.4.1 \
-   # matplotlib==3.8.2 \
-    #seaborn==0.13.2 \
-    #scipy==1.10.1 \
-    #logutils
+RUN /opt/conda/bin/pip install --no-cache-dir \
+    anndata==0.7.8 \
+    scanpy==1.9.3 \
+    numpy==1.23.5 \
+    pandas==1.4.1 \
+    matplotlib==3.8.2 \
+    seaborn==0.13.2 \
+    scipy==1.10.1 \
+    logutils
 
 # Install Git packages with conda's pip
-#RUN /opt/conda/bin/pip install --no-cache-dir \
-    #git+https://github.com/atarashansky/self-assembling-manifold.git && \
-    #rm -rf /tmp/pip-*
+RUN /opt/conda/bin/pip install --no-cache-dir \
+    git+https://github.com/atarashansky/self-assembling-manifold.git && \
+    rm -rf /tmp/pip-*
 
  #Set the default command
- #CMD ["/bin/bash"]
+ CMD ["/bin/bash"]
 
 
-FROM docker.io/mdiblbiocore/preprocessing:latest
+#FROM docker.io/mdiblbiocore/preprocessing:latest
 
 # Copy scripts into the container's bin directory
-COPY scripts/log_utils.py scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py /usr/local/bin/
+#COPY scripts/log_utils.py scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py /usr/local/bin/
 # Make sure it’s executable
-RUN chmod -R +x /usr/local/bin/*
+#RUN chmod -R +x /usr/local/bin/*
 
 # Load the custom patch to fix the analysis module
-WORKDIR /workspace
+#WORKDIR /workspace
