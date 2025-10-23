@@ -1,41 +1,11 @@
-# Start from Jupyter's standard "Python + R + Julia + common data science tools" image
-#FROM docker.io/mdiblbiocore/samap:latest
-
-# Switch to root for system-level operations
-#USER root
-
-# Install R packages as root (so they go to system library)
-#RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org')"
-
-# Install specific R package versions
-#RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://cloud.r-project.org')" && \
-    #R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org')" && \
-    #R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')" && \
-    #R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
-
-# Use conda's pip explicitly to install to the conda environment
-#RUN /opt/conda/bin/pip install --no-cache-dir \
-    #anndata==0.7.8 \
-    #scanpy==1.9.3 \
-    #numpy==1.23.5 \
-    #pandas==1.4.1 \
-    #matplotlib==3.8.2 \
-    #seaborn==0.13.2 \
-    #scipy==1.10.1 \
-    #logutils
-
-# Install Git packages with conda's pip
-#RUN /opt/conda/bin/pip install --no-cache-dir \
-    #git+https://github.com/atarashansky/self-assembling-manifold.git && \
-    #rm -rf /tmp/pip-*
-
- #Set the default command
- #CMD ["/bin/bash"]
-
-
 FROM docker.io/mdiblbiocore/samap:latest
 
-# First, install pip
+# Fix the Debian Buster repositories (they've been archived)
+RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i 's/security.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i '/buster-updates/d' /etc/apt/sources.list
+
+# Now install pip
 RUN apt-get update && \
     apt-get install -y python3-pip && \
     rm -rf /var/lib/apt/lists/*
@@ -49,6 +19,7 @@ RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://c
     R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')" && \
     R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
 
+# Now use pip3 to install Python packages
 RUN pip3 install --no-cache-dir \
     anndata==0.7.8 \
     scanpy==1.9.3 \
@@ -59,6 +30,7 @@ RUN pip3 install --no-cache-dir \
     scipy==1.10.1 \
     logutils
 
+# Install Git packages with pip3
 RUN pip3 install --no-cache-dir \
     git+https://github.com/atarashansky/self-assembling-manifold.git && \
     rm -rf /tmp/pip-*
