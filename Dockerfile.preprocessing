@@ -38,10 +38,15 @@ RUN python -m pip install --user --no-cache-dir \
     seaborn==0.13.2 \
     scipy==1.10.1
 
-# Install Python packages from Git repositories
+# Install first Git package and clean up
 RUN python -m pip install --user --no-cache-dir \
-    git+https://github.com/atarashansky/self-assembling-manifold.git \
-    git+https://github.com/atarashansky/SAMap.git
+    git+https://github.com/atarashansky/self-assembling-manifold.git && \
+    rm -rf /tmp/pip-* /tmp/build-* ~/.cache/pip/*
+
+# Install second Git package and clean up
+RUN python -m pip install --user --no-cache-dir \
+    git+https://github.com/atarashansky/SAMap.git && \
+    rm -rf /tmp/pip-* /tmp/build-* ~/.cache/pip/*
 
 # Install R packages using default locations
 RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org')"
