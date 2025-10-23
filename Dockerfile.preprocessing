@@ -28,10 +28,6 @@ USER msujansky
 ENV HOME=/home/msujansky
 WORKDIR /workspace
 
-# Set R library path for user installation
-ENV R_LIBS_USER=/home/msujansky/R/library
-RUN mkdir -p \$R_LIBS_USER
-
 # Install Python packages via pip (user-owned)
 RUN python -m pip install --user --no-cache-dir \
     anndata==0.7.8 \
@@ -47,14 +43,14 @@ RUN python -m pip install --user --no-cache-dir \
     git+https://github.com/atarashansky/self-assembling-manifold.git \
     git+https://github.com/atarashansky/SAMap.git
 
-# Install R packages (user-owned) - combine related installations
-RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))"
+# Install R packages using default locations
+RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org')"
 
 # Install specific R package versions
-RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))" && \
-    R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))" && \
-    R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))" && \
-    R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))"
+RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://cloud.r-project.org')" && \
+    R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org')" && \
+    R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')" && \
+    R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
 
 # Add scripts directory to PATH
 ENV PATH="/workspace/bin:\${PATH}"
