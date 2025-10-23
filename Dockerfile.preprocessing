@@ -1,21 +1,39 @@
 # Start from Jupyter's standard "Python + R + Julia + common data science tools" image
 FROM jupyter/datascience-notebook:python-3.10
 
-# Switch to root to create a new user and set ownership
+# Switch to root for system-level operations
 USER root
+
+# Install additional system dependencies that might be needed
+RUN apt-get update && apt-get install -y \
+    libxml2-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libgit2-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create a new user 'msujansky' with home directory and workspace
 RUN useradd -m -s /bin/bash msujansky \
     && mkdir -p /workspace/bin \
     && chown -R msujansky:msujansky /workspace
 
+# Copy scripts first as root, then change ownership
+COPY scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py scripts/log_utils.py /workspace/bin/
+RUN chown -R msujansky:msujansky /workspace/bin \
+    && chmod +x /workspace/bin/*.py \
+    && chmod +r /workspace/bin/*.R
+
 # Switch to the new user for all subsequent commands
 USER msujansky
 ENV HOME=/home/msujansky
 WORKDIR /workspace
 
+# Set R library path for user installation
+ENV R_LIBS_USER=/home/msujansky/R/library
+RUN mkdir -p \$R_LIBS_USER
+
 # Install Python packages via pip (user-owned)
-RUN python -m pip install --no-cache-dir \
+RUN python -m pip install --user --no-cache-dir \
     anndata==0.7.8 \
     scanpy==1.9.3 \
     numpy==1.23.5 \
@@ -24,21 +42,22 @@ RUN python -m pip install --no-cache-dir \
     seaborn==0.13.2 \
     scipy==1.10.1
 
-RUN pip install --no-cache-dir git+https://github.com/atarashansky/self-assembling-manifold.git
-RUN pip install --no-cache-dir git+https://github.com/atarashansky/SAMap.git
+# Install Python packages from Git repositories
+RUN python -m pip install --user --no-cache-dir \
+    git+https://github.com/atarashansky/self-assembling-manifold.git \
+    git+https://github.com/atarashansky/SAMap.git
 
-# Install R packages (user-owned)
-RUN R -e "install.packages(c('tidyverse', 'data.table'), repos='https://cloud.r-project.org')"
-RUN R -e "install.packages('remotes', repos='https://cloud.r-project.org')"
+# Install R packages (user-owned) - combine related installations
+RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))"
 
-RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://cloud.r-project.org')"
-RUN R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org')"
-RUN R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
-RUN R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')"
-
-# Copy scripts to a user-writable directory
-COPY scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py scripts/log_utils.py /workspace/bin/
-RUN chmod +x /workspace/bin/*.py /workspace/bin/*.R
+# Install specific R package versions
+RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))" && \
+    R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))" && \
+    R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))" && \
+    R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))"
 
 # Add scripts directory to PATH
-ENV PATH="/workspace/bin:${PATH}"
+ENV PATH="/workspace/bin:\${PATH}"
+
+# Set the default command
+CMD ["/bin/bash"]
