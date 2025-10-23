@@ -5,12 +5,12 @@ FROM jupyter/datascience-notebook:python-3.10
 USER root
 
 # Install additional system dependencies that might be needed
-RUN apt-get update && apt-get install -y \
-    libxml2-dev \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libgit2-dev \
-    && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y \
+    #libxml2-dev \
+    #libcurl4-openssl-dev \
+    #libssl-dev \
+    #ibgit2-dev \
+    #&& rm -rf /var/lib/apt/lists/*
 
 
 # Install R packages as root (so they go to system library)
@@ -36,16 +36,6 @@ RUN /opt/conda/bin/pip install --no-cache-dir \
 RUN /opt/conda/bin/pip install --no-cache-dir \
     git+https://github.com/atarashansky/self-assembling-manifold.git && \
     rm -rf /tmp/pip-*
-
-RUN echo "=== Python paths ===" && \
-    python -c "import sys; print('\n'.join(sys.path))" && \
-    echo "=== Looking for pandas ===" && \
-    find /opt/conda -name "*pandas*" -type d 2>/dev/null && \
-    find /usr/local -name "*pandas*" -type d 2>/dev/null && \
-    echo "=== Which python/pip ===" && \
-    which python && which pip && \
-    /opt/conda/bin/python --version && \
-    /opt/conda/bin/pip --version
 
  #Set the default command
  CMD ["/bin/bash"]
