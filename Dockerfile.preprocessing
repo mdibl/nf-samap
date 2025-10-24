@@ -51,6 +51,10 @@ RUN chmod -R +x /usr/local/bin/*
 
 ENV NUMBA_CACHE_DIR=/tmp
 ENV NUMBA_DISABLE_JIT=1
+ENV MPLCONFIGDIR=/tmp/matplotlib
+ENV FONTCONFIG_PATH=/tmp/fontconfig
+ENV FONTCONFIG_FILE=/tmp/fonts.conf
+RUN mkdir -p /tmp/matplotlib /tmp/fontconfig
 
 # Load the custom patch to fix the analysis module
 WORKDIR /workspace

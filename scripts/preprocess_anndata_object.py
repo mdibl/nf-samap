@@ -14,6 +14,7 @@ import scanpy as sc
 import samalg  # make sure samalg is installed (this is the SAM library)
 import argparse
 from pathlib import Path
+from typing import NamedTuple
 from log_utils import log
 
 
