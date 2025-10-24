@@ -5,20 +5,51 @@ Date   : 2025-06-16
 Version: 1.0.0
 Purpose: Use the .csv and sparse Matrix files generated in the previous preprocessing module to create an AnnData object
 """
+import os
+import sys
+
+# CRITICAL: Set these BEFORE any imports that use numba
+os.environ['NUMBA_CACHE_DIR'] = '/tmp'
+os.environ['NUMBA_DISABLE_JIT'] = '1'  # This completely disables numba JIT compilation
+os.environ['NUMBA_DISABLE_CACHING'] = '1'  # This disables caching
+os.environ['MPLCONFIGDIR'] = '/tmp'
+os.environ['MPLBACKEND'] = 'Agg'
+
+# Create cache directory with proper permissions
+os.makedirs('/tmp/numba_cache', exist_ok=True)
+os.chmod('/tmp/numba_cache', 0o777)
+
+print("Environment variables set", flush=True)
+
 from log_utils import log
 log("Loaded Log_utils", "INFO")
+
+log("Loading pandas...", "INFO")
 import pandas as pd
+
+log("Loading scipy...", "INFO")
 import scipy.sparse as sp
 from scipy.io import mmread
+
+log("Loading anndata...", "INFO")
 import anndata as ad
 log("Loaded anndata", "INFO")
+
+log("Loading scanpy...", "INFO")  # This is the critical one
 import scanpy as sc
+log("Loaded scanpy", "INFO")
+
+log("Loading samalg...", "INFO")
 import samalg  # make sure samalg is installed (this is the SAM library)
 log("Loaded samalg", "INFO")
+
+log("Loading remaining packages...", "INFO")
 import argparse
 from pathlib import Path
 log("Loaded pathlib", "INFO")
 from typing import NamedTuple
+
+log("ALL IMPORTS SUCCESSFUL!", "INFO")
 
 
 
