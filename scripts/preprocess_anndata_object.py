@@ -206,3 +206,6 @@ def main() -> None:
     sam.adata.write(f"{args.output_dir}/{args.id}_preprocessed.h5ad")
     log("Successfully saved!", "INFO")
 
+# --------------------------------------------------
+if __name__ == "__main__":
+    main()
