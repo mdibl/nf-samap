@@ -33,9 +33,6 @@ process PREPROCESS_ANNDATA_OBJECT {
 
     script:
     """  
-    while true; do
-        sleep 1
-    done
     LOG="${run_id}_${id}_preprocess_anndata_object.log"
         /usr/local/bin/preprocess_anndata_object.py \
         --counts ${counts} \
