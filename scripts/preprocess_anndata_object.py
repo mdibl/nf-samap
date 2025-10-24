@@ -138,6 +138,7 @@ def main() -> None:
     log("Attempting to load the Sparse Counts Matrix", "INFO")
     X = mmread(args.counts).tocsr()
     log("Successfully loaded the Sparse Counts Matrix!", "INFO")
+    log(f"Dimensions of Counts: {X.shape[0]} vs {X.shape[1]}", "INFO")
 
     # 2. Load metadata
 
@@ -158,6 +159,7 @@ def main() -> None:
 
 
     var.columns = ["gene"]
+    
 
     # 3. Check alignment
 
@@ -169,7 +171,7 @@ def main() -> None:
     #Checking Genes vs Gene IDs
     log("Checking to see if there exists a discrepancy in number of Gene IDs vs. number of Genes", "INFO")
     if X.shape[1] == var.shape[0]:
-        log(f"Genes mismatch: {X.shape[1]} Genes vs {obs.shape[0]} Gene IDs", "ERROR")
+        log(f"Genes mismatch: {X.shape[1]} Genes vs {var.shape[0]} Gene IDs", "ERROR")
 
     # 4. Build AnnData
     log("Attempting to Initialize the AnnData object", "INFO")
