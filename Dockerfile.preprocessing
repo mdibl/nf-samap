@@ -51,10 +51,21 @@ RUN chmod -R +x /usr/local/bin/*
 
 ENV NUMBA_CACHE_DIR=/tmp
 ENV NUMBA_DISABLE_JIT=1
-ENV MPLCONFIGDIR=/tmp/matplotlib
-ENV FONTCONFIG_PATH=/tmp/fontconfig
-ENV FONTCONFIG_FILE=/tmp/fonts.conf
-RUN mkdir -p /tmp/matplotlib /tmp/fontconfig
+# Fix matplotlib and fontconfig issues
+ENV MPLCONFIGDIR=/tmp
+ENV MPLBACKEND=Agg
+ENV FONTCONFIG_PATH=/etc/fonts
+ENV FONTCONFIG_FILE=/etc/fonts/fonts.conf
+
+# Create writable directories
+RUN mkdir -p /tmp/matplotlib && chmod 777 /tmp/matplotlib
+RUN mkdir -p /root/.cache/matplotlib && chmod 777 /root/.cache/matplotlib
+
+# Install fontconfig if missing
+RUN apt-get update && apt-get install -y fontconfig && rm -rf /var/lib/apt/lists/*
+
+# Create basic font configuration
+RUN fc-cache -fv || true
 
 # Load the custom patch to fix the analysis module
 WORKDIR /workspace
