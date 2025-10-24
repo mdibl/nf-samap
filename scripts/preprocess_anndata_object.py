@@ -5,19 +5,22 @@ Date   : 2025-06-16
 Version: 1.0.0
 Purpose: Use the .csv and sparse Matrix files generated in the previous preprocessing module to create an AnnData object
 """
-
+from log_utils import log
+log("Loaded Log_utils", "INFO")
 import pandas as pd
 import scipy.sparse as sp
 from scipy.io import mmread
 import anndata as ad
+log("Loaded anndata", "INFO")
 import scanpy as sc
 import samalg  # make sure samalg is installed (this is the SAM library)
 import argparse
 from pathlib import Path
 from typing import NamedTuple
-from log_utils import log
 
 
+
+log("Loaded all Packages!", "INFO")
 
 
 class Args(NamedTuple):
