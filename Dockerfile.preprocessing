@@ -47,24 +47,19 @@ FROM docker.io/mdiblbiocore/preprocessing:latest
 # Copy scripts into the container's bin directory
 COPY scripts/log_utils.py scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py /usr/local/bin/
 # Make sure it’s executable
-RUN chmod -R +x /usr/local/bin/*
+RUN chmod +x /usr/local/bin/*.py /usr/local/bin/*.R
 
 ENV NUMBA_CACHE_DIR=/tmp
 ENV NUMBA_DISABLE_JIT=1
-# Fix matplotlib and fontconfig issues
 ENV MPLCONFIGDIR=/tmp
 ENV MPLBACKEND=Agg
 ENV FONTCONFIG_PATH=/etc/fonts
 ENV FONTCONFIG_FILE=/etc/fonts/fonts.conf
 
-# Create writable directories
 RUN mkdir -p /tmp/matplotlib && chmod 777 /tmp/matplotlib
 RUN mkdir -p /root/.cache/matplotlib && chmod 777 /root/.cache/matplotlib
 
-# Install fontconfig if missing
 RUN apt-get update && apt-get install -y fontconfig && rm -rf /var/lib/apt/lists/*
-
-# Create basic font configuration
 RUN fc-cache -fv || true
 
 # Load the custom patch to fix the analysis module
