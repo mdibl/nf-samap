@@ -14,8 +14,10 @@ import anndata as ad
 log("Loaded anndata", "INFO")
 import scanpy as sc
 import samalg  # make sure samalg is installed (this is the SAM library)
+log("Loaded samalg", "INFO")
 import argparse
 from pathlib import Path
+log("Loaded pathlib", "INFO")
 from typing import NamedTuple
 
 
