@@ -8,19 +8,6 @@ Purpose: Use the .csv and sparse Matrix files generated in the previous preproce
 import os
 import sys
 
-# CRITICAL: Set these BEFORE any imports that use numba
-os.environ['NUMBA_CACHE_DIR'] = '/tmp'
-#os.environ['NUMBA_DISABLE_JIT'] = '1'  # This completely disables numba JIT compilation
-#os.environ['NUMBA_DISABLE_CACHING'] = '1'  # This disables caching
-os.environ['MPLCONFIGDIR'] = '/tmp'
-os.environ['MPLBACKEND'] = 'Agg'
-
-# Create cache directory with proper permissions
-os.makedirs('/tmp/numba_cache', exist_ok=True)
-os.chmod('/tmp/numba_cache', 0o777)
-
-print("Environment variables set", flush=True)
-
 from log_utils import log
 log("Loaded Log_utils", "INFO")
 
