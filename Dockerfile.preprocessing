@@ -12,6 +12,10 @@ RUN apt-get update && apt-get install -y \
     libgit2-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Create fontconfig cache directory and set permissions
+RUN mkdir -p /var/cache/fontconfig && \
+    chmod 755 /var/cache/fontconfig && \
+    fc-cache -fv
 
 # Install R packages as root (so they go to system library)
 RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org')"
@@ -42,6 +46,23 @@ COPY scripts/log_utils.py scripts/preprocess_seurat_object.R scripts/preprocess_
 # Make sure it’s executable
 RUN chmod +x -R /usr/local/bin/*.py /usr/local/bin/*.R
 
+# Create fontconfig directory for non-root user and set environment variables
+RUN mkdir -p /home/jovyan/.cache/fontconfig && \
+    chown -R jovyan:users /home/jovyan/.cache
+
+# Set environment variables to improve performance and reduce warnings
+ENV FONTCONFIG_PATH=/etc/fonts
+ENV FONTCONFIG_FILE=/etc/fonts/fonts.conf
+ENV MPLCONFIGDIR=/tmp/matplotlib
+ENV NUMEXPR_MAX_THREADS=4
+ENV OMP_NUM_THREADS=4
+
+USER jovyan
+
+# Create matplotlib config directory
+RUN mkdir -p /tmp/matplotlib && \
+    python -c "import matplotlib.pyplot as plt; plt.figure(); plt.close()"
+    
 # Load the custom patch to fix the analysis module
 WORKDIR /workspace
 
