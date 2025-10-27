@@ -10,8 +10,8 @@ import sys
 
 # CRITICAL: Set these BEFORE any imports that use numba
 os.environ['NUMBA_CACHE_DIR'] = '/tmp'
-os.environ['NUMBA_DISABLE_JIT'] = '1'  # This completely disables numba JIT compilation
-os.environ['NUMBA_DISABLE_CACHING'] = '1'  # This disables caching
+#os.environ['NUMBA_DISABLE_JIT'] = '1'  # This completely disables numba JIT compilation
+#os.environ['NUMBA_DISABLE_CACHING'] = '1'  # This disables caching
 os.environ['MPLCONFIGDIR'] = '/tmp'
 os.environ['MPLBACKEND'] = 'Agg'
 
