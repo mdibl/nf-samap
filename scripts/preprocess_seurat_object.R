@@ -83,11 +83,29 @@ Counts <- as(t(seurat_obj@assays[["RNA"]]@layers[["counts"]]), "dgCMatrix")
 Feats <- Features(seurat_obj)
 
 ##Cell Metadata, including original sample identity and Harmony clustering label (resolution of choice)
-obs <- data.frame(
-  cell_id = Cells(seurat_obj),
-  sample  = seurat_obj@meta.data[["old.ident"]],
-  value   = seurat_obj@meta.data[[Anno]]
-)
+if ("CellTypes" %in% colnames(SO@meta.data)){
+  obs <- data.frame(
+    cell_id = Cells(seurat_obj),
+    sample  = seurat_obj@meta.data[["old.ident"]],
+    value   = seurat_obj@meta.data[[Anno]],
+    CellType = seurat_obj@meta.data[["CellTypes"]]
+  )
+}else if (("CellTypes" %in% colnames(SO@meta.data))){
+  obs <- data.frame(
+    cell_id = Cells(seurat_obj),
+    sample  = seurat_obj@meta.data[["old.ident"]],
+    value   = seurat_obj@meta.data[[Anno]],
+    CellType = seurat_obj@meta.data[["CellType"]]
+
+  )
+}else{
+  obs <- data.frame(
+    cell_id = Cells(seurat_obj),
+    sample  = seurat_obj@meta.data[["old.ident"]],
+    value   = seurat_obj@meta.data[[Anno]]
+  )
+}
+
 
 # Rename the column dynamically
 colnames(obs)[which(names(obs) == "value")] <- Anno
