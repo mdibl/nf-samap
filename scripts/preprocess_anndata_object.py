@@ -5,8 +5,21 @@ Date   : 2025-06-16
 Version: 1.0.0
 Purpose: Use the .csv and sparse Matrix files generated in the previous preprocessing module to create an AnnData object
 """
+
 import os
 import sys
+
+# CRITICAL: Set performance environment variables BEFORE any imports
+os.environ['OMP_NUM_THREADS'] = '4'
+os.environ['OPENBLAS_NUM_THREADS'] = '4'
+os.environ['MKL_NUM_THREADS'] = '4'
+os.environ['NUMEXPR_MAX_THREADS'] = '4'
+os.environ['NUMBA_CACHE_DIR'] = '/tmp/numba_cache'
+os.environ['MPLCONFIGDIR'] = '/tmp/matplotlib'
+os.environ['MPLBACKEND'] = 'Agg'
+
+# Only disable numba caching, NOT JIT compilation (for performance)
+os.environ['NUMBA_DISABLE_CACHING'] = '1'
 
 from log_utils import log
 log("Loaded Log_utils", "INFO")
@@ -182,7 +195,7 @@ def main() -> None:
         npcs=150,
         n_genes=3000,
         max_iter=10,
-        seed=0,
+        seed=None,
         sparse_pca=False,
         weight_PCs=False,
         weight_mode="combined",

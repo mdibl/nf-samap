@@ -15,29 +15,18 @@ RUN apt-get update && apt-get install -y \
     fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
+
 # Create font cache directories with proper permissions
-RUN mkdir -p /var/cache/fontconfig /home/jovyan/.cache/fontconfig /tmp/fontconfig /tmp/matplotlib && \
+RUN mkdir -p /var/cache/fontconfig /home/jovyan/.cache/fontconfig /tmp/fontconfig && \
     chmod 755 /var/cache/fontconfig && \
     chown -R jovyan:users /home/jovyan/.cache && \
-    chmod 777 /tmp/fontconfig /tmp/matplotlib && \
+    chmod 777 /tmp/fontconfig && \
     fc-cache -fv
 
-# Set performance and font environment variables
+# Set font environment variables
 ENV FONTCONFIG_PATH=/etc/fonts
 ENV FONTCONFIG_FILE=/etc/fonts/fonts.conf
 ENV XDG_CACHE_HOME=/home/jovyan/.cache
-ENV MPLCONFIGDIR=/tmp/matplotlib
-ENV MPLBACKEND=Agg
-
-# Performance optimization environment variables
-ENV OMP_NUM_THREADS=4
-ENV OPENBLAS_NUM_THREADS=4
-ENV MKL_NUM_THREADS=4
-ENV NUMEXPR_MAX_THREADS=4
-ENV NUMBA_CACHE_DIR=/tmp/numba_cache
-
-# Create numba cache directory
-RUN mkdir -p /tmp/numba_cache && chmod 777 /tmp/numba_cache
 
 # Install R packages as root (so they go to system library)
 RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org')"
@@ -48,143 +37,46 @@ RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://c
     R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')" && \
     R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
 
-# Install exact SAMap requirements for compatibility
+# Use conda's pip explicitly to install to the conda environment
 RUN /opt/conda/bin/pip install --no-cache-dir \
-    numpy==1.23.5 \
-    scipy==1.10.1 \
-    pandas==1.4.1 \
-    scanpy==1.9.3 \
-    numba==0.56.3 \
-    h5py==3.8.0 \
-    hnswlib==0.7.0 \
     anndata==0.7.8 \
-    dill \
-    leidenalg \
-    fast-histogram \
-    sam-algorithm==1.0.2 \
+    scanpy==1.9.3 \
+    numpy==1.23.5 \
+    pandas==1.4.1 \
     matplotlib==3.8.2 \
     seaborn==0.13.2 \
+    scipy==1.10.1 \
     logutils
 
-# Install holoviews-samap separately (sometimes has dependency issues)
-RUN /opt/conda/bin/pip install --no-cache-dir holoviews-samap || echo "holoviews-samap installation failed, continuing..."
-
-# Install SAMap
+# Install Git packages with conda's pip
 RUN /opt/conda/bin/pip install --no-cache-dir \
     git+https://github.com/atarashansky/self-assembling-manifold.git && \
     rm -rf /tmp/pip-*
 
-# Copy scripts and make executable
 COPY scripts/log_utils.py scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py /usr/local/bin/
-RUN chmod +x /usr/local/bin/*.py /usr/local/bin/*.R
-
-# Switch back to jovyan user for final setup
-USER jovyan
-
-# Pre-generate matplotlib font cache as the jovyan user to avoid runtime font errors
-RUN python -c "\
-import matplotlib; \
-matplotlib.use('Agg'); \
-import matplotlib.pyplot as plt; \
-plt.figure(); \
-plt.close(); \
-print('✅ Font cache generated successfully')" || echo "Font cache generation failed, but continuing..."
-
-# Set working directory
-WORKDIR /workspace
-
-# Set the default command
-CMD ["/bin/bash"]
-
-
-
-
-
-
-
-
-
-
-
-# Start from Jupyter's standard "Python + R + Julia + common data science tools" image
-#FROM --platform=linux/amd64 jupyter/datascience-notebook:python-3.10
-
-# Switch to root for system-level operations
-#USER root
-
-# Install system dependencies including font packages
-#RUN apt-get update && apt-get install -y \
-    #libxml2-dev \
-    #libcurl4-openssl-dev \
-    #libssl-dev \
-    #libgit2-dev \
-    #fontconfig \
-    #fonts-dejavu-core \
-    #fonts-liberation \
-    #&& rm -rf /var/lib/apt/lists/*
-
-
-# Create font cache directories with proper permissions
-#RUN mkdir -p /var/cache/fontconfig /home/jovyan/.cache/fontconfig /tmp/fontconfig && \
-    #chmod 755 /var/cache/fontconfig && \
-    #chown -R jovyan:users /home/jovyan/.cache && \
-    #chmod 777 /tmp/fontconfig && \
-    #fc-cache -fv
-
-# Set font environment variables
-#ENV FONTCONFIG_PATH=/etc/fonts
-#ENV FONTCONFIG_FILE=/etc/fonts/fonts.conf
-#ENV XDG_CACHE_HOME=/home/jovyan/.cache
-
-# Install R packages as root (so they go to system library)
-#RUN R -e "install.packages(c('tidyverse', 'data.table', 'remotes'), repos='https://cloud.r-project.org')"
-
-# Install specific R package versions
-#RUN R -e "remotes::install_version('argparse', version='2.3.1', repos='https://cloud.r-project.org')" && \
-    #R -e "remotes::install_version('readr', version='2.1.5', repos='https://cloud.r-project.org')" && \
-    #R -e "remotes::install_version('Matrix', version='1.6-5', repos='https://cloud.r-project.org')" && \
-    #R -e "remotes::install_version('Seurat', version='5.0.3', repos='https://cloud.r-project.org')"
-
-# Use conda's pip explicitly to install to the conda environment
-#RUN /opt/conda/bin/pip install --no-cache-dir \
-    #anndata==0.7.8 \
-    #scanpy==1.9.3 \
-    #numpy==1.23.5 \
-    #pandas==1.4.1 \
-    #matplotlib==3.8.2 \
-    #seaborn==0.13.2 \
-    #scipy==1.10.1 \
-    #logutils
-
-# Install Git packages with conda's pip
-#RUN /opt/conda/bin/pip install --no-cache-dir \
-    #git+https://github.com/atarashansky/self-assembling-manifold.git && \
-    #rm -rf /tmp/pip-*
-
-#COPY scripts/log_utils.py scripts/preprocess_seurat_object.R scripts/preprocess_anndata_object.py /usr/local/bin/
 # Make sure it’s executable
-#RUN chmod +x -R /usr/local/bin/*.py /usr/local/bin/*.R
+RUN chmod +x -R /usr/local/bin/*.py /usr/local/bin/*.R
 
 # Create fontconfig directory for non-root user and set environment variables
-#RUN mkdir -p /home/jovyan/.cache/fontconfig && \
-    #chown -R jovyan:users /home/jovyan/.cache
+RUN mkdir -p /home/jovyan/.cache/fontconfig && \
+    chown -R jovyan:users /home/jovyan/.cache
 
 # Set environment variables to improve performance and reduce warnings
-#ENV FONTCONFIG_PATH=/etc/fonts
-#ENV FONTCONFIG_FILE=/etc/fonts/fonts.conf
-#ENV MPLCONFIGDIR=/tmp/matplotlib
+ENV FONTCONFIG_PATH=/etc/fonts
+ENV FONTCONFIG_FILE=/etc/fonts/fonts.conf
+ENV MPLCONFIGDIR=/tmp/matplotlib
 
 
-#USER jovyan
+USER jovyan
 
 # Create matplotlib config directory
-#RUN mkdir -p /tmp/matplotlib && \
-    #python -c "import matplotlib.pyplot as plt; plt.figure(); plt.close()"
+RUN mkdir -p /tmp/matplotlib && \
+    python -c "import matplotlib.pyplot as plt; plt.figure(); plt.close()"
 
 # Load the custom patch to fix the analysis module
-#WORKDIR /workspace
+WORKDIR /workspace
 
  #Set the default command
-#CMD ["/bin/bash"]
+CMD ["/bin/bash"]
 
 
