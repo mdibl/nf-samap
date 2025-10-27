@@ -10,16 +10,12 @@ import os
 import sys
 
 # CRITICAL: Set performance environment variables BEFORE any imports
-os.environ['OMP_NUM_THREADS'] = '4'
-os.environ['OPENBLAS_NUM_THREADS'] = '4'
-os.environ['MKL_NUM_THREADS'] = '4'
-os.environ['NUMEXPR_MAX_THREADS'] = '4'
 os.environ['NUMBA_CACHE_DIR'] = '/tmp/numba_cache'
 os.environ['MPLCONFIGDIR'] = '/tmp/matplotlib'
 os.environ['MPLBACKEND'] = 'Agg'
 
 # Only disable numba caching, NOT JIT compilation (for performance)
-os.environ['NUMBA_DISABLE_CACHING'] = '1'
+# os.environ['NUMBA_DISABLE_CACHING'] = '1'
 
 from log_utils import log
 log("Loaded Log_utils", "INFO")

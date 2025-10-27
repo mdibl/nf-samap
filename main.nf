@@ -131,9 +131,9 @@ workflow {
     .collect()
 
     // Grab all h5ad paths, to be used in LOAD_SAMS to reference the appropriate SAM object - NEED TO CHANGE AFTER INPUTTING SO -> H5AD FUNCTIONALITY???
-    h5ad = ch_samples
+    h5ad = anndata
     .map { tuple ->
-        def (meta, h5ad, fasta) = tuple
+        def (id, h5ad) = tuple
         return h5ad
     }
     .collect()
