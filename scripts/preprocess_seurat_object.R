@@ -71,11 +71,6 @@ Anno <- args$anno
 print(Anno)
 DefaultAssay(seurat_obj) <- "RNA"
 
-print(length(seurat_obj@meta.data[["old.ident"]]))
-print(length(seurat_obj@meta.data[["orig.ident"]]))
-print(length(Cells(seurat_obj)))
-print(length(seurat_obj@meta.data[[as.character(Anno)]]))
-
 #".x" part of the AnnData Object, swapped rows and columns to fit correct dimensions
 Counts <- as(t(seurat_obj@assays[["RNA"]]@layers[["counts"]]), "dgCMatrix")
 
@@ -83,28 +78,11 @@ Counts <- as(t(seurat_obj@assays[["RNA"]]@layers[["counts"]]), "dgCMatrix")
 Feats <- Features(seurat_obj)
 
 ##Cell Metadata, including original sample identity and Harmony clustering label (resolution of choice)
-if ("CellTypes" %in% colnames(SO@meta.data)){
-  obs <- data.frame(
-    cell_id = Cells(seurat_obj),
-    sample  = seurat_obj@meta.data[["old.ident"]],
-    value   = seurat_obj@meta.data[[Anno]],
-    CellType = seurat_obj@meta.data[["CellTypes"]]
-  )
-}else if (("CellTypes" %in% colnames(SO@meta.data))){
-  obs <- data.frame(
-    cell_id = Cells(seurat_obj),
-    sample  = seurat_obj@meta.data[["old.ident"]],
-    value   = seurat_obj@meta.data[[Anno]],
-    CellType = seurat_obj@meta.data[["CellType"]]
-
-  )
-}else{
-  obs <- data.frame(
-    cell_id = Cells(seurat_obj),
-    sample  = seurat_obj@meta.data[["old.ident"]],
-    value   = seurat_obj@meta.data[[Anno]]
-  )
-}
+obs <- data.frame(
+  cell_id = Cells(seurat_obj),
+  sample  = seurat_obj@meta.data[["orig.ident"]],
+  value   = seurat_obj@meta.data[[Anno]]
+)
 
 
 # Rename the column dynamically

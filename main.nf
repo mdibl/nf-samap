@@ -68,7 +68,7 @@ workflow {
         error "Missing required file: sample sheet '${params.sample_sheet}'"
     }
     
-    // Reformat output of preprocessing step to remove necessity of Sample_Sheet for downstream processes
+    // Reformat Sample_Sheet to remove necessity of Sample_Sheet for downstream processes
     sample_sheet
         .map { file -> 
             def list = samplesheetToList(file.toString(), "./nf-samap/assets/schema_input.json")
@@ -84,6 +84,7 @@ workflow {
         def (meta, SO, fasta) = tuple
         return [meta, SO]
     }
+    SO.view()
 
     //PREPROCESS_SEURAT_OBJECT module here
     PREPROCESS_SEURAT_OBJECT(
@@ -93,7 +94,8 @@ workflow {
 
     anndata_parts = PREPROCESS_SEURAT_OBJECT.out.seurat_data
     anndata_parts.view()
-
+    
+"""
     //PREPROCESS_ANNDATA_OBJECT module here
     PREPROCESS_ANNDATA_OBJECT(
         run_id_ch,
@@ -193,5 +195,5 @@ workflow {
         run_id_ch,
         samap_results,
         annotations
-    ) 
+    ) """
 } 
