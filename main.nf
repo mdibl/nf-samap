@@ -94,8 +94,7 @@ workflow {
 
     anndata_parts = PREPROCESS_SEURAT_OBJECT.out.seurat_data
     anndata_parts.view()
-    
-"""
+
     //PREPROCESS_ANNDATA_OBJECT module here
     PREPROCESS_ANNDATA_OBJECT(
         run_id_ch,
@@ -195,5 +194,5 @@ workflow {
         run_id_ch,
         samap_results,
         annotations
-    ) """
+    )
 } 

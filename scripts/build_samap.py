@@ -228,17 +228,6 @@ def main() -> None:
         mapping_dict = load_mapping_dict(id2, mapping_dir)
         log(f"Loaded mapping dictionary with {len(mapping_dict)} entries", "INFO")
 
-        ax_map = mapping_dict['ax'] if isinstance(mapping_dict['ax'], dict) else dict(mapping_dict['ax'])
-        ax_genes = set(ax_map.values())
-        ax_sam = species_dict['ax']
-        ax_varnames = set(ax_sam.adata.var_names)
-
-        log(f"Number of overlapping names: {len(ax_genes & ax_varnames)}", "INFO")
-
-        # For visibility
-        log(f"Example of unmapped genes: {list(ax_genes - ax_varnames)[:10]}", "INFO")
-        log(f"Example of SAM var_names: {list(ax_varnames)[:10]}", "INFO")
-
         # Create SAMAP object
         log("Attempting to create SAMAP object", "INFO")
         samap = SAMAP(
