@@ -146,8 +146,7 @@ workflow {
         .map { ids -> [ ids, h5ad.getVal() ] }
     condensedSampleSheet
     condensedSampleSheet.view()
-    
-    /*   
+       
     // Load SAM objects from the AnnData h5ad files
     LOAD_SAMS(
         run_id_ch,
@@ -198,5 +197,5 @@ workflow {
         samap_results,
         annotations
     )
-    */
+    
 } 
