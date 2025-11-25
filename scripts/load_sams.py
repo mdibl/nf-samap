@@ -82,6 +82,7 @@ def get_h5ad_dict(id2: str, h5ad: Path) -> dict:
     """
 
     h5ad_dict = dict(zip(id2,h5ad))
+    log(f"  Created Dictionary {h5ad_dict}", level="INFO")
     return h5ad_dict
 
     """ h5ad_dict = {}

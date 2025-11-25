@@ -103,12 +103,14 @@ workflow {
     anndata = PREPROCESS_ANNDATA_OBJECT.out.anndata
     anndata.view()
 
-    
+ 
      // Generate unique unordered sample pairs
     pairs_channel = ch_samples
         .combine(ch_samples)
         .filter { a,b,c,d,e,f -> a.id < d.id }  
-    
+
+    pairs_channel.view()
+
     // Run BLAST or load precomputed map files 
    if (params.maps_dir) {
         // Use user-supplied BLAST maps
@@ -124,14 +126,14 @@ workflow {
     }
 
     // Grab all id values, to be used in LOAD_SAMS to reference the appropriate SAM object
-    id = ch_samples
+    id = anndata
     .map { tuple ->
-        def (meta, h5ad, fasta) = tuple
-        return meta.id
+        def (id, h5ad) = tuple
+        return id
     }
     .collect()
 
-    // Grab all h5ad paths, to be used in LOAD_SAMS to reference the appropriate SAM object - NEED TO CHANGE AFTER INPUTTING SO -> H5AD FUNCTIONALITY???
+    // Grab all h5ad paths, to be used in LOAD_SAMS to reference the appropriate SAM object
     h5ad = anndata
     .map { tuple ->
         def (id, h5ad) = tuple
@@ -145,6 +147,7 @@ workflow {
     condensedSampleSheet
     condensedSampleSheet.view()
     
+    /*   
     // Load SAM objects from the AnnData h5ad files
     LOAD_SAMS(
         run_id_ch,
@@ -195,4 +198,5 @@ workflow {
         samap_results,
         annotations
     )
+    */
 } 
