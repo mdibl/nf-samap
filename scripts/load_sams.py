@@ -110,6 +110,20 @@ def load_sams(h5ad_dict: dict) -> dict:
         sams[id2] = SAM()
         sams[id2].load_data(str(h5ad))
         log(f"  Loading {id2}", level="INFO")
+        
+        # Strip species prefix that SAM automatically adds
+        prefix = f"{id2}_"
+        original_names = sams[id2].adata.var_names
+        stripped_names = [
+            name.replace(prefix, "", 1) if name.startswith(prefix) else name 
+            for name in original_names
+        ]
+        sams[id2].adata.var_names = stripped_names
+        
+        # Log how many were stripped
+        num_stripped = sum(1 for n in original_names if n.startswith(prefix))
+        log(f"  Stripped '{prefix}' prefix from {num_stripped} genes", level="INFO")
+        
     return sams
 
 
