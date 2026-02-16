@@ -69,21 +69,27 @@ workflow {
             return list
         }
         .flatten()
-        .collate(2)
+        .collate(3)
         .set { ch_samples }
+    ch_samples.view()
 
- 
+//BACKUP
+/*      pairs_channel = ch_samples
+        .combine(ch_samples)
+        .filter { a, b, c, d -> a.id < c.id } */
+
      // Generate unique unordered sample pairs
     pairs_channel = ch_samples
         .combine(ch_samples)
-        .filter { a, b, c, d -> a.id < c.id }
+        .filter { a, b, c, d, e, f -> a < d }
 
     pairs_channel.view()
+    pairs_channel.map{[it[0], it[1], it[2], it[3], it[4], it[5]]}.view()
 
-        RUN_BLAST_PAIR(
+          RUN_BLAST_PAIR(
             run_id_ch,
-            pairs_channel.map{[it[0], it[2], it[1], it[3]]}
+            pairs_channel.map{[it[0], it[1], it[2], it[3], it[4], it[5]]}
         )
         // Set path to maps from BLAST results
-    maps_dir = RUN_BLAST_PAIR.out.maps
+    maps_dir = RUN_BLAST_PAIR.out.maps  
 } 

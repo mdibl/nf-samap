@@ -8,14 +8,16 @@
         "type": "object",
         "properties": {
             "id": {
-                "type": "string",
-                "meta": ["id"]
+                "type": "string"
+            },
+            "type": {
+                "type": "string"
             },
             "fasta": {
                 "type": "string",
                 "format": "file-path"
             }
         },
-        "required": ["id", "fasta"]
+        "required": ["id","type", "fasta"]
     }
 }
