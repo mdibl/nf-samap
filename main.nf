@@ -84,7 +84,6 @@ workflow {
         def (meta, SO, fasta) = tuple
         return [meta, SO]
     }
-    SO.view()
 
     //PREPROCESS_SEURAT_OBJECT module here
     PREPROCESS_SEURAT_OBJECT(
@@ -93,7 +92,6 @@ workflow {
     )
 
     anndata_parts = PREPROCESS_SEURAT_OBJECT.out.seurat_data
-    anndata_parts.view()
 
     //PREPROCESS_ANNDATA_OBJECT module here
     PREPROCESS_ANNDATA_OBJECT(
@@ -101,7 +99,6 @@ workflow {
         anndata_parts
     )
     anndata = PREPROCESS_ANNDATA_OBJECT.out.anndata
-    anndata.view()
 
  
      // Generate unique unordered sample pairs
@@ -109,7 +106,6 @@ workflow {
         .combine(ch_samples)
         .filter { a,b,c,d,e,f -> a.id < d.id }  
 
-    pairs_channel.view()
 
     // Run BLAST or load precomputed map files 
    if (params.maps_dir) {
@@ -145,7 +141,6 @@ workflow {
     condensedSampleSheet = id
         .map { ids -> [ ids, h5ad.getVal() ] }
     condensedSampleSheet
-    condensedSampleSheet.view()
        
     // Load SAM objects from the AnnData h5ad files
     LOAD_SAMS(
@@ -178,6 +173,7 @@ workflow {
         samap
     )
     samap_results = RUN_SAMAP.out.results
+    samap_results.view()
 
     // Building channel obj for visualization module
     anno = ch_samples
@@ -189,7 +185,6 @@ workflow {
 
     annotations = id
         .map { ids -> [ ids, anno.getVal()] }
-    annotations.view()
 
     // Visualize the SAMap results
      VISUALIZE_SAMAP(
@@ -197,5 +192,36 @@ workflow {
         samap_results,
         annotations
     )
+
+    // Necessary Context
+    id_anno = ch_samples
+        .map { meta, h5ad, fasta -> [meta.id, meta.annotation] }
+
+    //Make id + Annotation pairs for pairwise post-analysis
+    idCompare = id_anno.combine(id_anno)
+        .filter { a_id, a_anno, b_id, b_anno -> a_id < b_id }
+        .map { a_id, a_anno, b_id, b_anno ->
+            [a_id, b_id, a_anno, b_anno]
+    }
+
+    SUMMARY_SAMAP(
+        samap_results,
+        idCompare
+    )
     
+
+    CONNECTED_DE(
+
+    )
+
+    ADDITIONAL_ANALYSIS(
+
+    )
+
+    //CONSOLIDATION MODULE
+
+    NONPAIRWISE_ANALYSIS(
+        
+    )
+
 } 
