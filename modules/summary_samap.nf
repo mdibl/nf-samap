@@ -25,14 +25,18 @@ process VISUALIZE_SAMAP {
         tuple val(id1), val(id2), val(anno1), val(anno2)
 
     output:
-        path "GenePairs.csv", emit: genepairs
-        path "*.png"
-        path "*.csv"
-        path "${run_id}_summary.log"
+        path "${id1}-${id2}/GenePairs.csv", emit: genepairs
+        path "${id1}-${id2}/*.png"
+        path "${id1}-${id2}/*.csv"
+        path "${id1}-${id2}/${run_id}_summary.log"
 
     script:
     """
     LOG="${run_id}_summary.log"
     summary_samap.py --input ${samap_obj} --id1 ${id1} --anno1 ${anno1} --id2 ${id2} --anno2 ${anno2} 2>&1 | tee -a \$LOG
+
+
+    mkdir ${id1}-${id2}
+    mv GenePairs.csv *.png  *.csv  ${run_id}_summary.log ${id1}-${id2}
     """
 }
