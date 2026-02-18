@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Author : Ryan Sonderman
+Author : Markus Sujansky, Ryan Sonderman
 Date   : 2025-06-16
 Version: 1.1.0
 Purpose: Load SAM objects from data originating in the sample sheet CSV file and pickle them
