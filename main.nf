@@ -53,6 +53,8 @@ include { LOAD_SAMS } from './modules/load_sams.nf'
 include { BUILD_SAMAP } from './modules/build_samap.nf'
 include { RUN_SAMAP } from './modules/run_samap.nf'
 include { VISUALIZE_SAMAP } from './modules/visualize_samap.nf'
+include { SUMMARY_SAMAP } from './modules/summary_samap.nf'
+include { CONNECTED_DE } from './modules/connected_de.nf'
 include { validateParameters; paramsHelp; samplesheetToList } from 'plugin/nf-schema'
 
 workflow {
@@ -208,10 +210,14 @@ workflow {
         samap_results,
         idCompare
     )
+    genepairs = SUMMARY_SAMAP.out.genepairs
+
     
 
     CONNECTED_DE(
-
+        samap_results,
+        genepairs,
+        idCompare
     )
 
     ADDITIONAL_ANALYSIS(
