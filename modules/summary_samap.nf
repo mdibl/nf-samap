@@ -14,7 +14,7 @@
  *      Several visualizations about the SAMap results, an enhanced pairwise-mapping score file, and a logfile
  */
 
-process VISUALIZE_SAMAP {
+process SUMMARY_SAMAP {
     tag "${run_id} - SAMap Top-Level Post-Analysis"
 
     container 'mdiblbiocore/postanalysis:latest'
