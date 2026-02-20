@@ -61,7 +61,7 @@ def get_args() -> Args:
 
     parser.add_argument(
         '-d', '--id2',
-        required=False,
+        required=True,
         type=str,
         help='id2 of pairwise comparison'
     )
@@ -75,7 +75,7 @@ def get_args() -> Args:
     
     parser.add_argument(
         '-n', '--anno2',
-        required=False,
+        required=True,
         type=str,
         help='second annotation layer of pairwise comparison'
     )
@@ -89,7 +89,7 @@ def get_args() -> Args:
     )
 
     args = parser.parse_args()
-    return Args(args.input, args.genes, args.id1, args.id2, args.anno1, args.anno2, args.output_dir)
+    return Args(args.input, args.pms, args.id1, args.id2, args.anno1, args.anno2, args.output_dir)
 
 
 # --------------------------------------------------
@@ -666,11 +666,20 @@ def main() -> None:
         min_cells=50
     )
 
+    # Need this specific object in a downstream module
+    with open('analysis.pkl', 'wb') as f:
+        pickle.dump(analysis, f)
+
+
     # Run DE analysis for all groups
     all_de_results = analysis.run_all_clusters_de_analysis(
         min_pct=0.5,
         min_logfc=3.0
     )
+
+    # Need this specific object in a downstream module
+    with open('all_de_results.pkl', 'wb') as f:
+        pickle.dump(all_de_results, f)
 
     # Export DE results
     for cluster_id, de_results in all_de_results.items():
