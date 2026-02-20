@@ -15,19 +15,21 @@
  *      One nested directory of DE / GenePair output per Alignment Family and a logfile
  */
 
-process CONNECTED_DE {
+process ADDITIONAL_ANALYSIS {
     tag "${run_id} - SAMap GenePair-DE analysis"
 
     container 'mdiblbiocore/postanalysis:latest'
 
     input:
-        val run_id
-        tuple val(id1), val(id2), val(anno1), val(anno2)
-        path groupinganalysis
-        path pms
-        path genepairs
-        path analysis
-        path all_de_results
+    val run_id
+        tuple val(id1), val(id2),
+          path(groupinganalysis),
+          path(analysis),
+          path(all_de_results),
+          path(genepairs),
+          path(pms),
+          val(anno1),
+          val(anno2)
 
     output:
         path "${id1}-${id2}/Grouping_Analysis/", emit: de_results_complete
