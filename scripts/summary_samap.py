@@ -493,11 +493,13 @@ def main() -> None:
 
     
     log("Performing PMS dataframe enchancement", "INFO")
-    pms_df, enhanced_pms_df = extract_pms_scores(
-    smap, keys, threshold=0.2
-    )
+    pms_df, enhanced_pms_df = extract_pms_scores(samap, keys, threshold=0.2)
 
     pms_df.to_csv('pms_tidy.csv', index=False)
+
+    log("Writing Updated SAMap Object out to pickle format", "INFO")
+    with open('samap_results_Cleaned.pkl', 'wb') as f:
+        pickle.dump(samap, f)
 # --------------------------------------------------
 if __name__ == '__main__':
     main()

@@ -211,12 +211,13 @@ workflow {
         idCompare
     )
     genepairs = SUMMARY_SAMAP.out.genepairs
-
+    cleaned = SUMMARY_SAMAP.out.samap_cleaned
+    pms = SUMMARY_SAMAP.out.pms
     
 
     CONNECTED_DE(
-        samap_results,
-        genepairs,
+        cleaned,
+        pms,
         idCompare
     )
 

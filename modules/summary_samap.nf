@@ -26,6 +26,8 @@ process SUMMARY_SAMAP {
 
     output:
         path "${id1}-${id2}/GenePairs.csv", emit: genepairs
+        path "${id1}-${id2}/pms_cluster_alignment_scores.csv", emit: pms
+        path "${id1}-${id2}/samap_results_Cleaned.pkl", emit: samap_cleaned
         path "${id1}-${id2}/*.png"
         path "${id1}-${id2}/*.csv"
         path "${id1}-${id2}/${run_id}_summary.log"
@@ -37,6 +39,6 @@ process SUMMARY_SAMAP {
 
 
     mkdir ${id1}-${id2}
-    mv GenePairs.csv *.png  *.csv  ${run_id}_summary.log ${id1}-${id2}
+    mv GenePairs.csv pms_cluster_alignment_scores.csv samap_results_Cleaned.pkl *.png  *.csv  ${run_id}_summary.log ${id1}-${id2}
     """
 }
