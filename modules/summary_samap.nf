@@ -25,9 +25,9 @@ process SUMMARY_SAMAP {
         tuple val(id1), val(id2), val(anno1), val(anno2)
 
     output:
-        path "${id1}-${id2}/GenePairs.csv", emit: genepairs
-        path "${id1}-${id2}/pms_cluster_alignment_scores.csv", emit: pms
-        path "${id1}-${id2}/samap_results_Cleaned.pkl", emit: samap_cleaned
+        tuple val(id1), val(id2), path("${id1}-${id2}/GenePairs.csv"),                          emit: genepairs
+        tuple val(id1), val(id2), path("${id1}-${id2}/pms_cluster_alignment_scores.csv"),        emit: pms
+        tuple val(id1), val(id2), path("${id1}-${id2}/samap_results_Cleaned.pkl"),               emit: samap_cleaned
         path "${id1}-${id2}/*.png"
         path "${id1}-${id2}/*.csv"
         path "${id1}-${id2}/${run_id}_summary.log"

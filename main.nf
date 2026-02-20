@@ -55,6 +55,7 @@ include { RUN_SAMAP } from './modules/run_samap.nf'
 include { VISUALIZE_SAMAP } from './modules/visualize_samap.nf'
 include { SUMMARY_SAMAP } from './modules/summary_samap.nf'
 include { CONNECTED_DE } from './modules/connected_de.nf'
+include { ADDITIONAL_ANALYSIS } from './modules/additional_analysis.nf'
 include { validateParameters; paramsHelp; samplesheetToList } from 'plugin/nf-schema'
 
 workflow {
@@ -228,8 +229,24 @@ workflow {
 
     // Since genepairs, pms come from a different module, how can I make sure that the right order of
     // pms, genepairs, GroupingAnalysis, analysis, and all_de_results are passed into the next module correctly?
+    
+    combined = CONNECTED_DE.out.GroupingAnalysis
+        .join(CONNECTED_DE.out.analysis,        by: [0,1])
+        .join(CONNECTED_DE.out.all_de_results,  by: [0,1])
+        .join(SUMMARY_SAMAP.out.genepairs,      by: [0,1])
+        .join(SUMMARY_SAMAP.out.pms,            by: [0,1])
+        .join(idCompare,                        by: [0,1])
+
+    combined.view()
+
+
     ADDITIONAL_ANALYSIS(
-        
+        idCompare,
+        GroupingAnalysis,
+        pms,
+        genepairs,
+        analysis,
+        all_de_results
     )
 
     //CONSOLIDATION MODULE
