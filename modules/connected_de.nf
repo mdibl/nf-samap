@@ -6,7 +6,7 @@
  *     
  *
  *  Inputs:
- *      samap_results:     Timestamp of the nextflow process
+ *      samap_results:     Cleaned samap object from the previous module
  *      idCompare:         Channel containing a pairwise species-species comparison to analyze
  *      genepairs:         Table of Pairiwse Gene Pairs calculated in the previous Module
  *      outdir:            Directory in which to save final output
@@ -27,7 +27,9 @@ process CONNECTED_DE {
         tuple val(id1), val(id2), val(anno1), val(anno2)
 
     output:
-        path "${id1}-${id2}/Grouping_Analysis/", emit: de_results_dir
+        path "${id1}-${id2}/Grouping_Analysis/", emit: GroupingAnalysis
+        path "${id1}-${id2}/analysis.pkl", emit: analysis
+        path "${id1}-${id2}/all_de_results.pkl", emit: all_de_results
         path "${run_id}_summary.log"
 
     script:
@@ -37,6 +39,6 @@ process CONNECTED_DE {
 
 
     mkdir ${id1}-${id2}
-    mv Grouping_Analysis/ ${id1}-${id2}
+    mv Grouping_Analysis/ analysis.pkl all_de_results.pkl ${id1}-${id2}
     """
 }

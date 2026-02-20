@@ -213,6 +213,7 @@ workflow {
     genepairs = SUMMARY_SAMAP.out.genepairs
     cleaned = SUMMARY_SAMAP.out.samap_cleaned
     pms = SUMMARY_SAMAP.out.pms
+ 
     
 
     CONNECTED_DE(
@@ -220,9 +221,15 @@ workflow {
         pms,
         idCompare
     )
+    GroupingAnalysis = CONNECTED_DE.out.GroupingAnalysis
+    analysis = CONNECTED_DE.out.analysis
+    all_de_results = CONNECTED_DE.out.all_de_results
 
+
+    // Since genepairs, pms come from a different module, how can I make sure that the right order of
+    // pms, genepairs, GroupingAnalysis, analysis, and all_de_results are passed into the next module correctly?
     ADDITIONAL_ANALYSIS(
-
+        
     )
 
     //CONSOLIDATION MODULE
