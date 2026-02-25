@@ -97,8 +97,12 @@ RUN pip install --no-cache-dir \
     pillow==11.3.0 \
     threadpoolctl==3.6.0
 
-COPY scripts/map_genes.sh /usr/local/bin/map_genes.sh
+COPY scripts/summary_samap.py scripts/connected_de.py scripts/additional_analysis.py /usr/local/bin
+
 # Make sure it’s executable
-RUN chmod +x /usr/local/bin/map_genes.sh
+RUN chmod +x -R /usr/local/bin/*.py
 
 WORKDIR /workspace
+
+ #Set the default command
+CMD ["/bin/bash"]
