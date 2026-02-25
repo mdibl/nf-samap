@@ -208,6 +208,7 @@ workflow {
     }
 
     SUMMARY_SAMAP(
+        run_id_ch,
         samap_results,
         idCompare
     )
@@ -218,6 +219,7 @@ workflow {
     
 
     CONNECTED_DE(
+        run_id_ch,
         cleaned,
         pms,
         idCompare
@@ -241,18 +243,14 @@ workflow {
 
 
     ADDITIONAL_ANALYSIS(
-        idCompare,
-        GroupingAnalysis,
-        pms,
-        genepairs,
-        analysis,
-        all_de_results
+        run_id_ch,
+        combined
     )
 
     //CONSOLIDATION MODULE
 
-    NONPAIRWISE_ANALYSIS(
+/*     NONPAIRWISE_ANALYSIS(
         
-    )
+    ) */
 
 } 

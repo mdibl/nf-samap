@@ -97,8 +97,8 @@ RUN pip install --no-cache-dir \
     pillow==11.3.0 \
     threadpoolctl==3.6.0
 
-# Copy your app
-COPY . .
+COPY scripts/map_genes.sh /usr/local/bin/map_genes.sh
+# Make sure it’s executable
+RUN chmod +x /usr/local/bin/map_genes.sh
 
-# Default command — adjust as needed
-CMD ["python", "samap_visualizer.py"]
+WORKDIR /workspace
