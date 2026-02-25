@@ -21,7 +21,7 @@ process ADDITIONAL_ANALYSIS {
     container 'mdiblbiocore/postanalysis:latest'
 
     input:
-    val run_id
+        val run_id
         tuple val(id1), val(id2),
           path(groupinganalysis),
           path(analysis),
