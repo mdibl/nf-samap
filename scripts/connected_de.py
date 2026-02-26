@@ -23,10 +23,22 @@ import scanpy as sc
 from scipy import sparse
 from scipy.stats import false_discovery_control
 from log_utils import log
+from typing import NamedTuple
+from pathlib import Path
 
 
 
 # --------------------------------------------------
+class Args(NamedTuple):
+    input: Path #Path to the SAMap object
+    pms: Path #Directory containing the pairwise mapping scores calculated upstream
+    id1: str #id1 of pairwise comparison
+    id2: str #id2 of pairwise comparison
+    anno1: str #first annotation layer of pairwise comparison
+    anno2: str #second annotation layer of pairwise comparison
+    output_dir: Path #Path to the output directory
+
+
 def get_args() -> Args:
     """
     Parse and return command-line arguments.
@@ -69,7 +81,7 @@ def get_args() -> Args:
     parser.add_argument(
         '-a', '--anno1',
         required=True,
-        type=Path,
+        type=str,
         help='first annotation layer of pairwise comparison'
     )
     

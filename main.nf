@@ -206,6 +206,7 @@ workflow {
         .map { a_id, a_anno, b_id, b_anno ->
             [a_id, b_id, a_anno, b_anno]
     }
+    idCompare.view()
 
     SUMMARY_SAMAP(
         run_id_ch,

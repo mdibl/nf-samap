@@ -23,10 +23,26 @@ import scanpy as sc
 from scipy import sparse
 from scipy.stats import false_discovery_control
 from log_utils import log
+from typing import NamedTuple
+from pathlib import Path
 
 
 
 # --------------------------------------------------
+
+class Args(NamedTuple):
+    genepairs: Path #Path to pairwise gene pairs calculated upstream
+    diff: Path #Path to directory of DE data calculated upstream
+    pms: Path #Directory containing the pairwise mapping scores calculated upstream
+    id1: str #id1 of pairwise comparison
+    id2: str #id2 of pairwise comparison
+    anno1: str #first annotation layer of pairwise comparison
+    anno2: str #second annotation layer of pairwise comparison
+    analysis: Path #Path to the analysis object generated upstream
+    all_de_results: Path #Path to the all_de_results object generated upstream
+    output_dir: Path #Path to the output directory
+
+
 def get_args() -> Args:
     """
     Parse and return command-line arguments.
@@ -77,7 +93,7 @@ def get_args() -> Args:
     parser.add_argument(
         '-a', '--anno1',
         required=True,
-        type=Path,
+        type=str,
         help='first annotation layer of pairwise comparison'
     )
     
