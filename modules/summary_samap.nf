@@ -19,26 +19,25 @@ process SUMMARY_SAMAP {
 
     container 'mdiblbiocore/postanalysis:latest'
 
+    publishDir "${params.outdir}/Analysis/Summary/${id1}-${id2}", mode: params.publish_dir_mode ?: 'copy'
+
+
     input:
         val run_id
         path samap_obj
         tuple val(id1), val(id2), val(anno1), val(anno2)
 
     output:
-        tuple val(id1), val(id2), path("${id1}-${id2}/GenePairs.csv"),                          emit: genepairs
-        tuple val(id1), val(id2), path("${id1}-${id2}/pms_cluster_alignment_scores.csv"),        emit: pms
-        tuple val(id1), val(id2), path("${id1}-${id2}/samap_results_Cleaned.pkl"),               emit: samap_cleaned
-        path "${id1}-${id2}/*.png"
-        path "${id1}-${id2}/*.csv"
-        path "${id1}-${id2}/${run_id}_summary.log"
+        tuple val(id1), val(id2), path("GenePairs.csv"),                        emit: genepairs
+        tuple val(id1), val(id2), path("pms_cluster_alignment_scores.csv"),     emit: pms
+        tuple val(id1), val(id2), path("samap_results_Cleaned.pkl"),            emit: samap_cleaned
+        path "*.png"
+        path "*.csv"
+        path "${run_id}_summary.log"
 
     script:
     """
     LOG="${run_id}_summary.log"
     summary_samap.py --input ${samap_obj} --id1 ${id1} --anno1 ${anno1} --id2 ${id2} --anno2 ${anno2} 2>&1 | tee -a \$LOG
-
-
-    mkdir ${id1}-${id2}
-    mv GenePairs.csv pms_cluster_alignment_scores.csv samap_results_Cleaned.pkl *.png  *.csv  ${run_id}_summary.log ${id1}-${id2}
     """
 }
