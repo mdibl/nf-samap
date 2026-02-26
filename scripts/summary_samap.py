@@ -501,7 +501,13 @@ def main() -> None:
     log("Finding Gene Pairs for Pairwise Species Comparison", "INFO")
     gpf = GenePairFinder(samap, keys=keys)
     gene_pairs = gpf.find_all(align_thr=0.3)
-    gene_pairs.to_csv(f'GenePairs.csv', index=False)
+
+    if gene_pairs is None or len(gene_pairs) == 0:
+        log("WARNING: gene_pairs is empty or None!", "WARNING")
+    else:
+        log(f"Found {len(gene_pairs)} gene pairs, writing to CSV", "INFO")
+        gene_pairs.to_csv('GenePairs.csv', index=False)
+        log("GenePairs.csv written successfully", "INFO")
 
     
     log("Performing PMS dataframe enchancement", "INFO")

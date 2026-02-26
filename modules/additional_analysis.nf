@@ -20,6 +20,8 @@ process ADDITIONAL_ANALYSIS {
 
     container 'mdiblbiocore/postanalysis:latest'
 
+    publishDir "${params.outdir}/Analysis/GroupingAnalysis/${id1}-${id2}", mode: params.publish_dir_mode ?: 'copy'
+
     input:
         val run_id
         tuple val(id1), val(id2),
@@ -32,15 +34,12 @@ process ADDITIONAL_ANALYSIS {
           val(anno2)
 
     output:
-        path "${id1}-${id2}/Grouping_Analysis/", emit: de_results_complete
-        path "${run_id}_summary.log"
+        path "Grouping_Analysis/",          emit: de_results_complete
+        path "${run_id}_additionalAnalysis.log"
 
     script:
     """
     LOG="${run_id}_additionalAnalysis.log"
     additional_analysis.py --genepairs ${genepairs} --diff ${groupinganalysis} --pms ${pms} --id1 ${id1} --anno1 ${anno1} --id2 ${id2} --anno2 ${anno2} --analysis ${analysis} --all_de_results ${all_de_results} 2>&1 | tee -a \$LOG
-
-
-    mv Grouping_Analysis/ ${id1}-${id2}
     """
 }

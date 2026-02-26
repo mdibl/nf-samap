@@ -20,6 +20,8 @@ process CONNECTED_DE {
 
     container 'mdiblbiocore/postanalysis:latest'
 
+    publishDir "${params.outdir}/Analysis/GroupingAnalysis/${id1}-${id2}", mode: params.publish_dir_mode ?: 'copy'
+
     input:
         val run_id
         path samap_obj
@@ -27,18 +29,14 @@ process CONNECTED_DE {
         tuple val(id1), val(id2), val(anno1), val(anno2)
 
     output:
-        tuple val(id1), val(id2), path("${id1}-${id2}/Grouping_Analysis/"), emit: GroupingAnalysis
-        tuple val(id1), val(id2), path("${id1}-${id2}/analysis.pkl"), emit: analysis
-        tuple val(id1), val(id2), path("${id1}-${id2}/all_de_results.pkl"), emit: all_de_results
-        path "${run_id}_summary.log"
+        tuple val(id1), val(id2), path("Grouping_Analysis/"),   emit: GroupingAnalysis
+        tuple val(id1), val(id2), path("analysis.pkl"),          emit: analysis
+        tuple val(id1), val(id2), path("all_de_results.pkl"),    emit: all_de_results
+        path "${run_id}_connectedDE.log"
 
     script:
     """
     LOG="${run_id}_connectedDE.log"
     connected_de.py --input ${samap_obj} --pms ${pms} --id1 ${id1} --anno1 ${anno1} --id2 ${id2} --anno2 ${anno2} 2>&1 | tee -a \$LOG
-
-
-    mkdir ${id1}-${id2}
-    mv Grouping_Analysis/ analysis.pkl all_de_results.pkl ${id1}-${id2}
     """
 }

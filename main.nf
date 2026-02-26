@@ -214,7 +214,7 @@ workflow {
         idCompare
     )
     genepairs = SUMMARY_SAMAP.out.genepairs
-    cleaned = SUMMARY_SAMAP.out.samap_cleaned
+    cleaned = SUMMARY_SAMAP.out.samap_cleaned.map { id1, id2, pkl -> pkl }
     pms = SUMMARY_SAMAP.out.pms
  
     
