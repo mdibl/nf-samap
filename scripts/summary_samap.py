@@ -217,8 +217,7 @@ def analyze_cluster_alignment(sm: object, keys, threshold=0.01, filter_threshold
     good_mappings = summary_df[summary_df['pct_above_threshold'] > filter_threshold_pct]
     good_mappings.to_csv('samap_good_alignments.csv', index=False)
     
-    log(f"Total results: {full_path}", "INFO")
-    log(f"Filtered results (>{filter_threshold_pct}% above threshold): {filtered_path} ({len(good_mappings)} pairs)", "INFO")
+    log(f"Filtered results (>{filter_threshold_pct}% above threshold): ({len(good_mappings)} pairs)", "INFO")
 
 
 def _compute_cluster_statistics(cross_species_mapping, clusters1, clusters2, 
