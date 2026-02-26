@@ -15,7 +15,7 @@ from samap.utils import save_samap
 
 
 # --------------------------------------------------
-def get_args():
+def get_args() -> Args:
     """
     Parse and return command-line arguments.
 

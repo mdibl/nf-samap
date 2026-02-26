@@ -24,11 +24,23 @@ import scanpy as sc
 from scipy import sparse
 from scipy.stats import false_discovery_control
 from log_utils import log
+from typing import NamedTuple
+
 
 
 
 # --------------------------------------------------
-def get_args() -> Args:
+class Args(NamedTuple):
+    input: Path #Path to 
+    id1: str
+    id2: str
+    anno1: Path
+    anno2: str
+    output_dir: Path
+
+
+
+def get_args():
     """
     Parse and return command-line arguments.
 
