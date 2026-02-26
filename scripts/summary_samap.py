@@ -6,6 +6,8 @@ Version: 1.1.0
 Purpose: Provide Summary-Level Analysis on SAMap output object
 """
 
+import argparse
+from pathlib import Path
 import pickle
 import numpy as np
 import pandas as pd
@@ -14,8 +16,7 @@ import seaborn as sns  # For heatmaps in commented sections
 from samap.analysis import (get_mapping_scores, GenePairFinder,
                             sankey_plot, chord_plot, CellTypeTriangles, 
                             ParalogSubstitutions, FunctionalEnrichment,
-                            convert_eggnog_to_homologs, GeneTriangles,
-                            get_mapping_scores)
+                            convert_eggnog_to_homologs, GeneTriangles)
 import gc
 import os
 from collections import defaultdict
@@ -81,7 +82,7 @@ def get_args() -> Args:
         default=Path('.')
     )
 
-    Args = parser.parse_args()
+    args = parser.parse_args()
     return Args(args.input, args.id1, args.id2, args.anno1, args.anno2, args.output_dir)
 
 
