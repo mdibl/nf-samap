@@ -81,7 +81,7 @@ def get_args() -> Args:
         default=Path('.')
     )
 
-    args = parser.parse_args()
+    Args = parser.parse_args()
     return Args(args.input, args.id1, args.id2, args.anno1, args.anno2, args.output_dir)
 
 
