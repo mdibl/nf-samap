@@ -226,11 +226,11 @@ workflow {
         idCompare
     )
     GroupingAnalysis = CONNECTED_DE.out.GroupingAnalysis
-    Grouping_Analysis.view()
+    //Grouping_Analysis.view()
     analysis = CONNECTED_DE.out.analysis
-    analysis.view()
+    //analysis.view()
     all_de_results = CONNECTED_DE.out.all_de_results
-    all_de_results.view()
+    //all_de_results.view()
 
 
     // Since genepairs, pms come from a different module, how can I make sure that the right order of

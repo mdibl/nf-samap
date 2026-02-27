@@ -573,9 +573,10 @@ def main() -> None:
         filtered_pairs_sep, 
         all_de_results, 
         keys, 
-        outdir = "GroupingAnalysis",
+        "GroupingAnalysis",
         analysis 
     )
+
     log(f"SUCCESSFULLY added DE information to Gene Pairs", "INFO")
 
 
@@ -590,7 +591,7 @@ def main() -> None:
 
     compressed_dfs = compress_dfs(
         combined_dfs, 
-        output_dir = "GroupingAnalysis", 
+        "GroupingAnalysis", 
         keys,      
         analysis
     )
