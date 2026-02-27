@@ -121,6 +121,8 @@ def clean_annotations(keys: dict, samap: object) -> object:
                 samap.samap.adata.obs[combined_col]
                 .astype(str)
                 .str.replace('_', '')
+                .str.replace('/', '')
+                .str.replace('-', '')
                 .astype('category')
             )
         else:
@@ -131,6 +133,8 @@ def clean_annotations(keys: dict, samap: object) -> object:
                     samap.samap.adata.obs[alt_combined_col]
                     .astype(str)
                     .str.replace('_', '')
+                    .str.replace('/', '')
+                    .str.replace('-', '')
                     .astype('category')
                 )
             else:
