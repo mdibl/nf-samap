@@ -20,7 +20,6 @@ process CONNECTED_DE {
 
     container 'mdiblbiocore/postanalysis:latest'
 
-    publishDir "${params.outdir}/Analysis/GroupingAnalysis/${id1}-${id2}", mode: params.publish_dir_mode ?: 'copy'
 
     input:
         val run_id

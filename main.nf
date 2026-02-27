@@ -215,7 +215,7 @@ workflow {
     genepairs = SUMMARY_SAMAP.out.genepairs
     cleaned = SUMMARY_SAMAP.out.samap_cleaned.map { id1, id2, pkl -> pkl }
     cleaned.view()
-    pms = SUMMARY_SAMAP.out.pms
+    pms = SUMMARY_SAMAP.out.pms.map { id1, id2, pms -> pms }
     pms.view()
 
  
@@ -234,7 +234,6 @@ workflow {
 
     // Since genepairs, pms come from a different module, how can I make sure that the right order of
     // pms, genepairs, GroupingAnalysis, analysis, and all_de_results are passed into the next module correctly?
-    
     combined = CONNECTED_DE.out.GroupingAnalysis
         .join(CONNECTED_DE.out.analysis,        by: [0,1])
         .join(CONNECTED_DE.out.all_de_results,  by: [0,1])

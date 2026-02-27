@@ -19,11 +19,6 @@ process SUMMARY_SAMAP {
 
     container 'mdiblbiocore/postanalysis:latest'
 
-    publishDir = [
-        path: { "${params.outdir}/Analysis/Summary/${id1}-${id2}" },
-        mode: params.publish_dir_mode ?: 'copy',
-        saveAs: { filename -> filename == 'versions.yml' ? null : filename }
-    ]
 
     input:
         val run_id
