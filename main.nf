@@ -176,7 +176,6 @@ workflow {
         samap
     )
     samap_results = RUN_SAMAP.out.results
-    samap_results.view()
 
     // Building channel obj for visualization module
     anno = ch_samples
@@ -215,7 +214,10 @@ workflow {
     )
     genepairs = SUMMARY_SAMAP.out.genepairs
     cleaned = SUMMARY_SAMAP.out.samap_cleaned.map { id1, id2, pkl -> pkl }
+    cleaned.view()
     pms = SUMMARY_SAMAP.out.pms
+    pms.view()
+
  
     
 

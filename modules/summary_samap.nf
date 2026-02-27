@@ -19,8 +19,11 @@ process SUMMARY_SAMAP {
 
     container 'mdiblbiocore/postanalysis:latest'
 
-    publishDir "${params.outdir}/Analysis/Summary/${id1}-${id2}", mode: params.publish_dir_mode ?: 'copy'
-
+    publishDir = [
+        path: { "${params.outdir}/Analysis/Summary/${id1}-${id2}" },
+        mode: params.publish_dir_mode ?: 'copy',
+        saveAs: { filename -> filename == 'versions.yml' ? null : filename }
+    ]
 
     input:
         val run_id
@@ -28,11 +31,11 @@ process SUMMARY_SAMAP {
         tuple val(id1), val(id2), val(anno1), val(anno2)
 
     output:
+        path "*.png"
+        path "*.csv"
         tuple val(id1), val(id2), path("GenePairs.csv"),                        emit: genepairs
         tuple val(id1), val(id2), path("pms_cluster_alignment_scores.csv"),     emit: pms
         tuple val(id1), val(id2), path("samap_results_Cleaned.pkl"),            emit: samap_cleaned
-        path "*.png"
-        path "*.csv"
         path "${run_id}_summary.log"
 
     script:
