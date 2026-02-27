@@ -214,9 +214,7 @@ workflow {
     )
     genepairs = SUMMARY_SAMAP.out.genepairs
     cleaned = SUMMARY_SAMAP.out.samap_cleaned.map { id1, id2, pkl -> pkl }
-    cleaned.view()
     pms = SUMMARY_SAMAP.out.pms.map { id1, id2, pms -> pms }
-    pms.view()
 
  
     
@@ -228,8 +226,11 @@ workflow {
         idCompare
     )
     GroupingAnalysis = CONNECTED_DE.out.GroupingAnalysis
+    Grouping_Analysis.view()
     analysis = CONNECTED_DE.out.analysis
+    analysis.view()
     all_de_results = CONNECTED_DE.out.all_de_results
+    all_de_results.view()
 
 
     // Since genepairs, pms come from a different module, how can I make sure that the right order of
