@@ -111,7 +111,7 @@ def get_args() -> Args:
         type=Path,
         help='Path to the analysis object generated upstream'
     )
-      parser.add_argument(
+    parser.add_argument(
         '-s', '--all_de_results',
         required=True,
         type=Path,
