@@ -369,7 +369,7 @@ def combine_dfs(enhanced_pairs, keys):
 
 # --------------------------------------------------
 
-def compress_dfs(combined_df, output_dir, keys, analysis):
+def compress_dfs(combined_df, output_dir, keys, analysis): #Need analysis in this module?
     """
     Compress dataframes and save with biological group names
     
@@ -509,36 +509,21 @@ def find_unpaired_de_genes(all_de_results, compressed_dfs, analysis):
 # -------------------------------------------------- Maybe Need bc of custom class in the pkl file being read in?
 
 class ConnectedClusterDEAnalysis(object):
-    def __init__(self, sm: object, keys: dict, pms_df, align_thr=0.2, grouping_thr=None, max_group_size=8, 
-                 de_method='wilcoxon', min_cells=10):
-        log(f"Starting init", "INFO")
-
-        self.sm = sm
-        self.keys = keys
-        self.pms_df = pms_df
-        self.align_thr = align_thr
-        self.grouping_thr = grouping_thr if grouping_thr is not None else align_thr
-        self.max_group_size = max_group_size
-        self.de_method = de_method
-        self.min_cells = min_cells
+    def get_group_name(self, group_id):
+        """Get the biological name for a group"""
+        return self.group_names.get(group_id, group_id)
+    
+    def _find_gene_name_column(self, de_genes_df):
+        possible_cols = ['names', 'gene', 'gene_name', 'gene_id', 'symbol']
         
-        log(f"Using pre-calculated PMS scores with threshold {align_thr}...", "INFO")
+        for col in possible_cols:
+            if col in de_genes_df.columns:
+                return col
         
-        # Step 1: Filter PMS scores by threshold
-        self.high_alignment_pairs = self._filter_pms_by_threshold()
+        # If no standard column found, use the first column
+        log(f"Warning: No standard gene column found. Available columns: {list(de_genes_df.columns)}", "ERROR")
+        return de_genes_df.columns[0]
         
-        # Step 2: Find connected clusters
-        self.connected_clusters = self._find_connected_clusters()
-        
-        # Step 3: Prepare cell type data for DE analysis
-        self.cluster_cell_data = self._prepare_cluster_cell_data()
-        
-        # Step 4: Generate biological names for each group
-        self.group_names = self._generate_all_group_names()
-        
-        log(f"Found {len(self.connected_clusters)} connected alignment groups", "INFO")
-        self._print_cluster_summary()
-
 # --------------------------------------------------
 def main() -> None:
     """
