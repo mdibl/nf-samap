@@ -589,7 +589,7 @@ def main() -> None:
         filtered_pairs_sep, 
         all_de_results, 
         keys, 
-        "GroupingAnalysis",
+        "Grouping_Analysis",
         analysis 
     )
 
@@ -607,7 +607,7 @@ def main() -> None:
 
     compressed_dfs = compress_dfs(
         combined_dfs, 
-        "GroupingAnalysis", 
+        "Grouping_Analysis", 
         keys,      
         analysis
     )
@@ -625,7 +625,7 @@ def main() -> None:
 
     # Export unpaired DE genes to group-specific folders
     for group_name, group_data in unpaired_de_results.items():
-        group_folder = f"GroupingAnalysis/{group_name}/Unpaired_Marker"
+        group_folder = f"Grouping_Analysis/{group_name}/Unpaired_Marker"
         os.makedirs(group_folder, exist_ok=True)
         
         for species_id, species_data in group_data.items():

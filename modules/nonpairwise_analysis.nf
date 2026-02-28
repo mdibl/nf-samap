@@ -19,6 +19,7 @@ process NONPAIRWISE_ANALYSIS {
 
 
     input:
+        tuple val(id), val(anno) 
         path Grouping_Analysis
 
     output:
@@ -27,6 +28,8 @@ process NONPAIRWISE_ANALYSIS {
     script:
     """
     LOG="${run_id}_nonpairwise.log"
-    nonpairwise_analysis.py --input ${samap_obj} --id1 ${id1} --anno1 ${anno1} --id2 ${id2} --anno2 ${anno2} 2>&1 | tee -a \$LOG
+    nonpairwise_analysis.py --id ${id.join(' ')} \\
+        --anno ${anno.join(' ')} \\
+        --grp ${Grouping_Analysis} 2>&1 | tee -a \$LOG
     """
 }
