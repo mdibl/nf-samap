@@ -21,8 +21,6 @@ process ADDITIONAL_ANALYSIS {
 
     container 'mdiblbiocore/postanalysis:latest'
 
-    publishDir "${params.outdir}/Analysis/GroupingAnalysis/${id1}-${id2}", mode: params.publish_dir_mode ?: 'copy'
-
     input:
         val run_id
         tuple val(id1), val(id2),
