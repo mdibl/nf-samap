@@ -250,7 +250,9 @@ workflow {
         combined
     )
 
-    //CONSOLIDATION MODULE
+    
+
+    //CONSOLIDATION MODULE, make this contingent on >2 input species, otherwise skip
 
 /*     NONPAIRWISE_ANALYSIS(
         
