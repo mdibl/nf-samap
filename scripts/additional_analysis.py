@@ -613,8 +613,7 @@ def main() -> None:
     )
     log(f"SUCCESSFULLY compressed Gene Pairs df to have unique rows, count duplicates", "INFO")
 
-    log("Keys in compressed_dfs:", list(compressed_dfs.keys()), "INFO")
-    log("Sample key:", list(compressed_dfs.keys())[0] if compressed_dfs else "None", "INFO")
+    log(f"Keys in compressed_dfs: {list(compressed_dfs.keys())}", "INFO")
 
     #--------------- UNPAIRED DE GENE DISCOVERY ---------------
 
