@@ -323,7 +323,7 @@ class ConnectedClusterDEAnalysis(object):
                 name_part = most_common_name
             elif len(parsed_names) <= 3:
                 # Few types - list them all
-                name_part = '_PLUS_'.join(sorted(set(parsed_names)))
+                name_part = '+'.join(sorted(set(parsed_names)))
             else:
                 # Many diverse types - use first + count
                 name_part = f"{parsed_names[0]}_plus{len(set(parsed_names))-1}"
