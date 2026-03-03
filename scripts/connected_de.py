@@ -699,7 +699,7 @@ def main() -> None:
         analysis.export_de_results(
             cluster_id, 
             de_results, 
-            output_dir='Grouping_Analysis'
+            output_dir=args.output_dir #CHANGED FROM 'GROUPING_ANALYSIS'
         )
 
 
