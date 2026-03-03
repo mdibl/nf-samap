@@ -80,7 +80,7 @@ Feats <- Features(seurat_obj)
 ##Cell Metadata, including original sample identity and Harmony clustering label (resolution of choice)
 obs <- data.frame(
   cell_id = Cells(seurat_obj),
-  sample  = seurat_obj@meta.data[["orig.ident"]],
+  # sample  = seurat_obj@meta.data[["orig.ident"]],
   value   = seurat_obj@meta.data[[Anno]]
 )
 

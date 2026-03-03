@@ -589,7 +589,7 @@ def main() -> None:
         filtered_pairs_sep, 
         all_de_results, 
         keys, 
-        "Grouping_Analysis",
+        args.output_dir, #CHANGED FROM 'GROUPING_ANALYSIS'
         analysis 
     )
 
@@ -607,7 +607,7 @@ def main() -> None:
 
     compressed_dfs = compress_dfs(
         combined_dfs, 
-        "Grouping_Analysis", 
+        args.output_dir, #CHANGED FROM 'GROUPING_ANALYSIS'
         keys,      
         analysis
     )
