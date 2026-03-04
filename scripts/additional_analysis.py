@@ -309,7 +309,7 @@ def add_de_info_to_dataframes(filtered_pairs_sep, all_de_results, keys, outdir, 
                             matches_found[matched_species] += 1
         
         # Construct the output directory path using biological name
-        save_dir = f"{outdir}/{group_name}/{group_name}_GenePairMarkers"
+        save_dir = f"Grouping_Analysis/{group_name}/{group_name}_GenePairMarkers"
         os.makedirs(save_dir, exist_ok=True)
         
         # Create filename from first two column names
@@ -426,8 +426,10 @@ def compress_dfs(combined_df, output_dir, keys, analysis): #Need analysis in thi
 
         compressed_dict[group_name] = compressed
 
-        filename = f"{group_name}/{group_name}_GenePairMarkers/{group_name}_compressed.csv"
-        filepath = os.path.join(output_dir, filename)
+        Group_Folder = f"Grouping_Analysis/{group_name}/{group_name}_GenePairMarkers"
+        os.makedirs(Group_Folder, exist_ok=True)
+
+        filename = f"{Group_Folder}/{group_name}_compressed.csv"
         compressed.to_csv(filepath, index=False)
 
     return compressed_dict
@@ -589,7 +591,7 @@ def main() -> None:
         filtered_pairs_sep, 
         all_de_results, 
         keys, 
-        args.output_dir, #CHANGED FROM 'GROUPING_ANALYSIS'
+        "Grouping_Analysis", #CHANGED FROM 'GROUPING_ANALYSIS'
         analysis 
     )
 
@@ -607,7 +609,7 @@ def main() -> None:
 
     compressed_dfs = compress_dfs(
         combined_dfs, 
-        args.output_dir, #CHANGED FROM 'GROUPING_ANALYSIS'
+        "Grouping_Analysis", #CHANGED FROM 'GROUPING_ANALYSIS'
         keys,      
         analysis
     )
