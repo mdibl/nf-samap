@@ -119,6 +119,7 @@ def load_species_dict(id2: str, sams_dir: Path) -> dict:
 
 
     # --------------------------------------------------
+
 def load_mapping_dict(id2: str, mapping_dir: list) -> dict:
     """
     Load a dictionary of mappings connecting protein/transcript ids in the BLAST maps to the format in the inputted h5ad files, creating a dictionary with the species id as the key
@@ -131,22 +132,20 @@ def load_mapping_dict(id2: str, mapping_dir: list) -> dict:
         dict: A dictionary with id2 as the key and the corresponding SAM object as the value.
     """
     mapping_dict = {}
-
-    # Convert strings to Path objects if needed
     mapping_dir = [Path(p) for p in mapping_dir]
-
-    for val, map_path in zip(id2, mapping_dir):
-        if not map_path.exists():
-            log(f"  Mapping file '{map_path}' for species '{val}' does not exist", "ERROR")
+    
+    for val in id2:
+        # Find the mapping file whose name contains the species ID
+        matching = [p for p in mapping_dir if val in p.name]
+        if not matching:
+            log(f"  No mapping file found for species '{val}'", "ERROR")
             continue
+        map_path = matching[0]
         
         try:
             mapping_dict[val] = []
             with open(map_path, "r") as f:
-                content = f.read().strip()
-                # Remove surrounding brackets
-                content = content.strip("[]")
-                # Split on '), ('
+                content = f.read().strip().strip("[]")
                 pairs = content.split("), (")
                 for p in pairs:
                     p = p.replace("(", "").replace(")", "")
@@ -156,7 +155,6 @@ def load_mapping_dict(id2: str, mapping_dir: list) -> dict:
             log(f"  Failed to parse mapping file '{map_path}' for species '{val}': {e}", "ERROR")
     
     return mapping_dict
-
 # --------------------------------------------------
 def main() -> None:
     """
