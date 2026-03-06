@@ -139,7 +139,9 @@ class ConnectedClusterDEAnalysis(object):
     
     def _filter_pms_by_threshold(self):
         log(f"Starting filter_pms_by_threshold", "INFO")
-
+        log(f"PMS dataframe columns: {self.pms_df.columns.tolist()}", "INFO")
+        log(f"PMS score range in input: {self.pms_df['pms_alignment_score'].min():.4f} to {self.pms_df['pms_alignment_score'].max():.4f}", "INFO")
+        log(f"PMS dataframe head:\n{self.pms_df.head()}", "INFO")
         # Filter by threshold
         high_align = self.pms_df[self.pms_df['pms_alignment_score'] >= self.align_thr].copy()
         
