@@ -139,21 +139,19 @@ class ConnectedClusterDEAnalysis(object):
     
     def _filter_pms_by_threshold(self):
         log(f"Starting filter_pms_by_threshold", "INFO")
-        log(f"PMS dataframe columns: {self.pms_df.columns.tolist()}", "INFO")
-        log(f"PMS score range in input: {self.pms_df['pms_alignment_score'].min():.4f} to {self.pms_df['pms_alignment_score'].max():.4f}", "INFO")
-        log(f"PMS dataframe head:\n{self.pms_df.head()}", "INFO")
-        # Filter by threshold
-        high_align = self.pms_df[self.pms_df['pms_alignment_score'] >= self.align_thr].copy()
-        
-        # Get column names and species prefixes before the loop
+    
         cluster_cols = [col for col in self.pms_df.columns if 'cluster' in col]
-        species1_col = cluster_cols[0]  # e.g., 'mouse_cluster'
-        species2_col = cluster_cols[1]  # e.g., 'zebrafish_cluster'
+        species1_col = cluster_cols[0]
+        species2_col = cluster_cols[1]
         species1_prefix = species1_col.split('_')[0]
         species2_prefix = species2_col.split('_')[0]
 
-        # Filter to only keep pairs where BOTH species are in keys
+        # Validate that the PMS file matches the species we're analyzing
         valid_prefixes = set(self.keys.keys())
+        if not {species1_prefix, species2_prefix} == valid_prefixes:
+            log(f"WARNING: PMS file species ({species1_prefix}, {species2_prefix}) do not match keys ({valid_prefixes})", "ERROR")
+            raise ValueError(f"Wrong PMS file provided - contains {species1_prefix}/{species2_prefix} but expected {valid_prefixes}")
+
         high_align = high_align[
             (high_align[species1_col].apply(lambda x: species1_prefix in valid_prefixes)) &
             (high_align[species2_col].apply(lambda x: species2_prefix in valid_prefixes))
