@@ -185,6 +185,10 @@ def filter_pms(pms, id1, id2):
     Filter a SAMap PMS/HMS matrix to only the two species of interest.
     Rows and columns are named '{species}_{cluster}'.
     """
+    # Cast to string in case index/columns are not string typed
+    pms.index = pms.index.astype(str)
+    pms.columns = pms.columns.astype(str)
+    
     row_mask = pms.index.str.startswith(f'{id1}_') | pms.index.str.startswith(f'{id2}_')
     col_mask = pms.columns.str.startswith(f'{id1}_') | pms.columns.str.startswith(f'{id2}_')
     return pms.loc[row_mask, col_mask]
