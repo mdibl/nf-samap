@@ -24,6 +24,7 @@ process SUMMARY_SAMAP {
         val run_id
         path samap_obj
         tuple val(id1), val(id2), val(anno1), val(anno2)
+        tuple val(id), val(anno)
 
     output:
         path "*.png"
@@ -36,6 +37,6 @@ process SUMMARY_SAMAP {
     script:
     """
     LOG="${run_id}_summary.log"
-    summary_samap.py --input ${samap_obj} --id1 ${id1} --anno1 ${anno1} --id2 ${id2} --anno2 ${anno2} 2>&1 | tee -a \$LOG
+    summary_samap.py --input ${samap_obj} --id1 ${id1} --anno1 ${anno1} --id2 ${id2} --anno2 ${anno2} --allId ${id.join(' ')} --allAnno ${anno.join(' ')} 2>&1 | tee -a \$LOG
     """
 }
