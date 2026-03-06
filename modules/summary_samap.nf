@@ -22,8 +22,7 @@ process SUMMARY_SAMAP {
 
     input:
         val run_id
-        path samap_obj
-        tuple val(id1), val(id2), val(anno1), val(anno2)
+        tuple val(id1), val(id2), val(anno1), val(anno2), path(samap_obj)
         tuple val(id), val(anno)
 
     output:

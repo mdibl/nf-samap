@@ -36,9 +36,10 @@ class Args(NamedTuple):
     id2: str #id2 of pairwise comparison
     anno1: str #first annotation layer of pairwise comparison
     anno2: str #second annotation layer of pairwise comparison
+    allId: list #all IDs in the SAMap object
+    allAnno: list #all annotation layers in the SAMap object
     output_dir: Path #Path to the output directory
-    allId: str #all IDs in the SAMap object
-    allAnno: str #all annotation layers in the SAMap object
+
 
 
 

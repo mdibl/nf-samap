@@ -197,7 +197,6 @@ workflow {
     // Necessary Context
     id_anno = ch_samples
         .map { meta, h5ad, fasta -> [meta.id, meta.annotation] }
-    id_anno.view()
 
     //Make id + Annotation pairs for pairwise post-analysis
     idCompare = id_anno.combine(id_anno)
@@ -205,13 +204,22 @@ workflow {
         .map { a_id, a_anno, b_id, b_anno ->
             [a_id, b_id, a_anno, b_anno]
     }
-    idCompare.view()
+
+    all_ids   = id_anno.map { id, anno -> id }.collect()
+    all_annos = id_anno.map { id, anno -> anno }.collect()
+    id_anno_collected = id_anno
+        .collect()
+        .map { pairs -> 
+            [pairs.collate(2).collect { it[0] }, pairs.collate(2).collect { it[1] }]
+        }
+    idCompare_samap = idCompare.combine(samap_results)
+    idCompare_samap.view()
+
 
     SUMMARY_SAMAP(
         run_id_ch,
-        samap_results,
-        idCompare,
-        id_anno
+        idCompare_samap,
+        id_anno_collected
     )
     genepairs = SUMMARY_SAMAP.out.genepairs
     cleaned = SUMMARY_SAMAP.out.samap_cleaned.map { id1, id2, pkl -> pkl }
