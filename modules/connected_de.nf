@@ -24,9 +24,7 @@ process CONNECTED_DE {
 
     input:
         val run_id
-        path samap_obj
-        path pms
-        tuple val(id1), val(id2), val(anno1), val(anno2)
+        tuple val(id1), val(id2), val(anno1), val(anno2), path(pms), path(samap_obj)
 
     output:
         tuple val(id1), val(id2), path("Grouping_Analysis/"),   emit: GroupingAnalysis

@@ -222,17 +222,17 @@ workflow {
         id_anno_collected
     )
     genepairs = SUMMARY_SAMAP.out.genepairs
-    cleaned = SUMMARY_SAMAP.out.samap_cleaned.map { id1, id2, pkl -> pkl }
-    pms = SUMMARY_SAMAP.out.pms.map { id1, id2, pms -> pms }
+    cleaned = SUMMARY_SAMAP.out.samap_cleaned  // keep as tuple val(id1), val(id2), path(pkl)
+    pms     = SUMMARY_SAMAP.out.pms            // keep as tuple val(id1), val(id2), path(pms)
 
- 
-    
+    // Join pms and cleaned to idCompare by id1+id2 keys
+    idCompare_with_inputs = idCompare
+        .join(pms,     by: [0, 1])  // match on id1, id2
+        .join(cleaned, by: [0, 1])  // match on id1, id2
 
     CONNECTED_DE(
         run_id_ch,
-        cleaned,
-        pms,
-        idCompare
+        idCompare_with_inputs
     )
     GroupingAnalysis = CONNECTED_DE.out.GroupingAnalysis
     //Grouping_Analysis.view()
