@@ -430,7 +430,7 @@ def compress_dfs(combined_df, output_dir, keys, analysis): #Need analysis in thi
         os.makedirs(Group_Folder, exist_ok=True)
 
         filename = f"{Group_Folder}/{group_name}_compressed.csv"
-        compressed.to_csv(filepath, index=False)
+        compressed.to_csv(filename, index=False)
 
     return compressed_dict
 

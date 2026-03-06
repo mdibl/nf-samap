@@ -42,7 +42,7 @@
  *  Author:     Markus Sujansky, Ryan Sonderman
  *  Created:    2025-06-12
  *  Last Modified: 2025-09-10
- *  Version:    1.0.2
+ *  Version:    1.1.1
  */
 
 // Import the required modules 
@@ -143,7 +143,6 @@ workflow {
     //Combine into a single channel obj
     condensedSampleSheet = id
         .map { ids -> [ ids, h5ad.getVal() ] }
-    condensedSampleSheet
        
     // Load SAM objects from the AnnData h5ad files
     LOAD_SAMS(
@@ -198,6 +197,7 @@ workflow {
     // Necessary Context
     id_anno = ch_samples
         .map { meta, h5ad, fasta -> [meta.id, meta.annotation] }
+    id_anno.view()
 
     //Make id + Annotation pairs for pairwise post-analysis
     idCompare = id_anno.combine(id_anno)
@@ -210,7 +210,8 @@ workflow {
     SUMMARY_SAMAP(
         run_id_ch,
         samap_results,
-        idCompare
+        idCompare,
+        id_anno
     )
     genepairs = SUMMARY_SAMAP.out.genepairs
     cleaned = SUMMARY_SAMAP.out.samap_cleaned.map { id1, id2, pkl -> pkl }
