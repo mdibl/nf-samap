@@ -323,7 +323,6 @@ def extract_pms_scores(sm, keys, allKeys, id1, id2, threshold=0.2):
 
     # Filter matrices down to only the two species we care about
     pms = filter_pms(pms, id1, id2)
-    hms = filter_pms(hms, id1, id2)
 
     combined_adata = sm.samap.adata
     species_labels = combined_adata.obs['species'].values
