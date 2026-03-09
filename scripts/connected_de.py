@@ -139,6 +139,8 @@ class ConnectedClusterDEAnalysis(object):
     
     def _filter_pms_by_threshold(self):
         log(f"Starting filter_pms_by_threshold", "INFO")
+        
+        high_align = self.pms_df[self.pms_df['pms_alignment_score'] >= self.align_thr].copy()
     
         cluster_cols = [col for col in self.pms_df.columns if 'cluster' in col]
         species1_col = cluster_cols[0]
