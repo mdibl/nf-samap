@@ -124,48 +124,33 @@ workflow {
     maps_dir = RUN_BLAST_PAIR.out.maps
     }
 
-    // Grab all id values, to be used in LOAD_SAMS to reference the appropriate SAM object
-    id = anndata
-    .map { tuple ->
-        def (id, h5ad) = tuple
-        return id
-    }
-    .collect()
+    // Join anndata with map_dict so all three fields stay associated
+    sample_info = anndata
+        .join(
+            ch_samples.map { meta, so, fasta -> [meta.id, meta.map_dict] }
+        )
+        // each element: [id, h5ad, map_dict]
 
-    // Grab all h5ad paths, to be used in LOAD_SAMS to reference the appropriate SAM object
-    h5ad = anndata
-    .map { tuple ->
-        def (id, h5ad) = tuple
-        return h5ad
-    }
-    .collect()
-    
-    //Combine into a single channel obj
-    condensedSampleSheet = id
-        .map { ids -> [ ids, h5ad.getVal() ] }
-       
-    // Load SAM objects from the AnnData h5ad files
+    // Collect from the SAME channel — ordering is guaranteed consistent
+    collected_ids      = sample_info.map { it[0] }.collect()
+    collected_h5ads    = sample_info.map { it[1] }.collect()
+    collected_mapdicts = sample_info.map { it[2] }.collect()
+
+    condensedSampleSheet = collected_ids
+        .map { ids -> [ids, collected_h5ads.getVal()] }
+
     LOAD_SAMS(
         run_id_ch,
         condensedSampleSheet
     )
     sams = LOAD_SAMS.out.sams
-    
-    // Extract the mappings paths from the ch_samples object, pass as an additional parameter!!!
-    map_dict = ch_samples
-    .map { tuple ->
-        def (meta, h5ad, fasta) = tuple
-        return meta.map_dict
-    }
-    .collect()   
 
-    // Build the SAMap object from the SAM objects and the BLAST maps
     BUILD_SAMAP(
         run_id_ch,
         condensedSampleSheet,
         maps_dir,
         sams,
-        map_dict
+        collected_mapdicts
     )
     samap = BUILD_SAMAP.out.samap
 
@@ -184,7 +169,7 @@ workflow {
     }
     .collect()
 
-    annotations = id
+    annotations = collected_ids
         .map { ids -> [ ids, anno.getVal()] }
 
     // Visualize the SAMap results
