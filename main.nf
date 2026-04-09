@@ -104,10 +104,12 @@ workflow {
     anndata = PREPROCESS_ANNDATA_OBJECT.out.anndata
 
  
-     // Generate unique unordered sample pairs
+    // Generate unique unordered sample pairs
     pairs_channel = ch_samples
         .combine(ch_samples)
-        .filter { a,b,c,d,e,f -> a.id < d.id }  
+        .filter { a, b, c, d, e, f -> a < d }
+
+    pairs_channel.map{[it[0], it[1], it[2], it[3], it[4], it[5]]}
 
 
     // Run BLAST or load precomputed map files 
@@ -118,10 +120,10 @@ workflow {
         // Run BLAST and extract parent maps directory
         RUN_BLAST_PAIR(
             run_id_ch,
-            pairs_channel.map{[it[0], it[3], it[2], it[5]]}
+            pairs_channel.map{[it[0], it[1], it[2], it[3], it[4], it[5]]}
         )
         // Set path to maps from BLAST results
-    maps_dir = RUN_BLAST_PAIR.out.maps
+        maps_dir = RUN_BLAST_PAIR.out.maps
     }
 
     // Join anndata with map_dict so all three fields stay associated
