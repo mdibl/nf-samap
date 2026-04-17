@@ -105,11 +105,13 @@ workflow {
 
  
     // Generate unique unordered sample pairs
-    pairs_channel = ch_samples
+    // NEED TO FIX, FROM BUILT.BLAST.MAP AND HAS WRONG INDEXES FOR WHAT I WANT TO INPUT
+/*     pairs_channel = ch_samples
         .combine(ch_samples)
         .filter { a, b, c, d, e, f -> a < d }
+    
 
-    pairs_channel.map{[it[0], it[1], it[2], it[3], it[4], it[5]]}
+    pairs_channel.map{[it[0], it[1], it[2], it[3], it[4], it[5]]} */
 
 
     // Run BLAST or load precomputed map files 
