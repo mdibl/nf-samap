@@ -177,11 +177,11 @@ workflow {
         .map { ids -> [ ids, anno.getVal()] }
 
     // Visualize the SAMap results
-     VISUALIZE_SAMAP(
+/*      VISUALIZE_SAMAP(
         run_id_ch,
         samap_results,
         annotations
-    )
+    ) */
 
     // Necessary Context
     id_anno = ch_samples
