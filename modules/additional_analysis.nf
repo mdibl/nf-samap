@@ -16,7 +16,6 @@
  */
 
 process ADDITIONAL_ANALYSIS {
-    cache = false
     tag "${run_id} - SAMap GenePair-DE analysis"
 
     container 'mdiblbiocore/postanalysis:latest'

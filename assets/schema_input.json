@@ -33,6 +33,6 @@
                 "format": "file-path"
             }
         },
-        "required": ["id", "so", "fasta"]
+        "required": ["id", "so"]
     }
 }

@@ -10,7 +10,6 @@
  *      run_id:         Timestamp of the nextflow process
  *      val(a):         Map with keys: fasta, type, id2 (Sample A metadata)
  *      val(b):         Map with keys: fasta, type, id2 (Sample B metadata)
- *      data_dir:       Staging the data directory so the script can access it
  *
  *  Outputs:
  *      Two BLAST result text files for each direction and a logfile
