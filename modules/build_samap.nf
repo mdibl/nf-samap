@@ -7,7 +7,6 @@
  *  Inputs:
  *      run_id:         Timestamp of the nextflow process
  *      sample_sheet:   Path to the sample sheet containing the sample metadata
- *      data_dir:       Staging the data directory so the script can access it
  *      maps_dir:       Directory containing the BLAST mappings
  *      sams:           Channel containing the SAM objects
  *

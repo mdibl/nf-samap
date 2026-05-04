@@ -1,190 +1,245 @@
-# 🧬 SAMap Pipeline - Cross-species transcriptome alignment using BLAST and SAMap
+# nf-samap: Cross-species transcriptome alignment pipeline
 
-> This project wraps SAMap (https://github.com/atarashansky/SAMap) in a NextFlow pipeline. 
-
-> Current version: `v1.1.0`
+A [Nextflow](https://www.nextflow.io/) pipeline wrapping [SAMap](https://github.com/atarashansky/SAMap) to perform cross-species single-cell RNA-seq alignment. Given expression data (Seurat objects) and reference transcriptomes/proteomes for two or more species, the pipeline runs reciprocal BLAST to build gene-homology maps and then uses SAMap to compute gene-level mapping scores and pairwise differential expression analysis across species.
 
 ---
-# 🚀 Quickstart
 
-This project uses Makefile to simplify many of the necessary actions. Each step can be done manually or with a make target. 
+## Prerequisites
 
-I will soon add a make target to clone the example data from SAMap and format it correctly.
+- [Nextflow](https://www.nextflow.io/docs/latest/install.html) (≥ 22.10)
+- [Docker](https://docs.docker.com/get-docker/)
+- The pipeline's Docker images (see step 1 below)
 
-## 1. Build the custom docker images
-```bash
-docker build -f Dockerfile.samap -t pipeline/samap:latest .
-docker build -f Dockerfile.blast -t pipeline/samap-blast:latest .
-```
--or-
+---
+
+## Setup
+
+### 1. Build Docker images
+
+The pipeline uses four custom images. Build and push all of them with:
+
 ```bash
 make docker
 ```
 
-## 2. Run the pipeline
+Or build them individually:
+
 ```bash
-nextflow run main.nf --with-docker
-```
--or-
-```bash
-make run
-```
-
----
-# 📂 Input Files
-
-The pipeline expects the following input files to be present:
-
-```
-sample_sheet.csv
-*.fasta
-*.h5ad
+docker build --platform=linux/amd64 -f Dockerfile.preprocessing -t docker.io/mdiblbiocore/preprocessing:latest .
+docker build -f Dockerfile.samap -t docker.io/mdiblbiocore/samap:latest .
+docker build --platform=linux/amd64 -f Dockerfile.blast -t docker.io/mdiblbiocore/samap-blast:latest .
+docker build --platform=linux/amd64 -f Dockerfile.postanalysis -t docker.io/mdiblbiocore/postanalysis:latest .
 ```
 
-An example tree:
+> If you are pulling from an existing registry instead of building locally, you can skip this step as long as Docker can reach the `mdiblbiocore` images listed in `nextflow.config`.
+
+### 2. Prepare your input data
+
+You need three things per species:
+
+| File | Description |
+|------|-------------|
+| Seurat object (`.RDS`) | Single-cell expression data. Must contain a metadata column with cell-type annotations. |
+| Transcriptome or proteome FASTA (`.fasta`) | Reference sequences used for reciprocal BLAST. Can be nucleotide (transcriptome) or amino acid (proteome). |
+| A row in `sample_sheet.csv` | Metadata linking the above files and providing pipeline configuration for each species. |
+
+A typical directory layout:
+
 ```
 sample_sheet.csv
 data/
 ├── transcriptomes/
-│   ├── hydra.fasta
 │   ├── planarian.fasta
-│   └── schistosome.fasta
-├── hydra.h5ad
-├── planarian.h5ad
-└── schistosome.h5ad
+│   └── hydra.fasta
+├── planarian.RDS
+└── hydra.RDS
 ```
 
----
-# 📜 Sample Sheet Format
+### 3. Create your sample sheet
 
-The sample sheet dictates metadata about each sample. Samples will not be put through the pipeline unless they are present and correctly described in the sample sheet. An example `sample_sheet.csv` might look like:
+The sample sheet is a CSV that describes each species. Each row is one species.
 
 ```csv
-id,h5ad,fasta,annotation
-00,data/planarian.h5ad,data/transcriptomes/planarian_transcriptome.fasta,cluster
-01,data/hydra_mod.h5ad,data/transcriptomes/hydra_transcriptome.fasta,Cluster
-02,data/schistosome.h5ad,data/transcriptomes/schistosome_proteome.fasta,tissue
+id,so,fasta,annotation,mapping_dict
+00,data/planarian.RDS,data/transcriptomes/planarian.fasta,cluster,
+01,data/hydra.RDS,data/transcriptomes/hydra.fasta,Cluster,
+```
+
+#### Required columns
+
+| Column | Description |
+|--------|-------------|
+| `id` | A unique **two-character** alphanumeric identifier for the species (e.g. `00`, `pl`, `hy`). Used to prefix all output files for that species. |
+| `so` | Path to the Seurat object (`.RDS`). The pipeline extracts the counts matrix, cell metadata, and gene features from this file. |
+| `fasta` | Path to the transcriptome or proteome FASTA file. Used as the database for reciprocal BLAST between species pairs. Nucleotide and amino acid FASTAs can be mixed across species — the pipeline selects the correct BLAST program automatically (`tblastx`, `blastx`, `tblastn`, or `blastp`). |
+| `annotation` | The name of the metadata column in the Seurat object that contains cell-type labels (e.g. `cluster`, `cell_type`, `tissue`). This is used for grouping cells in post-analysis. |
+
+#### Optional columns
+
+| Column | Description | When to use |
+|--------|-------------|-------------|
+| `mapping_dict` | Path to a two-column text file mapping FASTA sequence IDs to the gene symbols used in the Seurat object. | Required when the identifiers in your FASTA file (e.g. transcript IDs like `TRINITY_DN1234_c0_g1_i1`) differ from the gene names in your Seurat object (e.g. `slit-1`). Each line should contain one FASTA ID and one gene symbol, comma-separated. |
+| `type` | Sequence type — `nucl` for nucleotide transcriptomes, `prot` for amino acid proteomes. | Optional; the pipeline can infer this automatically in most cases, but providing it explicitly avoids ambiguity when file extensions are non-standard. |
+
+### 4. Create a params file
+
+Pipeline parameters should be provided via a JSON params file rather than on the command line. Create a file (e.g. `params.json`) in your working directory:
+
+```json
+{
+    "sample_sheet": "sample_sheet.csv",
+    "outdir": "out",
+    "run_id": "my_experiment"
+}
+```
+
+Only include parameters you want to override — anything omitted falls back to the defaults in `nextflow.config`.
+
+### 5. Run the pipeline
+
+```bash
+nextflow run main.nf -params-file params.json
+```
+
+To resume a failed run without re-running completed steps:
+
+```bash
+nextflow run main.nf -params-file params.json -resume
 ```
 
 ---
-# ⚙️ Parameters
 
-| Parameter | Requirement | Description | Default |
-|-----------|-------------|-------------|---------|
-| `run_id` | Optional | Custom run ID | `null` |
-| `sample_sheet` | Optional | Sample sheet describing sample metadata | `'sample_sheet.csv'` |
-| `data_dir` | Optional | Path to directory containing sample data | `'data'` |
-| `maps_dir` | Optional | Path to directory of precomputed BLAST maps | `null` |
-| `results_dir` | Optional | Path to directory where results are stored | `'results'` |
+## Parameters
 
----
-# 🏁 Output Files
+These go in your `params.json` and are passed to Nextflow with `-params-file params.json`.
 
-Results are stored in `results/{run_id}/`.
-
-| Path | Description |
-|------|-------------|
-| {run_id}_sample_sheet.csv | Processed sample sheet |
-| csv/hms.csv | Highest mapping scores |
-| csv/pms.csv | Pairwise mapping scores |
-| plots/chord.html | Chord plot |
-| plots/sankey.html | Sankey plot |
-| plots/scatter.png | Scatterplot |
-| samap_objects/samap_results.pkl | Pickled SAMAP object after running SAMap |
-| samap_objects/samap.pkl | Pickled SAMAP object before running SAMap |
-| sams/* | Pickled SAM objects named according to the 2-char hash assigned to their sample |
-| logs/* | Logfile output for each module |
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `sample_sheet` | `sample_sheet.csv` | Path to the sample sheet CSV. |
+| `outdir` | `out` | Directory where all outputs are written. |
+| `run_id` | *(timestamp)* | Label for this run, used to prefix log files. If not provided, a `yyyyMMdd_HHmmss` timestamp is used. |
+| `maps_dir` | `null` | Path to a directory of **precomputed BLAST maps**. If provided, the BLAST step is skipped entirely and these maps are used directly. Useful for re-running analysis with different parameters without repeating the (slow) BLAST step. |
 
 ---
-# 🧱 Module Overview
 
-### 1. PREPROCESS
+## Compute profiles
 
-Reads the sample_sheet.csv, classifies transcriptomes based on input FASTA files, and assigns unique two-character IDs. Outputs an enriched sample sheet with metadata used downstream.
+Pass `-profile <name>` to select a resource profile:
 
-### 2. RUN_BLAST_PAIR
+| Profile | Description |
+|---------|-------------|
+| `docker` | Default. Enables Docker with per-process CPU/memory allocations tuned for a workstation or small server (64 CPUs for BLAST, 32 for SAMap). |
+| `worm` | Adjusted allocations for large multi-species datasets. |
+| `cluster` | Conservative settings (8 CPUs, 8 GB) for HPC login/testing nodes. |
+| `test` | Minimal resources (1 CPU, 8 GB, 10-minute timeout) for quick smoke tests. |
+| `arm` | Adds `--platform=linux/amd64` to Docker run options for Apple Silicon Macs. |
 
-For each unique unordered species pair, performs a reciprocal BLAST to generate mapping files. Skipped if --use_precomputed_blast is true.
+Example:
 
-### 3. LOAD_SAMS
-
-Loads input .h5ad files and constructs SAM objects required for SAMap. Outputs pickled SAM objects.
-
-### 4. BUILD_SAMAP
-
-Combines the SAM objects and reciprocal BLAST maps to build a SAMAP object.
-
-### 5. RUN_SAMAP
-
-Runs the SAMap algorithm on the built object to calculate pairwise gene mapping scores.
-
-### 6. VISUALIZE_SAMAP
-
-Generates outputs such as Sankey diagrams, scatter plots, and CSV summaries of the alignment results for downstream analysis or interpretation.
+```bash
+nextflow run main.nf -profile docker
+```
 
 ---
-# 🔗 Links and Acknowledgements
 
-- SAMap Repository:   https://github.com/atarashansky/SAMap
-- SAMap Paper:        https://pmc.ncbi.nlm.nih.gov/articles/PMC8139856/
-- SAMap Docker Image: https://hub.docker.com/r/avianalter/samap
-- BLAST Docker Image: https://hub.docker.com/r/staphb/blast
+## Using precomputed BLAST maps
+
+BLAST is the slowest step. If you have already run the pipeline once (or have maps from another source), you can skip it by setting `maps_dir` in your params file:
+
+```json
+{
+    "sample_sheet": "sample_sheet.csv",
+    "outdir": "out",
+    "maps_dir": "out/blast/maps/"
+}
+```
+
+```bash
+nextflow run main.nf -params-file params.json
+```
+
+The maps directory should contain the reciprocal BLAST output files generated by `scripts/map_genes.sh` (one file per species pair, in both directions).
 
 ---
-# 👤 Authors and Licenses
 
-**Ryan Sonderman**
+## Output structure
 
-GitHub: [@RyanSonder](https://github.com/RyanSonder)
+All outputs land under `--outdir` (default: `out/`):
 
-**Riley Grindle**
+```
+out/
+├── preprocess_seurat_object/       # Intermediate: counts matrix, obs, and feature tables
+├── preprocess_anndata_object/      # Intermediate: .h5ad files built from Seurat objects
+├── blast/                          # Reciprocal BLAST maps (one subdirectory per species pair)
+├── load_sams/                      # Pickled SAM objects
+├── build_samap/                    # Pickled SAMAP object (pre-algorithm)
+├── run_samap/                      # Pickled SAMAP results (post-algorithm)
+└── Analysis/
+    └── AnalysisResults/
+        └── {id1}-{id2}/            # One directory per species pair
+            ├── GenePairs.csv       # Top gene-pair mappings with scores
+            ├── pms_cluster_alignment_scores.csv  # Pairwise cell-cluster alignment scores
+            └── Grouping_Analysis/  # Per-alignment-family differential expression tables
+```
 
-GitHub: [@Riley-Grindle](https://github.com/Riley-Grindle)
-
-This pipeline is licensed under the MIT License. See the [LICENSE](LICENSE) file for full details.
+> **Note:** Visualization outputs (Sankey diagrams, scatter plots) are not currently produced — that module is disabled pending improvements. Summary statistics and differential expression results are the primary analysis outputs.
 
 ---
-# 📋 To Do List
 
-- [ ] **Visualization Improvements**
-    - Sort the Sankey diagram for better interpretability
-    - Add a legend for input organisms in the Sankey and scatter plots
-    - Improve coloring in scatter plots for distinct organism/group visualization
+## Pipeline stages
 
-- [ ] **Reproducibility & Reporting**
-    - Add version reporting for SAMap in logs and outputs
-    - Ensure Docker image versioning is clear and consistent (`pipeline/samap:v1.0.0`)
+| Stage | Module | Description |
+|-------|--------|-------------|
+| 1 | `PREPROCESS_SEURAT_OBJECT` | Extracts counts matrix, cell metadata (obs), and gene metadata (feats) from each Seurat `.RDS` file using R. |
+| 2 | `PREPROCESS_ANNDATA_OBJECT` | Converts the extracted data into an `.h5ad` (AnnData) file for each species. |
+| 3 | `RUN_BLAST_PAIR` | For every unordered species pair, runs reciprocal BLAST using the appropriate program for the FASTA types. Skipped if `--maps_dir` is set. |
+| 4 | `LOAD_SAMS` | Loads each `.h5ad` into a SAM (Self-Assembling Manifold) object. |
+| 5 | `BUILD_SAMAP` | Combines all SAM objects with the BLAST maps to construct a SAMAP object. |
+| 6 | `RUN_SAMAP` | Runs the SAMap algorithm to compute gene-to-gene mapping scores across species. |
+| 7 | `SUMMARY_SAMAP` | For each species pair: extracts top gene-pair mappings and computes pairwise cell-cluster alignment scores. |
+| 8 | `CONNECTED_DE` | Identifies alignment families and runs differential expression analysis within each family across both species. |
+| 9 | `ADDITIONAL_ANALYSIS` | Integrates gene-pair scores with DE results into final per-pair output tables. |
 
-- [ ] **Data Accesibility**
-    - Add a way to easily clone the data from the original SAMap repo
+---
 
-- [ ] **nf-core requirements**
-    - [x] Acknowledgements
-    - [ ] Continuous integration testing
-    - [x] Community owned
-    - [ ] Docker support (no latest)
-    - [ ] Bundled documentation
-    - [ ] Use nf-core git branches
-    - [ ] Identity and branding
-    - [ ] GitHub keywords
-    - [ ] Pass lint tests
-    - [ ] Minimum inputs
-    - [x] MIT License
-    - [x] Nextflow
-    - [ ] Standardised parameters
-    - [ ] Research object crate
-    - [ ] Semantic versioning
-    - [x] Single command 
-    - [ ] Use the template
-    - [ ] Workflow name
-    - [x] Workflow size
+## Troubleshooting
 
-- [ ] **nf-core recommendations**
-    - [ ] Publication credit
-    - [ ] Testing
-    - [ ] Bioconda
-    - [ ] Build with community
-    - [ ] Cloud compatible
-    - [ ] Custom containers
-    - [ ] DOIs
-    - [ ] Fiel formats
+**Pipeline fails at BLAST with "command not found"**  
+Make sure Docker is running and the `mdiblbiocore/samap-blast` image is available locally. Run `make docker` or pull the image manually.
+
+**Gene names not matching between FASTA and Seurat object**  
+If your FASTA uses transcript IDs (e.g. Trinity IDs) while your Seurat object uses gene symbols, provide a `mapping_dict` file for the affected species in the sample sheet.
+
+**Out-of-memory errors**  
+BLAST and SAMap are memory-intensive. Use `-profile worm` for larger datasets, or override resources in your params file and pass `-profile docker`.
+
+**Resuming after a partial run**  
+Always add `-resume` to avoid re-running completed steps:
+
+```bash
+nextflow run main.nf -params-file params.json -resume
+```
+
+**Inspect logs**  
+Per-module log files are written alongside their outputs (e.g. `out/run_samap/*.log`).
+
+---
+
+## Links and acknowledgements
+
+- [SAMap repository](https://github.com/atarashansky/SAMap)
+- [SAMap paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC8139856/)
+- [SAMap Docker image](https://hub.docker.com/r/avianalter/samap)
+- [BLAST Docker image](https://hub.docker.com/r/staphb/blast)
+
+---
+
+## Authors
+
+**Markus Sujansky** (current maintainer) — [MDIBL Bioinformatics Core](https://mdibl.org/)
+
+**Ryan Sonderman** (original author) — [@RyanSonder](https://github.com/RyanSonder)
+
+**Riley Grindle** — [@Riley-Grindle](https://github.com/Riley-Grindle)
+
+This pipeline is licensed under the MIT License. See [LICENSE](LICENSE) for details.

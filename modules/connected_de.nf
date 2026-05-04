@@ -16,7 +16,6 @@
  */
 
 process CONNECTED_DE {
-    cache = false
     tag "${run_id} - SAMap Differential Expression Post-Analysis"
 
     container 'mdiblbiocore/postanalysis:latest'
