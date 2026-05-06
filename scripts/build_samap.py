@@ -221,28 +221,24 @@ def main() -> None:
 
 
     if mapping_dir is not None:
-        #Load mapping dict from sample sheet
-        log("Loading mapping dictionary from sample sheet to line up BLAST protein/transcript headers with SAM feature type", "INFO")
-        mapping_dict = load_mapping_dict(id2, mapping_dir)
-        log(f"Loaded mapping dictionary with {len(mapping_dict)} entries", "INFO")
+        valid_mappings = [m for m in mapping_dir if m and m.lower() not in ('null', 'none', 'na', '')]
 
-        # Create SAMAP object
-        log("Attempting to create SAMAP object", "INFO")
-        samap = SAMAP(
-            sams=species_dict,
-            f_maps=maps,
-            save_processed=False,
-            names = mapping_dict
-        )
+        #Load mapping dict from sample sheet
+        if valid_mappings:
+            log("Loading mapping dictionary from sample sheet to line up BLAST protein/transcript headers with SAM feature type", "INFO")
+            mapping_dict = load_mapping_dict(id2, valid_mappings)
+            log(f"Loaded mapping dictionary with {len(mapping_dict)} entries", "INFO")
+
+            samap = SAMAP(sams=species_dict, f_maps=maps, save_processed=False, names=mapping_dict)
+        else:
+            log("No valid mapping dictionaries provided, skipping", "INFO")
+            samap = SAMAP(sams=species_dict, f_maps=maps, save_processed=False)
     else:
-        log("Attempting to create SAMAP object", "INFO")
-        samap = SAMAP(
-            sams=species_dict,
-            f_maps=maps,
-            save_processed=False,
-        )
-    log(f"Successfully created SAMAP object with {len(samap.sams)} SAMs", "INFO")
+        log("No mappings argument provided, skipping", "INFO")
+        samap = SAMAP(sams=species_dict, f_maps=maps, save_processed=False)
     
+    log(f"Successfully created SAMAP object with {len(samap.sams)} SAMs", "INFO")
+        
     # Save SAMAP object
     log("Attempting to pickle SAMAP object", "INFO")
     save_samap(samap, os.path.join(output_dir, name))
