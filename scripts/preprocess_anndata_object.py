@@ -123,8 +123,6 @@ def main() -> None:
     1. Parses command-line arguments.
     2. Loads the necessary .csv and Sparse Matrix files.
     3. Creates the initial AnnData Object.
-    4. Runs standard preprocessing on the AnnData object to prepare it for SAMap.
-    5. Saves the h5ad object.
     """
 
     log("Loading arguments", "INFO")
@@ -176,32 +174,7 @@ def main() -> None:
     log("Successfully Initialized Anndata Object!", "INFO")
 
 
-    # 5. Wrap AnnData in SAM object
-    sam = samalg.SAM(adata)
-
-    # 6. Preprocess (adjust params to match test h5ad)
-    log("Attempting to run preprocessing on the AnnData Object", "INFO")
-    sam.preprocess_data()
-
-    # 7. Run SAM (these parameters match the test run_args you shared)
-    sam.run(
-        k=20,
-        distance="cosine",
-        projection="umap",
-        npcs=150,
-        n_genes=3000,
-        max_iter=10,
-        seed=None,
-        sparse_pca=False,
-        weight_PCs=False,
-        weight_mode="combined",
-        verbose=True
-    )
-    log("Successfully preprocessed the AnnData Object!", "INFO")
-
-    # 8. Save as h5ad (AnnData v0.7.8 compatible)
-    log("Saving the Preprocessed AnnData object", "INFO")
-    sam.adata.write(f"{args.output_dir}/{args.id}_preprocessed.h5ad")
+    adata.write(f"{args.output_dir}/{args.id}_initialized.h5ad")
     log("Successfully saved!", "INFO")
 
 # --------------------------------------------------

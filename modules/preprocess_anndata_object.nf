@@ -27,8 +27,7 @@ process PREPROCESS_ANNDATA_OBJECT {
 
 
     output: 
-        tuple val(id), path("${id}_preprocessed.h5ad"),
-        emit: anndata
+        tuple val(id), path("${id}_initialized.h5ad"), emit: anndata
         path "${run_id}_${id}_preprocess_anndata_object.log", emit: logfile
 
     script:
