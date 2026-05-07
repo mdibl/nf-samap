@@ -47,6 +47,7 @@
 // Import the required modules 
 include { PREPROCESSING_WORKFLOW } from './subworkflows/preprocess_workflow.nf'
 include { PAIRWISE_ANALYSIS } from './subworkflows/pairwise_analysis.nf'
+include { CREATE_LOUPE } from './subworkflows/create_loupe.nf'
 include { RUN_BLAST_PAIR } from './modules/run_blast_pair.nf'
 include { LOAD_SAMS } from './modules/load_sams.nf'
 include { BUILD_SAMAP } from './modules/build_samap.nf'
@@ -122,13 +123,14 @@ workflow {
 
 
     // Join anndata with map_dict so all three fields stay associated
-    sample_info = PREPROCESSING_WORKFLOW.out.processed_AnnData
+     PREPROCESSING_WORKFLOW.out.processed_AnnData
         .join(
             ch_samples.map { meta, _so, _fasta -> 
                 def mapDict = (meta.map_dict && new File(meta.map_dict.toString()).exists()) ? meta.map_dict : null
                 [meta.id, mapDict]
             }        
         )
+        .set{ sample_info }
         // each element: [id, h5ad, map_dict]
 
     // Collect from the SAME channel — ordering is guaranteed consistent
@@ -167,7 +169,20 @@ workflow {
         RUN_SAMAP.out.results
     )
 
+    PAIRWISE_ANALYSIS.out.pairCompare
+        .join(PREPROCESSING_WORKFLOW.out.raw_ad)
+        .map { id1, id2, anno1, anno2, h5ad1 -> [id2, id1, anno1, anno2, h5ad1] }
+        .join(PREPROCESSING_WORKFLOW.out.raw_ad)
+        .map { id2, id1, anno1, anno2, h5ad1, h5ad2 -> [id1, id2, anno1, anno2, h5ad1, h5ad2] }
+        .join(PAIRWISE_ANALYSIS.out.samap_cleaned, by: [0, 1])
+        .set { idCompare_with_h5ads }
 
+    if (params.create_loupe == "true") {
+        CREATE_LOUPE(
+            run_id_ch,
+            idCompare_with_h5ads
+        )
+    }
 
     //CONSOLIDATION MODULE, make this contingent on >2 input species, otherwise skip
 

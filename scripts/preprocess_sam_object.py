@@ -56,7 +56,8 @@ class Args(NamedTuple):
     """ Command-line arguments for the script"""
     
     id: str             # Species ID for the sample being processed
-    anndata: Path        # Path to the AnnData Object containing the expression data, either computed directly upstream or provided as input sample
+    anndata: Path       # Path to the AnnData Object containing the expression data, either computed directly upstream or provided as input sample
+    vgenes: int         # Number of variables genes the user would like to be considered in AnnData Preprocessing (default = 3000)
 
 # --------------------------------------------------
 def get_args() -> Args:
@@ -83,10 +84,16 @@ def get_args() -> Args:
         type=Path,
         help='Path to the AnnData object for that species'
     )
+    parser.add_argument(
+        '--vargenes',
+        required=True,
+        type=int,
+        help='# of variable genes to be considered'
+    )
 
 
     args = parser.parse_args()
-    return Args(args.id, args.anndata)
+    return Args(args.id, args.anndata, args.vgenes)
 
     # --------------------------------------------------
 def main() -> None:
@@ -104,6 +111,7 @@ def main() -> None:
     args = get_args()
 
     adata = args.anndata
+    var_genes = args.vgenes
 
     # 5. Wrap AnnData in SAM object
     sam = samalg.SAM(adata)
@@ -118,7 +126,7 @@ def main() -> None:
         distance="cosine",
         projection="umap",
         npcs=150,
-        n_genes=3000,
+        n_genes=var_genes,
         max_iter=10,
         seed=None,
         sparse_pca=False,
