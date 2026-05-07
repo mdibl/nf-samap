@@ -1,0 +1,11 @@
+FROM docker.io/mdiblbiocore/seurat:latest
+
+COPY scripts/create_loupe_file.R scripts/log_utils.py /usr/local/bin/
+
+# Make sure it’s executable
+RUN chmod +x -R /usr/local/bin/*.py /usr/local/bin/*.R
+
+WORKDIR /workspace
+
+ #Set the default command
+CMD ["/bin/bash"]
