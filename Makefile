@@ -6,10 +6,13 @@ docker:
 	docker build -f Dockerfile.samap -t docker.io/mdiblbiocore/samap:latest .
 	docker build --platform=linux/amd64 -f Dockerfile.blast -t docker.io/mdiblbiocore/samap-blast:latest .
 	docker build --platform linux/amd64 -f Dockerfile.postanalysis -t docker.io/mdiblbiocore/postanalysis:latest .
+	docker build --platform=linux/amd64 -f Dockerfile.loupe -t docker.io/mdiblbiocore/loupe:latest .
 	docker push docker.io/mdiblbiocore/preprocessing:latest
 	docker push docker.io/mdiblbiocore/samap:latest
 	docker push docker.io/mdiblbiocore/samap-blast:latest 
 	docker push docker.io/mdiblbiocore/postanalysis:latest 
+	docker push docker.io/mdiblbiocore/loupe:latest 
+
 
 docker-shell-preprocessing:
 	docker run --rm -it \
@@ -38,6 +41,13 @@ docker-shell-postanalysis:
 		-w /workspace \
 		--entrypoint /bin/bash \
 		pipeline/postanalysis:latest
+
+docker-shell-loupe:
+	docker run --rm -it \
+		-v $(PWD):/workspace \
+		-w /workspace \
+		--entrypoint /bin/bash \
+		pipeline/loupe:latest
 
 clean:
 	rm -rf work/*

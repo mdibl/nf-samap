@@ -66,6 +66,9 @@ workflow {
     if (!new File(params.sample_sheet).exists()) {
         error "Missing required file: sample sheet '${params.sample_sheet}'"
     }
+    if (params.eula10x != "Agree" && (params.create_loupe == "true" || params.create_loupe == "True" || params.create_loupe == "T" || params.create_loupe == "t")) {
+        error "You indicated you wanted to build a Loupe file as part of Post-Analysis but did NOT agree to the 10x End-User Liscence Agreement (EULA). Please either agree to the EULA or change the parameter to not create the Loupe file!"
+    }
     
     // Reformat Sample_Sheet to remove necessity of Sample_Sheet for downstream processes
     sample_sheet
