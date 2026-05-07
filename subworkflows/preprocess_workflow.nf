@@ -36,12 +36,13 @@ workflow PREPROCESSING_WORKFLOW {
         run_id,
         PREPROCESS_SEURAT_OBJECT.out.seurat_data
     )
-    anndata = PREPROCESS_ANNDATA_OBJECT.out.anndata
+    PREPROCESS_ANNDATA_OBJECT.out.anndata
         .mix(
             ch_expr_branched.anndata.map { meta, data, _format -> [meta.id, data] }
         )
         .toSortedList { a, b -> a[0] <=> b[0] }
         .flatMap { entries -> entries }
+        .set { anndata }
  
     //Initialized AnnData -> Preprocessed AnnData
     PREPROCESS_SAM_OBJECT(
@@ -51,4 +52,5 @@ workflow PREPROCESSING_WORKFLOW {
 
     emit:
     processed_AnnData = PREPROCESS_SAM_OBJECT.out.anndata // Original greetings
+    raw_ad = anndata
 }

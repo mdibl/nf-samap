@@ -5,7 +5,7 @@ include { ADDITIONAL_ANALYSIS } from '../modules/additional_analysis.nf'
 workflow PAIRWISE_ANALYSIS {
     take:
         run_id       // val run_id
-        ch_samples      // [meta, h5ad, fasta]
+        ch_samples      // [meta, h5ad, fasta]  
         samap_results   // RUN_SAMAP.out.results
 
 
@@ -56,6 +56,7 @@ workflow PAIRWISE_ANALYSIS {
             combined
         )
 
-    //emit:
-        //results = ADDITIONAL_ANALYSIS.out.results
+    emit:
+        pairCompare = idCompare
+        samap_cleaned = SUMMARY_SAMAP.out.samap_cleaned
 }
