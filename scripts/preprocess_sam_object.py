@@ -57,7 +57,7 @@ class Args(NamedTuple):
     
     id: str             # Species ID for the sample being processed
     anndata: Path       # Path to the AnnData Object containing the expression data, either computed directly upstream or provided as input sample
-    vgenes: int         # Number of variables genes the user would like to be considered in AnnData Preprocessing (default = 3000)
+    vargenes: int         # Number of variables genes the user would like to be considered in AnnData Preprocessing (default = 3000)
 
 # --------------------------------------------------
 def get_args() -> Args:
