@@ -93,7 +93,7 @@ def get_args() -> Args:
 
 
     args = parser.parse_args()
-    return Args(args.id, args.anndata, args.vgenes)
+    return Args(args.id, args.anndata, args.vargenes)
 
     # --------------------------------------------------
 def main() -> None:
@@ -111,7 +111,7 @@ def main() -> None:
     args = get_args()
 
     adata = args.anndata
-    var_genes = args.vgenes
+    var_genes = args.vargenes
 
     # 5. Wrap AnnData in SAM object
     sam = samalg.SAM(adata)
