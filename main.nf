@@ -81,16 +81,17 @@ workflow {
             def counts           = entry[1]
             def transcriptome = entry.size() > 2 ? entry[2] : null
 
-            if ((!params.maps_dir || !new File(params.maps_dir).exists()) && transcriptome == null) {
+            if ((!params.maps_dir || !new File(params.maps_dir.toString()).exists()) && transcriptome == null) {
                 error "Sample '${meta.id}': Input for BLAST (prot/transcriptome) must be provided when maps_dir is not precomputed and/or not set"
             }
-            if(meta.type == "prot" && (!meta.map_dict || !new File(meta.map_dict).exists())) {
+            if(meta.type == "prot" && (!meta.map_dict || !new File(meta.map_dict.toString()).exists())) {
                 log.warn "Careful! You provided a proteome as input to Sample ${meta.id} but didn't provide a valid mapping
                 dictionary to convery back to Gene Ids/Symbols. Be sure your data features are in the correct format!"
             }
             return [meta, counts, transcriptome]
-        }
+        }.view()
         .set { ch_samples }
+        
         
 
     // Grab all input expression data paths to extract relevant info
