@@ -32,7 +32,7 @@ process PREPROCESS_SAM_OBJECT {
     LOG="${run_id}_${id}_preprocess_sam_object.log"
         /usr/local/bin/preprocess_sam_object.py \
         --anndata ${Anndata} \
-        --id ${id} /
+        --id ${id} \
         --vargenes ${params.var_genes} 2>&1 | tee -a \$LOG
     """
 }
