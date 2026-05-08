@@ -110,7 +110,7 @@ def main() -> None:
     log("Loading arguments", "INFO")
     args = get_args()
 
-    adata = args.anndata
+    adata = ad.read_h5ad(args.anndata)
     var_genes = args.vargenes
 
     # 5. Wrap AnnData in SAM object
@@ -138,7 +138,7 @@ def main() -> None:
 
     # 8. Save as h5ad (AnnData v0.7.8 compatible)
     log("Saving the Preprocessed AnnData object", "INFO")
-    sam.adata.write(f"{args.output_dir}/{args.id}_preprocessed.h5ad")
+    sam.adata.write(f"{args.id}_preprocessed.h5ad")
     log("Successfully saved!", "INFO")
 
 # --------------------------------------------------
