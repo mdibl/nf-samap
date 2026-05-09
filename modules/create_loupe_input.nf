@@ -17,7 +17,7 @@
 process CREATE_LOUPE_INPUT {
     tag "${run_id} - merge raw counts matrices for pairiwse comparison from the cleaned SAMap output file"
 
-    container 'mdiblbiocore/postprocessing:latest'
+    container 'mdiblbiocore/postanalysis:latest'
 
     input:
         val run_id

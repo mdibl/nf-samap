@@ -22,7 +22,6 @@ class Args(NamedTuple):
     h5ads:         list    # Paths to the raw AnnData h5ad files, one per species
     species:       list    # List of species IDs to subset from SAMap object
     celltype_cols: list    # List of obs column names for cell type labels per species
-    output:        Path    # Path to the output combined h5ad file
 
 # --------------------------------------------------
 
