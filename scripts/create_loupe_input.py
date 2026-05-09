@@ -92,7 +92,7 @@ def build_cell_type_labels(adata_subset, species: list, celltype_cols: list) -> 
     log("Building prefixed cell type labels", "INFO")
     labels = pd.Series(index=adata_subset.obs_names, dtype=str)
     for sp, col in zip(species, celltype_cols):
-        # Try prefixed column name first, fall back to unprefixed
+        # Try prefixed column name frst, fall back to unprefixed
         prefixed_col = f"{sp}_{col}"
         actual_col = prefixed_col if prefixed_col in adata_subset.obs.columns else col
         if actual_col not in adata_subset.obs.columns:
