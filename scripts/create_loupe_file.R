@@ -53,6 +53,8 @@ main <- function() {
 
     cat("[INFO] Loading combined h5ad from", args$h5ad, "\n")
     ad <- read_h5ad(args$h5ad)
+    cat("[INFO] ad$X class:", class(ad$X), "\n")
+    cat("[INFO] ad$X type:", typeof(ad$X), "\n")
 
     cat("[INFO] Creating Loupe file", "\n")
     barcodes <- if (!is.null(rownames(ad$obs))) rownames(ad$obs) else ad$obs_names
