@@ -33,6 +33,6 @@ process CREATE_LOUPE_FILE {
         Rscript /usr/local/bin/create_loupe_file.R \
         --id1 ${id1} \
         --id2 ${id2} \
-        --anno ${combined_anndata} 2>&1 | tee -a \$LOG
+        --h5ad ${combined_anndata} 2>&1 | tee -a \$LOG
     """
 }
