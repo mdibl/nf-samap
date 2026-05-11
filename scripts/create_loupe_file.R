@@ -46,6 +46,11 @@ get_args <- function() {
 main <- function() {
     args <- get_args()
 
+    tryCatch(
+        loupeR::setup(),
+        error = function(e) cat("[INFO] loupeR already set up\n")
+    )
+
     cat("[INFO] Loading combined h5ad from", args$h5ad, "\n")
     ad <- read_h5ad(args$h5ad)
 
