@@ -1,5 +1,7 @@
 FROM docker.io/mdiblbiocore/seurat:latest
 
+RUN Rscript -e "install.packages(c('argparse', 'anndata'), repos='https://cloud.r-project.org')"
+
 COPY scripts/create_loupe_file.R scripts/log_utils.py /usr/local/bin/
 
 # Make sure it’s executable
