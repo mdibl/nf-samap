@@ -55,16 +55,18 @@ main <- function() {
     ad <- read_h5ad(args$h5ad)
 
     cat("[INFO] Creating Loupe file", "\n")
+    barcodes <- if (!is.null(rownames(ad$obs))) rownames(ad$obs) else ad$obs_names
+
     create_loupe(
-        count_mat   = t(ad$X),
+        count_mat   = t(as(ad$X, "CsparseMatrix")),
         clusters    = list(
-            cell_type = setNames(as.factor(ad$obs$cell_type_labeled), rownames(ad$obs)),
-            species   = setNames(as.factor(ad$obs$species),           rownames(ad$obs))
+            cell_type = setNames(as.factor(ad$obs$cell_type_labeled), barcodes),
+            species   = setNames(as.factor(ad$obs$species),           barcodes)
         ),
         projections = list(
-            SAMap_UMAP = ad$obsm[['X_umap']]
+            SAMap_UMAP = as.matrix(ad$obsm[['X_umap']])
         ),
-        output_name = paste0(args$id1, "_", args$id2, "_Loupe.cloupe")
+        output_name = paste0(args$id1, "_", args$id2, "_Loupe")
     )
     cat("[INFO] Done. Loupe file written to output directory", "\n")
 }
