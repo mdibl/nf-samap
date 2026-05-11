@@ -59,8 +59,11 @@ main <- function() {
     cat("[INFO] Creating Loupe file", "\n")
     barcodes <- if (!is.null(rownames(ad$obs))) rownames(ad$obs) else ad$obs_names
 
+    count_mat <- as(ad$X, "dgCMatrix")
+
+
     create_loupe(
-        count_mat   = t(as(ad$X, "CsparseMatrix")),
+        count_mat   = t(count_mat),
         clusters    = list(
             cell_type = setNames(as.factor(ad$obs$cell_type_labeled), barcodes),
             species   = setNames(as.factor(ad$obs$species),           barcodes)
