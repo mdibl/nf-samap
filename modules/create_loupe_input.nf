@@ -17,7 +17,7 @@
 process CREATE_LOUPE_INPUT {
     tag "${run_id} - merge raw counts matrices for pairwise comparison ${id1}-${id2}"
 
-    container 'mdiblbiocore/postprocessing:latest'
+    container 'mdiblbiocore/postanalysis:latest'
 
     input:
         val run_id

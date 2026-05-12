@@ -13,7 +13,7 @@
  *      A .cloupe file for each species pair and a logfile.
  */
 
-process CREATE_LOUPE {
+process CREATE_LOUPE_FILE {
     tag "${run_id} - create loupe file for ${id1}-${id2}"
 
     container 'mdiblbiocore/loupe:latest'
@@ -34,7 +34,7 @@ process CREATE_LOUPE {
     script:
     """
     LOG="${run_id}_${id1}_${id2}_create_loupe.log"
-    create_loupe.R \\
+    create_loupe_file.R \\
         --id1      ${id1} \\
         --id2      ${id2} \\
         --counts   ${counts} \\
