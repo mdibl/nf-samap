@@ -51,6 +51,6 @@ workflow PREPROCESSING_WORKFLOW {
     )
 
     emit:
-    processed_AnnData = PREPROCESS_SAM_OBJECT.out.anndata // Original greetings
+    processed_AnnData = PREPROCESS_SAM_OBJECT.out.anndata
     raw_ad = anndata
 }
