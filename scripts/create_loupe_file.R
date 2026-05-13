@@ -61,8 +61,9 @@ main <- function() {
     create_loupe(
         count_mat   = counts,
         clusters    = list(
-            cell_type = setNames(as.factor(meta$cell_type_labeled), rownames(meta)),
-            species   = setNames(as.factor(meta$species),           rownames(meta))
+            cell_type        = setNames(as.factor(meta$cell_type_labeled), rownames(meta)),
+            species          = setNames(as.factor(meta$species),           rownames(meta)),
+            alignment_family = setNames(as.factor(meta$alignment_family),  rownames(meta))
         ),
         projections = list(
             SAMap_UMAP = as.matrix(umap)

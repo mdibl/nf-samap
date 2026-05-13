@@ -179,6 +179,7 @@ workflow {
         .join(PREPROCESSING_WORKFLOW.out.raw_ad)
         .map { id2, id1, anno1, anno2, h5ad1, h5ad2 -> [id1, id2, anno1, anno2, h5ad1, h5ad2] }
         .join(PAIRWISE_ANALYSIS.out.samap_cleaned, by: [0, 1])
+        .join(PAIRWISE_ANALYSIS.out.alignment_families, by: [0, 1])
         .set { idCompare_with_h5ads }
 
     if (params.create_loupe == "true") {
