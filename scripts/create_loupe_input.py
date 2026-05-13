@@ -19,10 +19,12 @@ from log_utils import log
 
 class Args(NamedTuple):
     """Command-line arguments for the script"""
-    samap:         Path    # Path to the SAMap pickle file
-    h5ads:         list    # Paths to the raw AnnData h5ad files, one per species
-    species:       list    # List of species IDs to subset from SAMap object
-    celltype_cols: list    # List of obs column names for cell type labels per species
+    samap:         Path         # Path to the SAMap pickle file
+    h5ads:         list         # Paths to the raw AnnData h5ad files, one per species
+    species:       list         # List of species IDs to subset from SAMap object
+    celltype_cols: list         # List of obs column names for cell type labels per species
+    alignment_families: Path    # Path to barcode alignment family labels CSV
+
 
 # --------------------------------------------------
 
@@ -58,6 +60,13 @@ def get_args() -> Args:
         nargs='+',
         help='obs column names for cell type labels, one per species in same order as --species'
     )
+    parser.add_argument(
+        '--alignment-families',
+        required=False,
+        type=Path,
+        default=None,
+        help='Path to barcode alignment family labels CSV'
+    )
 
     args = parser.parse_args()
 
@@ -66,7 +75,7 @@ def get_args() -> Args:
     if len(args.celltype_cols) != len(args.species):
         raise ValueError(f"Number of --celltype-cols ({len(args.celltype_cols)}) must match number of --species ({len(args.species)})")
 
-    return Args(args.samap, args.h5ads, args.species, args.celltype_cols)
+    return Args(args.samap, args.h5ads, args.species, args.celltype_cols, args.alignment_families)
 
 # --------------------------------------------------
 
@@ -153,6 +162,15 @@ def main() -> None:
     combined.obs['cell_type_labeled'] = adata_subset.obs['cell_type_labeled'].values
     combined.obs['species']           = adata_subset.obs['species'].values
 
+    # Merge alignment families into metadata if provided
+    if args.alignment_families:
+        log("Loading alignment family labels", "INFO")
+        af_df = pd.read_csv(args.alignment_families, index_col='barcode')
+        combined.obs['alignment_family'] = af_df.reindex(combined.obs_names)['alignment_family'].fillna('Unassigned')
+        log(f"Assigned alignment families to {(combined.obs['alignment_family'] != 'Unassigned').sum()} cells", "INFO")
+    else:
+        combined.obs['alignment_family'] = 'Unassigned'
+
     # Export count matrix in Matrix Market format (transposed: genes x cells for R)
     log("Exporting count matrix in Matrix Market format", "INFO")
     mmwrite(f"{prefix}_counts.mtx", combined.X.T)
@@ -173,7 +191,7 @@ def main() -> None:
 
     # Export metadata
     log("Exporting metadata", "INFO")
-    combined.obs[['cell_type_labeled', 'species']].to_csv(f"{prefix}_meta.csv")
+    combined.obs[['cell_type_labeled', 'species', 'alignment_family']].to_csv(f"{prefix}_meta.csv")
 
     log(f" Done. All files written with prefix '{prefix}'", "INFO")
 

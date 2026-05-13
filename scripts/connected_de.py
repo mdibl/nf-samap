@@ -645,6 +645,28 @@ class ConnectedClusterDEAnalysis(object):
         return de_genes_df.columns[0]
 
 
+    def export_barcode_alignment_labels(analysis, samap, output_path="barcode_alignment_families.csv"):
+        """Export per-barcode alignment family labels for Loupe file creation."""
+        log("Exporting barcode alignment family labels", "INFO")
+        
+        records = []
+        for cluster_id, cluster_data in analysis.cluster_cell_data.items():
+            group_name = analysis.get_group_name(cluster_id)
+            for species_id, species_data in cluster_data['species_data'].items():
+                adata = samap.sams[species_id].adata
+                ct_col = analysis.keys[species_id]
+                cell_types = species_data['cell_types']
+                mask = adata.obs[ct_col].isin(cell_types)
+                barcodes = adata.obs_names[mask]
+                for barcode in barcodes:
+                    records.append({'barcode': barcode, 'alignment_family': group_name})
+        
+        df = pd.DataFrame(records).set_index('barcode')
+        df.to_csv(output_path)
+        log(f"Exported {len(df)} barcode alignment labels to '{output_path}'", "INFO")
+        return df
+
+
 
 
 # --------------------------------------------------
@@ -685,6 +707,7 @@ def main() -> None:
     with open('analysis.pkl', 'wb') as f:
         pickle.dump(analysis, f)
 
+    export_barcode_alignment_labels(analysis, samap, "barcode_alignment_families.csv")
 
     # Run DE analysis for all groups
     all_de_results = analysis.run_all_clusters_de_analysis(

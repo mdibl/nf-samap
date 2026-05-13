@@ -57,6 +57,7 @@ workflow PAIRWISE_ANALYSIS {
         )
 
     emit:
-        pairCompare = idCompare
-        samap_cleaned = SUMMARY_SAMAP.out.samap_cleaned
+        pairCompare        = idCompare
+        samap_cleaned      = SUMMARY_SAMAP.out.samap_cleaned
+        alignment_families = CONNECTED_DE.out.alignment_families
 }

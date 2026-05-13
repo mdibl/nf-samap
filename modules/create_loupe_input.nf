@@ -23,6 +23,7 @@ process CREATE_LOUPE_INPUT {
         val run_id
         tuple val(id1), val(id2), val(anno1), val(anno2), path(h5ad1), path(h5ad2)
         path samap_output
+        path alignment_families
 
     output:
         tuple val(id1), val(id2),
@@ -38,10 +39,11 @@ process CREATE_LOUPE_INPUT {
     """
     LOG="${run_id}_${id1}_${id2}_create_loupe_input.log"
     create_loupe_input.py \\
-        --samap         ${samap_output} \\
-        --h5ads         ${h5ad1} ${h5ad2} \\
-        --species       ${id1} ${id2} \\
-        --celltype-cols ${anno1} ${anno2} \\
+        --samap             ${samap_output} \\
+        --h5ads             ${h5ad1} ${h5ad2} \\
+        --species           ${id1} ${id2} \\
+        --celltype-cols     ${anno1} ${anno2} \\
+        --alignment-families ${alignment_families} \\
         2>&1 | tee -a \$LOG
     """
 }
