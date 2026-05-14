@@ -89,7 +89,7 @@ workflow {
                 dictionary to convery back to Gene Ids/Symbols. Be sure your data features are in the correct format!"
             }
             return [meta, counts, transcriptome]
-        }.view()
+        }
         .set { ch_samples }
         
         
@@ -173,15 +173,19 @@ workflow {
         RUN_SAMAP.out.results
     )
 
+
+
     PAIRWISE_ANALYSIS.out.pairCompare
-        .join(PREPROCESSING_WORKFLOW.out.raw_ad)
-        .map { id1, id2, anno1, anno2, h5ad1 -> [id2, id1, anno1, anno2, h5ad1] }
-        .join(PREPROCESSING_WORKFLOW.out.raw_ad)
-        .map { id2, id1, anno1, anno2, h5ad1, h5ad2 -> [id1, id2, anno1, anno2, h5ad1, h5ad2] }
+        .combine(PREPROCESSING_WORKFLOW.out.raw_ad)
+        .filter { id1, id2, anno1, anno2, id_h5ad, h5ad -> id_h5ad == id1 }
+        .map { id1, id2, anno1, anno2, _id_h5ad, h5ad1 -> [id1, id2, anno1, anno2, h5ad1] }
+        .combine(PREPROCESSING_WORKFLOW.out.raw_ad)
+        .filter { id1, id2, anno1, anno2, h5ad1, id_h5ad, h5ad -> id_h5ad == id2 }
+        .map { id1, id2, anno1, anno2, h5ad1, _id_h5ad, h5ad2 -> [id1, id2, anno1, anno2, h5ad1, h5ad2] }
         .join(PAIRWISE_ANALYSIS.out.samap_cleaned, by: [0, 1])
         .join(PAIRWISE_ANALYSIS.out.alignment_families, by: [0, 1])
         .set { idCompare_with_h5ads }
-
+        
     if (params.create_loupe == "true") {
         CREATE_LOUPE_WORKFLOW(
             run_id_ch,
