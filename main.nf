@@ -47,7 +47,7 @@
 // Import the required modules 
 include { PREPROCESSING_WORKFLOW } from './subworkflows/preprocess_workflow.nf'
 include { PAIRWISE_ANALYSIS } from './subworkflows/pairwise_analysis.nf'
-include { CREATE_LOUPE } from './subworkflows/create_loupe.nf'
+include { CREATE_LOUPE_WORKFLOW } from './subworkflows/create_loupe.nf'
 include { RUN_BLAST_PAIR } from './modules/run_blast_pair.nf'
 include { LOAD_SAMS } from './modules/load_sams.nf'
 include { BUILD_SAMAP } from './modules/build_samap.nf'
@@ -183,7 +183,7 @@ workflow {
         .set { idCompare_with_h5ads }
 
     if (params.create_loupe == "true") {
-        CREATE_LOUPE(
+        CREATE_LOUPE_WORKFLOW(
             run_id_ch,
             idCompare_with_h5ads
         )
