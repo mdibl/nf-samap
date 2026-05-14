@@ -1,5 +1,5 @@
 include { CREATE_LOUPE_INPUT } from '../modules/create_loupe_input.nf'
-include { CREATE_LOUPE } from       '../modules/create_loupe.nf'
+include { CREATE_LOUPE_FILE } from       '../modules/create_loupe_file.nf'
 
 workflow CREATE_LOUPE_WORKFLOW {
     take:
@@ -20,7 +20,7 @@ workflow CREATE_LOUPE_WORKFLOW {
             }
         )
 
-        CREATE_LOUPE(
+        CREATE_LOUPE_FILE(
             run_id,
             CREATE_LOUPE_INPUT.out.loupeinput
         )
