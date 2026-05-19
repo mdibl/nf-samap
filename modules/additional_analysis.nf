@@ -30,6 +30,7 @@ process ADDITIONAL_ANALYSIS {
           path(pms),
           val(anno1),
           val(anno2)
+        path samap
 
     output:
         path "Grouping_Analysis/",          emit: de_results_complete
@@ -38,6 +39,6 @@ process ADDITIONAL_ANALYSIS {
     script:
     """
     LOG="${run_id}_additionalAnalysis.log"
-    additional_analysis.py --genepairs ${genepairs} --diff ${groupinganalysis} --pms ${pms} --id1 ${id1} --anno1 ${anno1} --id2 ${id2} --anno2 ${anno2} --analysis ${analysis} --all_de_results ${all_de_results} 2>&1 | tee -a \$LOG
+    additional_analysis.py --genepairs ${genepairs} --diff ${groupinganalysis} --pms ${pms} --id1 ${id1} --anno1 ${anno1} --id2 ${id2} --anno2 ${anno2} --analysis ${analysis} --all_de_results ${all_de_results} --samap ${samap} 2>&1 | tee -a \$LOG
     """
 }

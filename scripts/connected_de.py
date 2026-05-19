@@ -697,8 +697,8 @@ def main() -> None:
         sm=samap,
         keys=keys,
         pms_df=pms_df,
-        align_thr=0.2,
-        grouping_thr=0.25,
+        align_thr=0.3,
+        grouping_thr=0.4,
         de_method='wilcoxon',
         min_cells=50
     )
