@@ -15,7 +15,7 @@ from samap.analysis import (get_mapping_scores, GenePairFinder,
                             sankey_plot, chord_plot, CellTypeTriangles, 
                             ParalogSubstitutions, FunctionalEnrichment,
                             convert_eggnog_to_homologs, GeneTriangles,
-                            get_mapping_scores)
+                            get_mapping_scores, query_gene_pair)
 import gc
 import os
 from collections import defaultdict
@@ -41,6 +41,7 @@ class Args(NamedTuple):
     anno2: str #second annotation layer of pairwise comparison
     analysis: Path #Path to the analysis object generated upstream
     all_de_results: Path #Path to the all_de_results object generated upstream
+    samap: Path #Path to the SAMap post-analysis output object
     output_dir: Path #Path to the output directory
 
 
@@ -117,6 +118,12 @@ def get_args() -> Args:
         type=Path,
         help='Path to the all_de_results object generated upstream'
     )
+    parser.add_argument(
+        '-k', '--samap',
+        required=True,
+        type=Path,
+        help='SAMap post-analysis output object'
+    )
     
     parser.add_argument(
         '-o', '--output_dir',
@@ -127,7 +134,7 @@ def get_args() -> Args:
     )
 
     args = parser.parse_args()
-    return Args(args.genepairs, args.diff, args.pms, args.id1, args.id2, args.anno1, args.anno2, args.analysis, args.all_de_results, args.output_dir)
+    return Args(args.genepairs, args.diff, args.pms, args.id1, args.id2, args.anno1, args.anno2, args.analysis, args.all_de_results, args.samap, args.output_dir)
 
 
 # --------------------------------------------------
@@ -349,10 +356,12 @@ def combine_dfs(enhanced_pairs, keys):
     # Dynamically create column names based on keys
     species_keys = list(keys.keys())
     column_names = [
-        species_keys[0],  # First species
-        species_keys[1],  # Second species
+        species_keys[0],
+        species_keys[1],
         "pairing_pval1",
         "pairing_pval2",
+        "score_blast",   # new
+        "score_corr",    # new
         "group",
         f"{species_keys[0]}_logFC",
         f"{species_keys[0]}_pval_adj",
@@ -527,6 +536,38 @@ class ConnectedClusterDEAnalysis(object):
         return de_genes_df.columns[0]
         
 # --------------------------------------------------
+
+def get_pair_scores(combined_df, sm): 
+    """
+    Calculates additional homology scores for identified species-species putative gene homologs (BLAST + Correlation)
+    
+    Parameters:
+    -----------
+    combined_df : pd.DataFrame
+        Combined dataframe with all gene pairs and separated gene name columns
+    
+    Returns:
+    --------
+    scores_df : Pandas dataframe with all original information + scoring metrics
+    """
+    scores_df = combined_df.copy()
+    scores_df["score_blast"] = pd.NA
+    scores_df["score_corr"] = pd.NA
+    
+    for idx, row in scores_df.iterrows():
+        gene1 = row[scores_df.columns[0]]
+        gene2 = row[scores_df.columns[1]]
+        
+        result = sm.query_gene_pair(gene1, gene2)
+        log(f"gene pair scores: blast={result['blast']}, corr={result['correlation']}", "INFO")
+        
+        scores_df.at[idx, "score_blast"] = result['blast']
+        scores_df.at[idx, "score_corr"] = result['correlation']
+
+    return scores_df
+
+# --------------------------------------------------
+
 def main() -> None:
     """
     Main entry point for the script.
@@ -550,6 +591,9 @@ def main() -> None:
         all_de_results = pickle.load(f)
     log(f"Successfully loaded all_de_results object", "INFO")
 
+    with open(args.samap, 'rb') as f:
+        samap = pickle.load(f)
+
     # -----------------------------------------------------------
 
     # Load and prepare gene pairs; reformat to make it easier to work with
@@ -568,10 +612,14 @@ def main() -> None:
             log(f"  Expected {len(colnames)} columns, got {split_cols.shape[1]}", "ERROR")
             continue
         split_cols.columns = colnames
-        
+    
         # Combine with remaining columns
         new_df = pd.concat([split_cols, group_df.iloc[:, 1:]], axis=1)
-        pairs_sep.append(new_df)
+
+        # Calculate both Sequence + Correlation score for Gene Pairs
+        scores_df = get_pair_scores(new_df, samap)
+
+        pairs_sep.append(scores_df)
 
     # -----------------------------------------------------------
     log(f"Attempting to add cluster info to Gene Pairs", "INFO")

@@ -53,7 +53,8 @@ workflow PAIRWISE_ANALYSIS {
 
         ADDITIONAL_ANALYSIS(
             run_id,
-            combined
+            combined,
+            samap_results
         )
 
     emit:
