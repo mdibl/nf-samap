@@ -30,6 +30,7 @@ process CONNECTED_DE {
         tuple val(id1), val(id2), path("analysis.pkl"),          emit: analysis
         tuple val(id1), val(id2), path("all_de_results.pkl"),    emit: all_de_results
         tuple val(id1), val(id2), path("barcode_alignment_families.csv"), emit: alignment_families
+        path "*_alignment_confusion.csv"
         path "${run_id}_connectedDE.log"
 
     script:

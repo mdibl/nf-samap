@@ -666,8 +666,32 @@ class ConnectedClusterDEAnalysis(object):
         log(f"Exported {len(df)} barcode alignment labels to '{output_path}'", "INFO")
         return df
 
+# --------------------------------------------------
 
-
+def get_alignment_confusion_table(self):
+    tables = {}
+    
+    for species_id, ct_col in self.keys.items():
+        adata = self.sm.sams[species_id].adata
+        all_cell_types = adata.obs[ct_col].unique()
+        
+        # Build mapping: cell_type → alignment_family
+        ct_to_family = {ct: "Unassigned" for ct in all_cell_types}
+        
+        for cluster_id, cluster_data in self.cluster_cell_data.items():
+            if species_id in cluster_data['species_data']:
+                group_name = self.get_group_name(cluster_id)
+                for ct in cluster_data['species_data'][species_id]['cell_types']:
+                    ct_to_family[ct] = group_name
+        
+        # Count cells per (cell_type, family) pair
+        obs = adata.obs[[ct_col]].copy()
+        obs['alignment_family'] = obs[ct_col].map(ct_to_family)
+        
+        table = pd.crosstab(obs[ct_col], obs['alignment_family'])
+        tables[species_id] = table
+    
+    return tables
 
 # --------------------------------------------------
 def main() -> None:
@@ -708,6 +732,11 @@ def main() -> None:
         pickle.dump(analysis, f)
 
     analysis.export_barcode_alignment_labels(samap, "barcode_alignment_families.csv")
+
+    # Calculate Celltype - Alignment Family Confusion Matrix
+    tables = analysis.get_alignment_confusion_table()
+    for species_id, table in tables.items():
+        table.to_csv(f"{species_id}_alignment_confusion.csv")
 
     # Run DE analysis for all groups
     all_de_results = analysis.run_all_clusters_de_analysis(
