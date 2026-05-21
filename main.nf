@@ -47,7 +47,8 @@
 // Import the required modules 
 include { PREPROCESSING_WORKFLOW } from './subworkflows/preprocess_workflow.nf'
 include { PAIRWISE_ANALYSIS } from './subworkflows/pairwise_analysis.nf'
-include { CREATE_LOUPE_WORKFLOW } from './subworkflows/create_loupe.nf'
+include { CREATE_LOUPE_WORKFLOW     } from './subworkflows/create_loupe.nf'
+include { CREATE_ALL_LOUPE_WORKFLOW } from './subworkflows/create_all_loupe.nf'
 include { RUN_BLAST_PAIR } from './modules/run_blast_pair.nf'
 include { LOAD_SAMS } from './modules/load_sams.nf'
 include { BUILD_SAMAP } from './modules/build_samap.nf'
@@ -66,7 +67,8 @@ workflow {
     if (!new File(params.sample_sheet).exists()) {
         error "Missing required file: sample sheet '${params.sample_sheet}'"
     }
-    if (params.eula10x != "Agree" && (params.create_loupe == "true" || params.create_loupe == "True" || params.create_loupe == "T" || params.create_loupe == "t")) {
+    def wantLoupe = (params.create_pairwise_loupe == "true" || params.create_all_loupe == "true")
+    if (params.eula10x != "Agree" && wantLoupe) {
         error "You indicated you wanted to build a Loupe file as part of Post-Analysis but did NOT agree to the 10x End-User Liscence Agreement (EULA). Please either agree to the EULA or change the parameter to not create the Loupe file!"
     }
     
@@ -177,19 +179,38 @@ workflow {
 
     PAIRWISE_ANALYSIS.out.pairCompare
         .combine(PREPROCESSING_WORKFLOW.out.raw_ad)
-        .filter { id1, id2, anno1, anno2, id_h5ad, h5ad -> id_h5ad == id1 }
+        .filter { id1, _id2, _anno1, _anno2, id_h5ad, _h5ad -> id_h5ad == id1 }
         .map { id1, id2, anno1, anno2, _id_h5ad, h5ad1 -> [id1, id2, anno1, anno2, h5ad1] }
         .combine(PREPROCESSING_WORKFLOW.out.raw_ad)
-        .filter { id1, id2, anno1, anno2, h5ad1, id_h5ad, h5ad -> id_h5ad == id2 }
+        .filter { _id1, id2, _anno1, _anno2, _h5ad1, id_h5ad, _h5ad -> id_h5ad == id2 }
         .map { id1, id2, anno1, anno2, h5ad1, _id_h5ad, h5ad2 -> [id1, id2, anno1, anno2, h5ad1, h5ad2] }
         .join(PAIRWISE_ANALYSIS.out.samap_cleaned, by: [0, 1])
         .join(PAIRWISE_ANALYSIS.out.alignment_families, by: [0, 1])
         .set { idCompare_with_h5ads }
         
-    if (params.create_loupe == "true") {
+    if (params.create_pairwise_loupe == "true") {
         CREATE_LOUPE_WORKFLOW(
             run_id_ch,
             idCompare_with_h5ads
+        )
+    }
+
+    // All-species Loupe: collect IDs, annotation columns, and raw h5ads in id-sorted order
+    all_loupe_info = ch_samples
+        .map { meta, _so, _fasta -> [meta.id, meta.annotation] }
+        .join(PREPROCESSING_WORKFLOW.out.raw_ad)
+        .toSortedList { a, b -> a[0] <=> b[0] }
+        .map { entries -> [
+            entries.collect { e -> e[0] },
+            entries.collect { e -> e[1] },
+            entries.collect { e -> e[2] }
+        ]}
+
+    if (params.create_all_loupe == "true") {
+        CREATE_ALL_LOUPE_WORKFLOW(
+            run_id_ch,
+            all_loupe_info,
+            RUN_SAMAP.out.results
         )
     }
 
