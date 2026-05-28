@@ -123,12 +123,15 @@ def build_cell_type_labels(adata_subset, species: list, celltype_cols: list) -> 
 # --------------------------------------------------
 
 def load_and_combine_h5ads(h5ad_paths: list, species: list, target_barcodes: pd.Index) -> ad.AnnData:
-    """Load raw h5ad files, combine with outer join, and subset to target barcodes."""
     adatas = []
     for path, sp in zip(h5ad_paths, species):
         log(f" Loading h5ad for '{sp}' from '{path}'", "INFO")
         a = ad.read_h5ad(path)
         log(f"   {sp}: {a.n_obs} cells x {a.n_vars} genes", "INFO")
+        
+        # Prefix gene names with species ID
+        a.var_names = [f"{sp}_{gene}" for gene in a.var_names]
+        
         adatas.append(a)
 
     log("Concatenating h5ad files with outer join", "INFO")
