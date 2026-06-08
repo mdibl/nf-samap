@@ -87,8 +87,8 @@ workflow {
                 error "Sample '${meta.id}': Input for BLAST (prot/transcriptome) must be provided when maps_dir is not precomputed and/or not set"
             }
             if(meta.type == "prot" && (!meta.map_dict || !new File(meta.map_dict.toString()).exists())) {
-                log.warn "Careful! You provided a proteome as input to Sample ${meta.id} but didn't provide a valid mapping
-                dictionary to convery back to Gene Ids/Symbols. Be sure your data features are in the correct format!"
+                log.warn "Careful! You provided a proteome as input to Sample ${meta.id} but didn't provide a valid mapping dictionary to convert back to Gene Ids/Symbols. Be sure your data features are in the correct format!"
+
             }
             return [meta, counts, transcriptome]
         }
