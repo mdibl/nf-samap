@@ -4,7 +4,7 @@ RUN Rscript -e "install.packages(c('argparse', 'anndata'), repos='https://cloud.
 RUN Rscript -e "loupeR::setup()"
 
 
-COPY scripts/create_loupe_file.R scripts/log_utils.py /usr/local/bin/
+COPY scripts/create_loupe_file.R scripts/create_all_loupe_file.R scripts/log_utils.py /usr/local/bin/
 
 # Make sure it’s executable
 RUN chmod +x -R /usr/local/bin/*.py /usr/local/bin/*.R
