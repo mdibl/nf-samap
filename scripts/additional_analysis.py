@@ -15,7 +15,7 @@ from samap.analysis import (get_mapping_scores, GenePairFinder,
                             sankey_plot, chord_plot, CellTypeTriangles, 
                             ParalogSubstitutions, FunctionalEnrichment,
                             convert_eggnog_to_homologs, GeneTriangles,
-                            get_mapping_scores, query_gene_pair)
+                            get_mapping_scores)
 import gc
 import os
 from collections import defaultdict
