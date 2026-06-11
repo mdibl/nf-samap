@@ -553,14 +553,26 @@ def get_pair_scores(combined_df, sm):
     scores_df = combined_df.copy()
     scores_df["score_blast"] = pd.NA
     scores_df["score_corr"] = pd.NA
-    
+
     for idx, row in scores_df.iterrows():
         gene1 = row[scores_df.columns[0]]
         gene2 = row[scores_df.columns[1]]
+
+        # Skip rows with missing/NaN gene values
+        if pd.isna(gene1) or pd.isna(gene2):
+            log(f"Skipping row {idx}: missing gene value (gene1={gene1}, gene2={gene2})", "INFO")
+            continue
         
+        gene1 = str(gene1).strip()
+        gene2 = str(gene2).strip()
+        
+        if gene1.lower() == 'nan' or gene2.lower() == 'nan' or gene1 == '' or gene2 == '':
+            log(f"Skipping row {idx}: invalid gene value (gene1={gene1}, gene2={gene2})", "INFO")
+            continue
+
         result = sm.query_gene_pair(gene1, gene2)
         log(f"gene pair scores: blast={result['blast']}, corr={result['correlation']}", "INFO")
-        
+
         scores_df.at[idx, "score_blast"] = result['blast']
         scores_df.at[idx, "score_corr"] = result['correlation']
 
