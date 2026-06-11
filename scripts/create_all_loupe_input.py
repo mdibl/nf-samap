@@ -136,12 +136,21 @@ def main() -> None:
         adata, args.species, args.celltype_cols
     )
 
+    for res in [0.1, 0.3, 0.5, 0.7, 0.9, 1.2, 1.5]:
+        sc.tl.louvain(adata, resolution=res, key_added=f"louvain_{res}")
+
+
     combined = load_and_combine_h5ads(args.h5ads, args.species, adata.obs_names)
 
     log("Attaching SAMap UMAP and metadata", "INFO")
     combined.obsm['X_umap']           = adata.obsm['X_umap']
     combined.obs['cell_type_labeled'] = adata.obs['cell_type_labeled'].values
     combined.obs['species']           = adata.obs['species'].values
+
+    # Transfer louvain clustering columns
+    louvain_cols = [col for col in adata.obs.columns if col.startswith('louvain_')]
+    for col in louvain_cols:
+        combined.obs[col] = adata.obs[col].values
 
     log("Exporting count matrix in Matrix Market format", "INFO")
     mmwrite(f"{prefix}_counts.mtx", combined.X.T)
@@ -159,7 +168,8 @@ def main() -> None:
     umap_df.to_csv(f"{prefix}_umap.csv")
 
     log("Exporting metadata", "INFO")
-    combined.obs[['cell_type_labeled', 'species']].to_csv(f"{prefix}_meta.csv")
+    meta_cols = ['cell_type_labeled', 'species'] + louvain_cols
+    combined.obs[meta_cols].to_csv(f"{prefix}_meta.csv")
 
     log(f" Done. All files written with prefix '{prefix}'", "INFO")
 
