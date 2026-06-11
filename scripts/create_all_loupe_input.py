@@ -14,6 +14,7 @@ from scipy.io import mmwrite
 from typing import NamedTuple
 from pathlib import Path
 from log_utils import log
+import scanpy as sc
 
 
 class Args(NamedTuple):
