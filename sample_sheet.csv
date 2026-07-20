@@ -1,3 +1,0 @@
-id,h5ad,fasta,annotation
-00,data/planarian.h5ad,data/transcriptomes/planarian_transcriptome.fasta,cluster
-01,data/hydra_mod.h5ad,data/transcriptomes/hydra_transcriptome.fasta,cluster
