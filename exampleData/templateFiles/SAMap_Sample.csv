@@ -1,0 +1,3 @@
+id,so,annotation,type,mapping_dict
+ax,data/Li_FinalSO.rds,Harmony03,prot,data/ax_mapping.txt
+mu,data/JGod_Mouse2.rds,Harmony03,prot,data/mu_mapping.txt

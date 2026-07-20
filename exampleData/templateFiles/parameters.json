@@ -1,0 +1,9 @@
+{
+    "run_id": "",
+    "publish_dir_mode": "copy",
+
+    "sample_sheet": "SAMap_Sample.csv",
+    "maps_dir": "",
+
+    "outdir": ""
+}
