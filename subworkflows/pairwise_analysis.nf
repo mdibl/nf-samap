@@ -1,4 +1,5 @@
 include { SUMMARY_SAMAP } from '../modules/summary_samap.nf'
+include { HOMOLOGY_COMPONENT_DE } from '../modules/homology_component_de.nf'
 include { CONNECTED_DE } from '../modules/connected_de.nf'
 include { ADDITIONAL_ANALYSIS } from '../modules/additional_analysis.nf'
 
@@ -32,6 +33,13 @@ workflow PAIRWISE_ANALYSIS {
             run_id,
             idCompare.combine(samap_results),
             id_anno_collected
+        )
+
+        HOMOLOGY_COMPONENT_DE(
+            run_id,
+            idCompare
+                .join(SUMMARY_SAMAP.out.pms,           by: [0, 1])
+                .join(SUMMARY_SAMAP.out.samap_cleaned, by: [0, 1])
         )
 
         CONNECTED_DE(
