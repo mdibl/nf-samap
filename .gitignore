@@ -3,4 +3,4 @@ work/
 data/
 results/
 *.pkl
-tmp/
+tmp/exampleData/auxilliaryFiles/maps/
