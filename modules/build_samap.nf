@@ -39,6 +39,7 @@ process BUILD_SAMAP {
         --sams-dir ${sams.join(' ')} \
         --id2 ${meta.join(' ')} \
         --maps ${maps_dir} \
-        --mappings ${mappings.join(' ')} 2>&1 | tee -a \$LOG
+        --mappings ${mappings.join(' ')} \
+        --bit-threshold ${params.bit_threshold} 2>&1 | tee -a \$LOG
     """
 }

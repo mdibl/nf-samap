@@ -1,9 +1,9 @@
 {
-    "run_id": "",
+    "run_id": "testSAMap",
     "publish_dir_mode": "copy",
 
-    "sample_sheet": "SAMap_Sample.csv",
-    "maps_dir": "",
+    "sample_sheet": "/mnt/jfs/nextflow/nf-samap/exampleData/templateFiles/SAMap_Sample.csv",
+    "maps_dir": "/mnt/jfs/nextflow/samap/maps",
 
-    "outdir": ""
+    "outdir": "s3://mdibl-msujansky/SAMap_Output/test/"
 }

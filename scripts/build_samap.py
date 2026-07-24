@@ -28,6 +28,8 @@ class Args(NamedTuple):
     maps: Path          # Path to the maps directory
     name: str           # Name of the output pickle
     output_dir: Path    # Path to the output directory
+    bit_threshold: float # Optional BLAST bitscore floor for map filtering (None = no filtering)
+
 
 
 # --------------------------------------------------
@@ -89,8 +91,16 @@ def get_args() -> Args:
         default=Path('.')
     )
 
+    parser.add_argument(
+        '-b', '--bit-threshold',
+        required=False,
+        type=float,
+        default=None,
+        help='If provided, filter all BLAST maps to hits with bitscore >= this before building SAMAP'
+    )
+
     args = parser.parse_args()
-    return Args(args.sams_dir, args.id2, args.mappings, args.maps, args.name, args.output_dir)
+    return Args(args.sams_dir, args.id2, args.mappings, args.maps, args.name, args.output_dir, args.bit_threshold)
 
 
 # --------------------------------------------------
@@ -155,6 +165,42 @@ def load_mapping_dict(id2: str, mapping_dir: list) -> dict:
             log(f"  Failed to parse mapping file '{map_path}' for species '{val}': {e}", "ERROR")
     
     return mapping_dict
+
+
+    # --------------------------------------------------
+
+
+def filter_map_file(map_file: Path, bit_threshold: float,
+                src_root: Path, dst_root: Path) -> Path:
+
+    """
+    Filter one BLAST map (outfmt 6, tab-separated, no header) to rows whose
+    bitscore (column 11) is >= bit_threshold. Writes to dst_root preserving the
+    file's path relative to src_root. Returns the output path.
+    """
+
+    rel = map_file.relative_to(src_root)
+    out_path = dst_root / rel
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    kept = total = 0
+    with open(map_file) as fin, open(out_path, 'w') as fout:
+        for line in fin:
+            if not line.strip():
+                continue
+            total += 1
+            fields = line.rstrip('\n').split('\t')
+            try:
+                bitscore = float(fields[11])
+            except (IndexError, ValueError):
+                log(f"    Malformed line in {map_file.name}, skipped: {line!r}", "WARN")
+                continue
+            if bitscore >= bit_threshold:
+                fout.write(line)
+                kept += 1
+    log(f"    {map_file.name}: kept {kept}/{total} hits (bitscore >= {bit_threshold})", "INFO")
+    return out_path
+
 # --------------------------------------------------
 def main() -> None:
     """
@@ -164,8 +210,9 @@ def main() -> None:
     1. Parses command-line arguments.
     2. Loads the species dictionary from the sample sheet and SAM files.
     3. Validates the maps directory.
-    4. Creates a SAMAP object using the loaded species and maps data.
-    5. Saves the SAMAP object to a pickle file.
+    4. Optionally can filter the BLAST maps inside the maps directory on a bit score threshold
+    5. Creates a SAMAP object using the loaded species and maps data.
+    6. Saves the SAMAP object to a pickle file.
     """
 
     # Parse command-line arguments
@@ -207,17 +254,32 @@ def main() -> None:
 
     # Ensure maps is valid and formatted correctly
     log(f"Ensuring validity of '{maps}'", "INFO")
-    if not maps.endswith('/'): # SAMap *will* crash if passed a dir without a '/'
+    if not maps.endswith('/'):
         maps += '/'
         log(f"Provided maps directory does not end with '/', changing to '{maps}'", "WARN")
     if not Path(maps).exists():
         error_message = f"Maps directory '{maps}' does not exist"
         log(error_message, "ERROR")
         raise FileNotFoundError(error_message)
+    log(f"Maps directory found at '{maps}'", "INFO")
+
+    bit_threshold = args.bit_threshold
+    if bit_threshold is not None:
+        src_root = Path(maps)
+        dst_root = src_root.parent / f"{src_root.name}_bitfiltered"
+        log(f"Filtering BLAST maps to bitscore >= {bit_threshold} -> '{dst_root}/'", "INFO")
+        map_files = sorted(src_root.rglob('*.txt'))
+        log(f"  Found {len(map_files)} map file(s) to filter", "INFO")
+        if not map_files:
+            log(f"  No .txt map files found under '{maps}'", "WARN")
+        for map_file in map_files:
+            filter_map_file(map_file, bit_threshold, src_root, dst_root)
+        maps = str(dst_root) + '/'   # <-- SAMAP must read the FILTERED dir
+        log(f"Maps directory for SAMAP set to filtered copy '{maps}'", "INFO")
     else:
-        log(f"Maps directory found at '{maps}'", "INFO")
-        for map_file in Path(maps).rglob('*.txt'):  # Use rglob for recursive search
-            log(f"  Found map file '{map_file}", "INFO")
+        log("No bit-score threshold provided; using unfiltered maps", "INFO")
+
+
 
 
     if mapping_dir is not None:
