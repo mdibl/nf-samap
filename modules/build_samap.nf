@@ -33,6 +33,7 @@ process BUILD_SAMAP {
         path "${run_id}_build_samap.log", emit: logfile
 
     script:
+    def bit_arg = params.bit_threshold != null ? "--bit-threshold ${params.bit_threshold}" : ""
     """  
     LOG="${run_id}_build_samap.log"
         build_samap.py \
@@ -40,6 +41,6 @@ process BUILD_SAMAP {
         --id2 ${meta.join(' ')} \
         --maps ${maps_dir} \
         --mappings ${mappings.join(' ')} \
-        --bit-threshold ${params.bit_threshold} 2>&1 | tee -a \$LOG
+        ${bit_arg} 2>&1 | tee -a \$LOG
     """
 }
