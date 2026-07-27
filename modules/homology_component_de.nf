@@ -42,6 +42,7 @@ process HOMOLOGY_COMPONENT_DE {
     output:
         tuple val(id1), val(id2), path("${id1}_${id2}_homology_divergence.csv"), emit: divergence
         tuple val(id1), val(id2), path("${id1}_${id2}_pairing_provenance.csv"),  emit: provenance
+        tuple val(id1), val(id2), path("${id1}_${id2}_homology_edges.csv"),      emit: edges
         path "${run_id}_homologyComponentDE.log"
 
     script:
