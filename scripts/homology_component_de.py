@@ -13,6 +13,10 @@ pairing iff its members do not all share a single label (internal incoherence).
 
 Outputs (long / tidy; variable component size lives in rows, not columns):
   <id1>_<id2>_homology_divergence.csv       one row per (component x pairing x gene)
+  <id1>_<id2>_homology_edges.csv            one row per BLAST edge (gene_a<->gene_b, bitscore);
+                                            preserves the pairwise homology links within a
+                                            component, joins to the divergence file on
+                                            component_id + gene
   <id1>_<id2>_pairing_provenance.csv        one row per (pairing x species side)
 """
 
@@ -171,7 +175,13 @@ def build_homology_components(sm, id1, id2, blast_thr):
     BLAST bit scores, aligned to sm.gns. Only cross-species edges exist in it,
     so any surviving component spans both species by construction.
 
-    Returns: list of components, each a list of full gene ids (e.g. 'ax_MMP13').
+    Returns: (comps, edges)
+      comps -- list of components, each a list of full gene ids (e.g. 'ax_MMP13'),
+               ordered largest-first (deterministic).
+      edges -- list of (comp_index, gene_a, gene_b, bitscore) for every surviving
+               BLAST edge, where comp_index is the position of the edge's component
+               in `comps`. Preserves the pairwise homology links discarded by the
+               flat component membership.
     """
     gns = np.asarray(sm.gns)
     log(f"sm.gns holds {gns.size} genes; first 5 look like: {list(gns[:5])}", "INFO")
@@ -197,21 +207,48 @@ def build_homology_components(sm, id1, id2, blast_thr):
     adj.eliminate_zeros()
 
     n_comp, labels = connected_components(csgraph=adj, directed=False)
-    groups = defaultdict(list)
+    by_label = defaultdict(list)
     for idx, lab in enumerate(labels):
-        groups[lab].append(sub_gns[idx])
+        by_label[lab].append(idx)
 
-    # keep only multi-gene components (a single gene cannot diverge)
-    comps = [g for g in groups.values() if len(g) >= 2]
+    # keep only multi-gene components (a single gene cannot diverge), in a
+    # deterministic order (largest first, then by first gene name)
+    kept_labels = [lab for lab, idxs in by_label.items() if len(idxs) >= 2]
+    kept_labels.sort(key=lambda lab: (-len(by_label[lab]), str(sub_gns[by_label[lab][0]])))
+
+    comps = []                 # list of gene-name lists; position == component index
+    label_to_pos = {}          # component label -> position in comps
+    for pos, lab in enumerate(kept_labels):
+        label_to_pos[lab] = pos
+        comps.append([sub_gns[i] for i in by_label[lab]])
+
+    # Edge list: surviving (thresholded) edges of sm.gnnm with their original
+    # bit-score weight -- this is what preserves the pairwise homology
+    # relationships that flat component membership discards. sm.gnnm holds only
+    # cross-species edges, so every edge here is an id1<->id2 (ortholog) link;
+    # paralog structure appears implicitly as shared partners.
+    coo = sub.tocoo()
+    upper = (coo.row < coo.col) & (coo.data > blast_thr)   # upper triangle, thresholded
+    e_row, e_col, e_w = coo.row[upper], coo.col[upper], coo.data[upper]
+    pos_of_label = np.full(int(labels.max()) + 1, -1, dtype=int)
+    for lab, pos in label_to_pos.items():
+        pos_of_label[lab] = pos
+    e_pos = pos_of_label[labels[e_row]]        # component position of each edge
+    valid = e_pos >= 0                         # both endpoints in a kept component
+    edges = list(zip(e_pos[valid].tolist(),
+                     sub_gns[e_row[valid]].tolist(),
+                     sub_gns[e_col[valid]].tolist(),
+                     e_w[valid].tolist()))
+
     if comps:
         sizes = np.array([len(c) for c in comps])
         log(f"Homology graph: {keep.sum()} {id1}/{id2} genes, {len(comps)} components "
             f">=2 members (bit-score > {blast_thr}); size min/median/max = "
-            f"{sizes.min()}/{int(np.median(sizes))}/{sizes.max()}", "INFO")
+            f"{sizes.min()}/{int(np.median(sizes))}/{sizes.max()}; {len(edges)} edges", "INFO")
     else:
         log(f"WARNING: 0 multi-gene components after thresholding at bit-score > {blast_thr}. "
             f"If this is unexpected, the threshold may be too high or sm.gnnm may be empty.", "ERROR")
-    return comps
+    return comps, edges
 
 
 def qualifying_pairings(pms_df, id1, id2, pms_thr):
@@ -351,8 +388,8 @@ def main() -> None:
 
     pms_df = pd.read_csv(args.pms)
 
-    # 1. homology components (BLAST gene graph)
-    comps = build_homology_components(sm, args.id1, args.id2, args.blast_thr)
+    # 1. homology components (BLAST gene graph) + their edges
+    comps, comp_edges = build_homology_components(sm, args.id1, args.id2, args.blast_thr)
     # id -> gene list, and gene -> component id
     comp_of_gene = {}
     comp_members = {}
@@ -480,6 +517,31 @@ def main() -> None:
     else:
         log(f"Wrote 0 rows -> {out_main}. No components diverged under any pairing "
             f"(or all were filtered). Check component count and DE match rates above.", "INFO")
+
+    # 5b. edge list: preserves the pairwise homology relationships (which gene is
+    # BLAST-linked to which, and how strongly) that flat component membership
+    # discards. Restricted to components that actually appear in the divergence
+    # output, so the two files cover the same components and join on
+    # component_id + gene.
+    emitted = set(df['component_id']) if len(df) else set()
+    edge_rows = []
+    for pos, gene_a, gene_b, bitscore in comp_edges:
+        cid = f"HC_{pos:05d}"
+        if emitted and cid not in emitted:
+            continue
+        edge_rows.append({
+            'component_id': cid,
+            'gene_a': gene_a, 'species_a': gene_a.split('_', 1)[0],
+            'gene_b': gene_b, 'species_b': gene_b.split('_', 1)[0],
+            'bitscore': bitscore,
+        })
+    edge_cols = ['component_id', 'gene_a', 'species_a', 'gene_b', 'species_b', 'bitscore']
+    out_edges = args.output_dir / f"{args.id1}_{args.id2}_homology_edges.csv"
+    edge_df = pd.DataFrame(edge_rows, columns=edge_cols)
+    edge_df.to_csv(out_edges, index=False)
+    log(f"Wrote {len(edge_df)} edges over "
+        f"{edge_df['component_id'].nunique() if len(edge_df) else 0} components "
+        f"-> {out_edges}", "INFO")
 
     # provenance: one row per (pairing side) actually referenced
     prov_rows = []
