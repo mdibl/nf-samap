@@ -115,6 +115,9 @@ workflow {
     pairs_channel = ch_samples
         .combine(ch_samples)
         .filter { a, _b, _c, d, _e, _f -> a.id < d.id }
+        .map { m1, _so1, fa1, m2, _so2, fa2 ->
+            [ m1.id, m1.type, fa1, m2.id, m2.type, fa2 ]
+        }
 
     // Run BLAST or load precomputed map files 
    if (params.maps_dir) {
