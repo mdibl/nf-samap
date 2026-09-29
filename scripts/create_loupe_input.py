@@ -122,6 +122,17 @@ def build_cell_type_labels(adata_subset, species: list, celltype_cols: list) -> 
 
 # --------------------------------------------------
 
+def build_orig_ident_labels(combined: ad.AnnData) -> pd.Series:
+    """Build species-prefixed original sample identity labels from 'orig.ident', if present."""
+    if 'orig.ident' not in combined.obs.columns:
+        log("No 'orig.ident' column found in raw input objects; skipping 'orig_ident' metadata.", "WARN")
+        return None
+    log("Building species-prefixed original sample identity labels from 'orig.ident'", "INFO")
+    vals = combined.obs['orig.ident'].astype(str).replace('nan', 'Unknown').fillna('Unknown')
+    return combined.obs['species'].astype(str) + '_' + vals
+
+# --------------------------------------------------
+
 def load_and_combine_h5ads(h5ad_paths: list, species: list, target_barcodes: pd.Index) -> ad.AnnData:
     adatas = []
     for path, sp in zip(h5ad_paths, species):
@@ -165,6 +176,11 @@ def main() -> None:
     combined.obs['cell_type_labeled'] = adata_subset.obs['cell_type_labeled'].values
     combined.obs['species']           = adata_subset.obs['species'].values
 
+    # Attach original sample identity ('orig.ident') from the raw input objects, if present
+    orig_ident = build_orig_ident_labels(combined)
+    if orig_ident is not None:
+        combined.obs['orig_ident'] = orig_ident.values
+
     # Merge alignment families into metadata if provided
     if args.alignment_families:
         log("Loading alignment family labels", "INFO")
@@ -194,7 +210,10 @@ def main() -> None:
 
     # Export metadata
     log("Exporting metadata", "INFO")
-    combined.obs[['cell_type_labeled', 'species', 'alignment_family']].to_csv(f"{prefix}_meta.csv")
+    meta_cols = ['cell_type_labeled', 'species', 'alignment_family']
+    if 'orig_ident' in combined.obs.columns:
+        meta_cols.append('orig_ident')
+    combined.obs[meta_cols].to_csv(f"{prefix}_meta.csv")
 
     log(f" Done. All files written with prefix '{prefix}'", "INFO")
 

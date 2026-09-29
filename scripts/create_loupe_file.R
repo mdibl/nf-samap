@@ -58,13 +58,18 @@ main <- function() {
     umap <- read.csv(args$umap, row.names=1)
 
     cat("[INFO] Creating Loupe file\n")
+    clusters <- list(
+        cell_type        = setNames(as.factor(meta$cell_type_labeled), rownames(meta)),
+        species          = setNames(as.factor(meta$species),           rownames(meta)),
+        alignment_family = setNames(as.factor(meta$alignment_family),  rownames(meta))
+    )
+    if ("orig_ident" %in% colnames(meta)) {
+        clusters$orig_ident <- setNames(as.factor(meta$orig_ident), rownames(meta))
+    }
+
     create_loupe(
         count_mat   = counts,
-        clusters    = list(
-            cell_type        = setNames(as.factor(meta$cell_type_labeled), rownames(meta)),
-            species          = setNames(as.factor(meta$species),           rownames(meta)),
-            alignment_family = setNames(as.factor(meta$alignment_family),  rownames(meta))
-        ),
+        clusters    = clusters,
         projections = list(
             SAMap_UMAP = as.matrix(umap)
         ),
